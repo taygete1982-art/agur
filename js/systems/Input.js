@@ -101,6 +101,11 @@ export class InputManager {
       case 'R':
         if (this.onRestart) this.onRestart();
         break;
+        
+      case 'm':
+      case 'M':
+        if (this.onMuseum) this.onMuseum();
+        break;
     }
   }
   
@@ -231,3 +236,4 @@ export class InputManager {
     }
   }
 }
+

@@ -12,6 +12,7 @@ export class Ball {
     
     // Trail эффект
     this.trail = [];
+    this.lastWallHit = null;
     this.maxTrailLength = 12;
   }
   
@@ -31,6 +32,7 @@ export class Ball {
     this.dy = 0;
     this.isLaunched = false;
     this.trail = [];
+    this.lastWallHit = null;
   }
   
   update(dt = 1) {
@@ -50,9 +52,11 @@ export class Ball {
     if (this.x - this.radius < 0) {
       this.x = this.radius;
       this.dx = Math.abs(this.dx);
+      this.lastWallHit = 'left';
     } else if (this.x + this.radius > CONFIG.WIDTH) {
       this.x = CONFIG.WIDTH - this.radius;
       this.dx = -Math.abs(this.dx);
+      this.lastWallHit = 'right';
     }
     
     // Отскок от потолка
@@ -144,3 +148,4 @@ export class Ball {
     ctx.fill();
   }
 }
+

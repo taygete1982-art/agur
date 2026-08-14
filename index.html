@@ -1,9 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <link rel="icon" type="image/svg+xml" href="favicon.svg">`n  <title>?? Drunkanoid</title>
+  <title>&#127994; AGUR</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -12,24 +13,43 @@
     
     <div class="hud">
       <div class="hud-item">
-        <span class="hud-label">?? ����</span>
+        <span class="hud-label">&#129689; Счёт</span>
         <span class="hud-value" id="scoreDisplay">0</span>
       </div>
-      
       <div class="hud-item">
-        <span class="hud-label">?? �������</span>
+        <span class="hud-label">&#128332; Уровень</span>
         <span class="hud-value" id="levelDisplay">1</span>
       </div>
-      
       <div class="hud-item">
-        <span class="hud-label">?? �����</span>
+        <span class="hud-label">&#128167; Жизни</span>
         <span class="hud-value" id="livesDisplay">3</span>
       </div>
+      <button class="hud-item museum-btn" id="museumBtn">
+        <span class="hud-label">&#127994; Музей</span>
+        <span class="hud-value" id="museumCount">0</span>
+      </button>
     </div>
     
-    <div class="hint" id="hintText">??? ���� / < > � ���� ��� ������</div>
+    <div class="hint" id="hintText">&#128433; Мышь / &#8592; &#8594; &#183; M = музей &#183; Клик для старта</div>
+  </div>
+
+  <div class="museum-overlay" id="museumOverlay">
+    <div class="museum-panel">
+      <div class="museum-header">
+        <span>&#127994; Музей AGUR</span>
+        <button id="museumClose" class="museum-close">&#10005;</button>
+      </div>
+      <div class="museum-sub">Редкие черепки выпадают из кирпичей. Собери все артефакты Шумера!</div>
+      <div class="museum-grid" id="museumContent"></div>
+    </div>
+  </div>
+
+  <div class="rotate-overlay">
+    <div class="rotate-icon">&#128241;</div>
+    <div>Поверните телефон вертикально</div>
   </div>
 
   <script type="module" src="js/main.js"></script>
 </body>
 </html>
+

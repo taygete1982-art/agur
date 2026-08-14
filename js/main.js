@@ -7,6 +7,7 @@ import { InputManager } from './systems/Input.js';
 import { CollisionSystem, Laser } from './systems/Collision.js';
 import { AudioManager } from './systems/Audio.js';
 import { LevelManager } from './levels/LevelManager.js';
+import { Museum } from './systems/Museum.js';
 
 class Game {
   constructor() {
@@ -20,6 +21,7 @@ class Game {
     this.collision = new CollisionSystem();
     this.audio = new AudioManager();
     this.levelManager = new LevelManager();
+    this.museum = new Museum();
     
     // Игровые объекты
     this.paddle = new Paddle();
@@ -46,9 +48,15 @@ class Game {
     
     // Delta time
     this.lastTime = 0;
+    this.wallCharge = { left: 0, right: 0 };
+    this.beams = [];
+    this.bestScore = 0;
+    try { this.bestScore = parseInt(localStorage.getItem('agur_best')) || 0; } catch (e) {}
     
     // Shake эффект
     this.shakeIntensity = 0;
+    this.banner = null;
+    this.museumOpen = false;
     
     // Инициализация
     this.input.setPaddle(this.paddle);
@@ -64,10 +72,15 @@ class Game {
     this.input.onStart = () => this.handleStart();
     this.input.onPause = () => this.togglePause();
     this.input.onRestart = () => this.restartGame();
+    this.input.onMuseum = () => this.toggleMuseum();
+    document.getElementById('museumBtn').addEventListener('click', (e) => { e.stopPropagation(); this.toggleMuseum(); });
+    document.getElementById('museumClose').addEventListener('click', () => this.toggleMuseum());
+    this.updateMuseumBtn();
   }
   
   handleStart() {
-    this.audio.init(); // Инициализация звука при первом клике
+    this.audio.init();
+    try { if (screen.orientation && screen.orientation.lock) { screen.orientation.lock('portrait').catch(() => {}); } } catch (e) {}
     
     switch (this.state) {
       case GAME_STATE.MENU:
@@ -137,22 +150,17 @@ class Game {
   // ===== Power-up эффекты =====
   
   spawnExtraBalls(count) {
-    const newBalls = [];
-    for (const ball of this.balls) {
-      for (let i = 0; i < count; i++) {
-        const newBall = new Ball(ball.x, ball.y);
-        newBall.speed = ball.speed;
-        newBall.isLaunched = true;
-        
-        // Разные направления
-        const angle = -Math.PI / 2 + (i - count / 2) * 0.5;
-        newBall.dx = Math.cos(angle) * ball.speed;
-        newBall.dy = Math.sin(angle) * ball.speed;
-        
-        newBalls.push(newBall);
-      }
-    }
-    this.balls.push(...newBalls);
+    // СТРОГО максимум 2 мяча на экране
+    if (this.balls.length >= 2) return;
+    const source = this.balls[0];
+    if (!source) return;
+    const newBall = new Ball(source.x, source.y);
+    newBall.speed = source.speed;
+    newBall.isLaunched = true;
+    const angle = -Math.PI / 2 + 0.4;
+    newBall.dx = Math.cos(angle) * source.speed;
+    newBall.dy = Math.sin(angle) * source.speed;
+    this.balls.push(newBall);
   }
   
   applySlowEffect() {
@@ -173,7 +181,7 @@ class Game {
   // ===== Обновление игры =====
   
   update(dt) {
-    if (this.state !== GAME_STATE.PLAYING) return;
+    if (this.state !== GAME_STATE.PLAYING || this.museumOpen) return;
     
     // Замедление времени
     const timeScale = this.slowMotion ? 0.5 : 1;
@@ -215,6 +223,11 @@ class Game {
       }
       
       ball.update(scaledDt);
+      
+      if (ball.lastWallHit) {
+        this.wallHit(ball.lastWallHit, ball);
+        ball.lastWallHit = null;
+      }
       
       // Проверка столкновения с платформой
       if (this.collision.checkPaddleCollision(ball, this.paddle)) {
@@ -299,13 +312,23 @@ class Game {
       }
     }
     
+    // Затухание лучей
+    for (let i = this.beams.length - 1; i >= 0; i--) {
+      this.beams[i].timer -= dt;
+      if (this.beams[i].timer <= 0) this.beams.splice(i, 1);
+    }
+    
     // Обновление частиц
     this.particles.update(scaledDt);
+    
+    if (this.banner) { this.banner.timer -= dt; if (this.banner.timer <= 0) this.banner = null; }
     
     // Затухание shake
     if (this.shakeIntensity > 0) {
       this.shakeIntensity *= 0.9;
       if (this.shakeIntensity < 0.1) this.shakeIntensity = 0;
+    this.banner = null;
+    this.museumOpen = false;
     }
     
     // Проверка завершения уровня
@@ -317,6 +340,7 @@ class Game {
   destroyBrick(brick) {
     this.levelManager.brickDestroyed();
     this.combo++;
+    if (this.combo % 12 === 0) this.collectWord();
     
     // Очки с множителем комбо
     const points = 10 * this.combo;
@@ -355,7 +379,7 @@ class Game {
     const laserX = this.paddle.x + this.paddle.width / 2;
     const laserY = this.paddle.y;
     this.lasers.push(new Laser(laserX, laserY));
-    this.audio.laser();
+    this.audio.wallBeam();
   }
   
   loseLife() {
@@ -368,6 +392,7 @@ class Game {
     this.updateHUD();
     
     if (this.lives <= 0) {
+      this.saveBest();
       this.state = GAME_STATE.GAME_OVER;
       this.audio.gameOver();
     } else {
@@ -391,9 +416,89 @@ class Game {
       }, 2000);
     } else {
       // Все уровни пройдены
+      this.saveBest();
       this.state = GAME_STATE.WIN;
       this.audio.win();
     }
+  }
+  
+  toggleMuseum() {
+    this.museumOpen = !this.museumOpen;
+    document.getElementById('museumOverlay').style.display = this.museumOpen ? 'flex' : 'none';
+    if (this.museumOpen) {
+      this.museum.render();
+      this.audio.uiClick();
+    }
+  }
+  
+  collectFragment(artifactId) {
+    const art = CONFIG.ARTIFACTS.find(a => a.id === artifactId);
+    if (!art) return;
+    const completed = this.museum.addShard(artifactId);
+    this.audio.powerUp();
+    if (completed) {
+      this.showBanner('\u{1F3FA} Артефакт собран: ' + art.name + '!');
+      this.audio.win();
+    } else {
+      this.showBanner('\u{1F9E9} Черепок: ' + art.name + ' (' + this.museum.data[artifactId] + '/' + art.shards + ')');
+    }
+    this.updateMuseumBtn();
+  }
+  
+  showBanner(text) {
+    this.banner = { text: text, timer: 180 };
+  }
+  
+  updateMuseumBtn() {
+    document.getElementById('museumCount').textContent = this.museum.totalShards();
+  }
+  
+  saveBest() {
+    if (this.score > this.bestScore) {
+      this.bestScore = this.score;
+      try { localStorage.setItem('agur_best', String(this.bestScore)); } catch (e) {}
+      this.showBanner('\u{1F3C6} Новый рекорд: ' + this.bestScore);
+    }
+  }
+  
+  wallHit(side, ball) {
+    this.wallCharge[side]++;
+    if (this.wallCharge[side] >= 5) {
+      this.wallCharge[side] = 0;
+      this.fireWallBeam(side, ball.y);
+    }
+  }
+  
+  fireWallBeam(side, y) {
+    const row = this.bricks.filter(b =>
+      b.alive && !b.isBreaking && !b.isSteel &&
+      y > b.y && y < b.y + b.height
+    ).sort((a, b) => side === 'left' ? a.x - b.x : b.x - a.x);
+    const target = row[0];
+    this.beams.push({
+      y: y, side: side, timer: 20,
+      targetX: target ? target.x + target.width / 2 : (side === 'left' ? CONFIG.WIDTH : 0)
+    });
+    if (target) {
+      const destroyed = target.takeDamage();
+      if (destroyed) this.destroyBrick(target);
+      this.shakeIntensity = Math.max(this.shakeIntensity, 5);
+    }
+    this.audio.wallBeam();
+  }
+  
+  collectWord() {
+    if (!this.museum) return;
+    const uncollected = CONFIG.WORDS.filter(w => !this.museum.hasWord(w.word));
+    if (uncollected.length === 0) {
+      this.addLife();
+      this.showBanner('\u{1F4DC} Все слова собраны! +1 жизнь');
+      return;
+    }
+    const w = uncollected[Math.floor(Math.random() * uncollected.length)];
+    this.museum.addWord(w.word);
+    this.audio.word();
+    this.showBanner('\u{1F4DC} Слово Шумера: ' + w.word + ' — ' + w.meaning);
   }
   
   updateHUD() {
@@ -449,12 +554,38 @@ class Game {
     
     ctx.restore();
     
+    // Баннер:
+    if (this.banner) {
+      ctx.globalAlpha = Math.min(1, this.banner.timer / 30);
+      ctx.fillStyle = '#f0c96a';
+      ctx.font = 'bold 26px "Segoe UI", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.shadowColor = '#d9a441';
+      ctx.shadowBlur = 20;
+      ctx.fillText(this.banner.text, CONFIG.WIDTH / 2, 90);
+      ctx.shadowBlur = 0;
+      ctx.globalAlpha = 1;
+    }
+    
+    // Баннер (черепки, артефакты)
+    if (this.banner) {
+      ctx.globalAlpha = Math.min(1, this.banner.timer / 30);
+      ctx.fillStyle = '#f0c96a';
+      ctx.font = 'bold 26px "Segoe UI", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.shadowColor = '#d9a441';
+      ctx.shadowBlur = 20;
+      ctx.fillText(this.banner.text, CONFIG.WIDTH / 2, 90);
+      ctx.shadowBlur = 0;
+      ctx.globalAlpha = 1;
+    }
+    
     // UI сообщения
     this.drawMessages(ctx);
   }
   
   drawGrid(ctx) {
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.02)';
+    ctx.strokeStyle = 'rgba(230, 200, 140, 0.05)';
     ctx.lineWidth = 1;
     
     for (let i = 0; i < CONFIG.WIDTH; i += 40) {
@@ -478,21 +609,23 @@ class Game {
     
     switch (this.state) {
       case GAME_STATE.MENU:
-        this.drawCenterText(ctx, '?? DRUNKANOID', 48, '#fff', 0);
-        this.drawCenterText(ctx, 'Кликните, чтобы начать', 24, 'rgba(255,255,255,0.7)', 60);
+        this.drawCenterText(ctx, '\u{1F3FA} AGUR', 48, '#fff', 0);
+        this.drawCenterText(ctx, 'пески помнят всё', 20, '#a8845c', 50);
+        this.drawCenterText(ctx, 'Кликните, чтобы начать', 22, 'rgba(255,255,255,0.7)', 90);
+        this.drawCenterText(ctx, '\u{1F3C6} Рекорд: ' + this.bestScore, 18, '#a8845c', 130);
         break;
         
       case GAME_STATE.PAUSED:
         ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
         ctx.fillRect(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT);
-        this.drawCenterText(ctx, '?? ПАУЗА', 42, '#fff', 0);
+        this.drawCenterText(ctx, '\u{23F8}\u{FE0F} ПАУЗА', 42, '#fff', 0);
         this.drawCenterText(ctx, 'ESC - продолжить', 20, 'rgba(255,255,255,0.6)', 50);
         break;
         
       case GAME_STATE.GAME_OVER:
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         ctx.fillRect(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT);
-        this.drawCenterText(ctx, '?? Игра окончена', 44, '#ff4466', 0);
+        this.drawCenterText(ctx, '\u{1F494} Игра окончена', 44, '#ff4466', 0);
         this.drawCenterText(ctx, `Счёт: ${this.score}`, 28, '#fff', 50);
         this.drawCenterText(ctx, 'Кликните, чтобы начать заново', 20, 'rgba(255,255,255,0.6)', 100);
         break;
@@ -500,7 +633,7 @@ class Game {
       case GAME_STATE.WIN:
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         ctx.fillRect(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT);
-        this.drawCenterText(ctx, '?? ПОБЕДА!', 48, '#4ade80', 0);
+        this.drawCenterText(ctx, '\u{1F389} ПОБЕДА!', 48, '#4ade80', 0);
         this.drawCenterText(ctx, `Финальный счёт: ${this.score}`, 28, '#fff', 60);
         this.drawCenterText(ctx, 'Кликните, чтобы сыграть ещё', 20, 'rgba(255,255,255,0.6)', 110);
         break;
@@ -508,7 +641,7 @@ class Game {
       case GAME_STATE.LEVEL_TRANSITION:
         ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
         ctx.fillRect(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT);
-        this.drawCenterText(ctx, `? Уровень ${this.level} пройден!`, 36, '#ffd97d', 0);
+        this.drawCenterText(ctx, `\u{2728} Уровень ${this.level} пройден!`, 36, '#ffd97d', 0);
         this.drawCenterText(ctx, 'Приготовьтесь...', 24, 'rgba(255,255,255,0.7)', 50);
         break;
     }
@@ -541,5 +674,14 @@ class Game {
 window.addEventListener('DOMContentLoaded', () => {
   new Game();
 });
+
+
+
+
+
+
+
+
+
 
 

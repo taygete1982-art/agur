@@ -6,7 +6,7 @@
 }
 
 body {
-  background: linear-gradient(145deg, #0b0e1a 0%, #1a1f33 100%);
+  background: linear-gradient(160deg, #1a0f08 0%, #3a2412 55%, #59331a 100%);
   min-height: 100vh;
   display: flex;
   justify-content: center;
@@ -16,11 +16,11 @@ body {
 }
 
 .game-wrapper {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 220, 160, 0.04);
   backdrop-filter: blur(4px);
   padding: 20px 30px 30px;
   border-radius: 48px;
-  box-shadow: 0 30px 50px rgba(0, 0, 0, 0.7), inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  box-shadow: 0 30px 50px rgba(0, 0, 0, 0.7), inset 0 0 0 1px rgba(255, 220, 160, 0.08);
 }
 
 canvas {
@@ -28,13 +28,12 @@ canvas {
   width: 800px;
   height: 500px;
   border-radius: 28px;
-  box-shadow: 0 0 40px rgba(80, 140, 255, 0.15), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
-  background: radial-gradient(circle at 30% 30%, #1e2740, #0f1422);
+  box-shadow: 0 0 40px rgba(217, 164, 65, 0.15), inset 0 0 0 1px rgba(255, 220, 160, 0.06);
+  background: radial-gradient(circle at 30% 25%, #4a2f18, #241507);
   cursor: none;
-  touch-action: none; /* отключаем системные жесты на мобильных */
+  touch-action: none;
 }
 
-/* ===== HUD ===== */
 .hud {
   display: flex;
   justify-content: space-between;
@@ -46,56 +45,117 @@ canvas {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 220, 160, 0.05);
   padding: 8px 24px;
   border-radius: 40px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 220, 160, 0.08);
   min-width: 120px;
 }
 
 .hud-label {
-  color: #6a7bb0;
+  color: #a8845c;
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
 .hud-value {
-  color: #b6c8ff;
+  color: #e8c98a;
   font-weight: 700;
   font-size: 1.5rem;
-  text-shadow: 0 0 20px rgba(100, 150, 255, 0.3);
+  text-shadow: 0 0 20px rgba(217, 164, 65, 0.3);
 }
 
-/* ===== Подсказка ===== */
 .hint {
-  color: #6a7bb0;
+  color: #a8845c;
   font-size: 0.9rem;
   margin-top: 12px;
   text-align: center;
   opacity: 0.8;
 }
 
-/* ===== Адаптивность ===== */
 @media (max-width: 900px) {
-  .game-wrapper {
-    padding: 10px 15px 15px;
-    border-radius: 24px;
-  }
-  
-  canvas {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 8/5;
-  }
-  
-  .hud {
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-  
-  .hud-item {
-    min-width: 90px;
-    padding: 6px 16px;
-  }
+  .game-wrapper { padding: 10px 15px 15px; border-radius: 24px; }
+  canvas { width: 100%; height: auto; aspect-ratio: 8/5; }
+  .hud { flex-wrap: wrap; justify-content: center; }
+  .hud-item { min-width: 90px; padding: 6px 16px; }
+}
+
+.rotate-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #1a0f08;
+  z-index: 999;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #e8c98a;
+  text-align: center;
+  padding: 20px;
+  gap: 20px;
+  font-size: 1.3rem;
+}
+.rotate-icon { font-size: 4rem; animation: rotateHint 1.5s ease-in-out infinite; }
+@keyframes rotateHint {
+  0%, 100% { transform: rotate(90deg); }
+  50% { transform: rotate(0deg); }
+}
+@media (orientation: landscape) and (pointer: coarse) {
+  .rotate-overlay { display: flex; }
+}
+
+/* ===== Музей ===== */
+.museum-btn { cursor: pointer; font-family: inherit; }
+.museum-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 6, 3, 0.88);
+  z-index: 500;
+  justify-content: center;
+  align-items: center;
+}
+.museum-panel {
+  background: #2a1a0d;
+  border: 1px solid rgba(217, 164, 65, 0.3);
+  border-radius: 24px;
+  padding: 30px;
+  width: min(720px, 92vw);
+  max-height: 86vh;
+  overflow-y: auto;
+  box-shadow: 0 0 60px rgba(217, 164, 65, 0.2);
+}
+.museum-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #f0c96a;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+.museum-close { background: none; border: none; color: #a8845c; font-size: 1.4rem; cursor: pointer; }
+.museum-sub { color: #a8845c; margin: 8px 0 20px; font-size: 0.9rem; }
+.museum-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; }
+.artifact {
+  background: rgba(255, 220, 160, 0.05);
+  border: 1px solid rgba(217, 164, 65, 0.15);
+  border-radius: 16px;
+  padding: 16px;
+  text-align: center;
+}
+.artifact.done { border-color: rgba(217, 164, 65, 0.6); box-shadow: 0 0 20px rgba(217, 164, 65, 0.25); }
+.artifact-emoji { font-size: 2.2rem; filter: grayscale(1) opacity(0.4); }
+.artifact.done .artifact-emoji { filter: none; }
+.artifact-name { color: #e8c98a; margin: 8px 0 6px; font-size: 0.95rem; }
+.artifact-progress { color: #a8845c; letter-spacing: 3px; font-size: 0.8rem; }
+
+.museum-words { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.word-chip {
+  background: rgba(217, 164, 65, 0.12);
+  border: 1px solid rgba(217, 164, 65, 0.3);
+  color: #e8c98a;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.85rem;
 }

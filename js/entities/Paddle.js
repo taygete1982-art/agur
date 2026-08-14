@@ -99,7 +99,7 @@ export class Paddle {
   
   draw(ctx) {
     // Свечение
-    ctx.shadowColor = this.isSticky ? '#fbbf24' : '#6a8cff';
+    ctx.shadowColor = this.isSticky ? '#fbbf24' : '#d9a441';
     ctx.shadowBlur = 25;
     
     // Градиент платформы
@@ -110,13 +110,13 @@ export class Paddle {
       grad.addColorStop(0.4, '#fbbf24');
       grad.addColorStop(1, '#d97706');
     } else if (this.isWide) {
-      grad.addColorStop(0, '#b5e48c');
-      grad.addColorStop(0.4, '#4ade80');
-      grad.addColorStop(1, '#16a34a');
+      grad.addColorStop(0, '#7fd6c2');
+      grad.addColorStop(0.4, '#40b3a2');
+      grad.addColorStop(1, '#2a8c7e');
     } else {
-      grad.addColorStop(0, '#b0caff');
-      grad.addColorStop(0.4, '#5a7be0');
-      grad.addColorStop(1, '#2d4b9e');
+      grad.addColorStop(0, '#f0d9a8');
+      grad.addColorStop(0.4, '#c9853f');
+      grad.addColorStop(1, '#8a5a2b');
     }
     
     ctx.fillStyle = grad;
@@ -136,7 +136,9 @@ export class Paddle {
       ctx.fillStyle = 'rgba(251, 191, 36, 0.5)';
       ctx.font = '12px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('🧲', this.x + this.width / 2, this.y - 5);
+      ctx.fillText('\u{1F36F}', this.x + this.width / 2, this.y - 5);
     }
   }
 }
+
+

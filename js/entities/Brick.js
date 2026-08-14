@@ -56,6 +56,10 @@ export class Brick {
         this.maxHP = T.SILVER.hp;
         this.hp = this.maxHP;
         break;
+      case 'clay':
+        this.maxHP = T.CLAY.hp;
+        this.hp = this.maxHP;
+        break;
       case 'regen':
         this.regensLeft = T.REGEN.maxRegens;
         break;
@@ -154,6 +158,7 @@ export class Brick {
       case 'regen':     return { base: '#059669', glow: '#34d399' };
       case 'moving':    return { base: '#0891b2', glow: '#67e8f9' };
       case 'gold':      return { base: '#d97706', glow: '#fde047' };
+      case 'clay':      return { base: '#96603d', glow: '#b57f52' };
       case 'steel':     return { base: '#6b7280', glow: '#9ca3af' };
       default:          return this.color;
     }
@@ -241,6 +246,27 @@ export class Brick {
       }
     }
     
+    // Трещины по мере урона
+    if (this.maxHP > 1 && this.hp < this.maxHP) {
+      const stage = this.maxHP - this.hp;
+      const cx = this.x + this.width / 2;
+      const cy = this.y + this.height / 2;
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.45)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(cx - 10, this.y + 2);
+      ctx.lineTo(cx - 4, cy - 3);
+      ctx.lineTo(cx - 9, cy + 4);
+      ctx.lineTo(cx - 2, this.y + this.height - 2);
+      if (stage >= 2) {
+        ctx.moveTo(cx + 8, this.y + 3);
+        ctx.lineTo(cx + 3, cy);
+        ctx.lineTo(cx + 10, cy + 6);
+        ctx.lineTo(cx + 5, this.y + this.height - 3);
+      }
+      ctx.stroke();
+    }
+    
     // Вспышка при уроне
     if (this.flashOpacity > 0) {
       ctx.fillStyle = `rgba(255, 255, 255, ${this.flashOpacity})`;
@@ -252,3 +278,4 @@ export class Brick {
     ctx.restore();
   }
 }
+
