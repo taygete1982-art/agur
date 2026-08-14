@@ -2,7 +2,7 @@
   WIDTH: 800,
   HEIGHT: 500,
   PADDLE: { WIDTH: 140, HEIGHT: 14, RADIUS: 8, Y_OFFSET: 40 },
-  BALL: { RADIUS: 10, INITIAL_SPEED: 7.2, MAX_SPEED_MULTIPLIER: 1.3, MIN_VERTICAL_RATIO: 0.3 },
+  BALL: { RADIUS: 10, INITIAL_SPEED: 8.0, MAX_SPEED_MULTIPLIER: 1.3, MIN_VERTICAL_RATIO: 0.3 },
   BRICK: { ROWS: 10, COLS: 12, WIDTH: 58, HEIGHT: 22, GAP: 5, TOP_OFFSET: 45 },
   GAME: { MAX_LIVES: 3, POWERUP_DROP_CHANCE: 0.15, POWERUP_FALL_SPEED: 2.5 },
   MUSEUM: { FRAGMENT_CHANCE: 0.04 },
@@ -37,7 +37,6 @@
   POWERUP_TYPES: {
     WIDE:    { emoji: '\u{1F334}', color: '#40b3a2', duration: 10000, desc: 'Широкая платформа' },
     SLOW:    { emoji: '\u{1F98E}', color: '#63d1c0', duration: 8000,  desc: 'Замедление мяча' },
-    LASER:   { emoji: '\u{1F3F9}', color: '#c96f4a', duration: 12000, desc: 'Стрелы' },
     LIFE:    { emoji: '\u{1F4A7}', color: '#40b3a2', duration: 0,     desc: '+1 жизнь' },
     FRAGMENT:{ emoji: '\u{1F9E9}', color: '#e8c98a', duration: 0,     desc: 'Черепок артефакта' },
   },
@@ -66,5 +65,7 @@ export const GAME_STATE = {
 export function lerp(a, b, t) { return a + (b - a) * t; }
 export function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
 export function randomRange(min, max) { return Math.random() * (max - min) + min; }
+
+
 
 

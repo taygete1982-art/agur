@@ -159,3 +159,8 @@ canvas {
   border-radius: 20px;
   font-size: 0.85rem;
 }
+
+@media (orientation: portrait) and (pointer: coarse) {
+  body { overflow: auto; }
+  canvas { aspect-ratio: 540 / 860; }
+}
