@@ -90,6 +90,9 @@ class Game {
     }
     this.canvas.width = CONFIG.WIDTH;
     this.canvas.height = CONFIG.HEIGHT;
+      this.canvas.style.aspectRatio = CONFIG.WIDTH + ' / ' + CONFIG.HEIGHT;
+      this.canvas.style.width = 'min(96vw, calc(88vh * ' + (CONFIG.WIDTH / CONFIG.HEIGHT) + '))';
+      this.canvas.style.height = 'auto';
     
     // Системы
     this.input = new InputManager(this.canvas);
@@ -135,6 +138,8 @@ class Game {
     this.loadLevel(1);
     this.resetBall();
     
+    if (!window.__sndBtn) {
+    window.__sndBtn = 1;
     // Кнопка звука в HUD
     const sndBtn = document.createElement('button');
     sndBtn.className = 'hud-item museum-btn';
@@ -146,6 +151,7 @@ class Game {
       document.getElementById('sndIcon').textContent = on ? '\u{1F50A}' : '\u{1F507}';
     });
     document.querySelector('.hud').appendChild(sndBtn);
+    }
     
     requestAnimationFrame((t) => this.gameLoop(t));
   }
@@ -543,6 +549,9 @@ class Game {
     for (const brick of this.bricks) brick.draw(ctx);
     for (const powerUp of this.powerUps) powerUp.draw(ctx);
     try {
+      if (!isFinite(this.paddle.x)) this.paddle.x = CONFIG.WIDTH / 2 - this.paddle.width / 2;
+      if (!isFinite(this.paddle.y)) this.paddle.y = CONFIG.HEIGHT - CONFIG.PADDLE.Y_OFFSET;
+
       this.paddle.draw(ctx);
     } catch (err) {
       ctx.fillStyle = '#f0d9a8';
@@ -570,10 +579,6 @@ class Game {
       ctx.globalAlpha = 1;
     }
     
-    ctx.fillStyle = '#00ff88';
-    ctx.font = '12px monospace';
-    ctx.textAlign = 'left';
-    ctx.fillText('H=' + CONFIG.HEIGHT + ' py=' + Math.round(this.paddle.y) + (this.debugError ? ' ERR=' + this.debugError : ''), 8, 14);
     this.drawMessages(ctx);
   }
   
@@ -630,15 +635,23 @@ class Game {
     if (this.canvas.width !== CONFIG.WIDTH || this.canvas.height !== CONFIG.HEIGHT) {
       this.canvas.width = CONFIG.WIDTH;
       this.canvas.height = CONFIG.HEIGHT;
+      this.canvas.style.aspectRatio = CONFIG.WIDTH + ' / ' + CONFIG.HEIGHT;
+      this.canvas.style.width = 'min(96vw, calc(88vh * ' + (CONFIG.WIDTH / CONFIG.HEIGHT) + '))';
+      this.canvas.style.height = 'auto';
     }
     if (this.canvas.width !== CONFIG.WIDTH || this.canvas.height !== CONFIG.HEIGHT) {
       this.canvas.width = CONFIG.WIDTH;
       this.canvas.height = CONFIG.HEIGHT;
+      this.canvas.style.aspectRatio = CONFIG.WIDTH + ' / ' + CONFIG.HEIGHT;
+      this.canvas.style.width = 'min(96vw, calc(88vh * ' + (CONFIG.WIDTH / CONFIG.HEIGHT) + '))';
+      this.canvas.style.height = 'auto';
     }
     const dt = Math.min((timestamp - this.lastTime) / 16.67, 2);
     this.lastTime = timestamp;
     this.update(dt);
     this.draw();
+    if (!window.__sndBtn) {
+    window.__sndBtn = 1;
     // Кнопка звука в HUD
     const sndBtn = document.createElement('button');
     sndBtn.className = 'hud-item museum-btn';
@@ -650,6 +663,7 @@ class Game {
       document.getElementById('sndIcon').textContent = on ? '\u{1F50A}' : '\u{1F507}';
     });
     document.querySelector('.hud').appendChild(sndBtn);
+    }
     
     requestAnimationFrame((t) => this.gameLoop(t));
   }
@@ -658,6 +672,10 @@ class Game {
 window.addEventListener('DOMContentLoaded', () => {
   new Game();
 });
+
+
+
+
 
 
 

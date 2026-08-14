@@ -164,3 +164,9 @@ canvas {
   body { overflow: auto; }
   canvas { aspect-ratio: 540 / 860; }
 }
+
+@media (orientation: portrait) and (pointer: coarse) {
+  .game-wrapper { padding: 8px 8px 12px; border-radius: 20px; }
+  .hud { gap: 6px; }
+  .hud-item { min-width: 70px; padding: 6px 10px; }
+}
