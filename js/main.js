@@ -758,25 +758,6 @@ class Game {
     }
     
     // ===== heat-haze: дышащая жара пустыни =====
-    const hzT = performance.now() / 1000;
-    const pulse = 0.5 + Math.sin(hzT * 0.8) * 0.5;
-    const bgGrad = ctx.createRadialGradient(CONFIG.WIDTH / 2, CONFIG.HEIGHT * 0.35, 50, CONFIG.WIDTH / 2, CONFIG.HEIGHT * 0.5, CONFIG.HEIGHT * 0.8);
-    bgGrad.addColorStop(0, 'rgba(217, 164, 65, ' + (0.05 + pulse * 0.05).toFixed(3) + ')');
-    bgGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-    ctx.fillStyle = bgGrad;
-    ctx.fillRect(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT);
-    
-    ctx.strokeStyle = 'rgba(240, 201, 106, 0.05)';
-    ctx.lineWidth = 2;
-    for (let i = 0; i < 3; i++) {
-      ctx.beginPath();
-      for (let x = 0; x <= CONFIG.WIDTH; x += 20) {
-        const y = CONFIG.HEIGHT * 0.25 + i * 90 + Math.sin(x * 0.02 + hzT * 2 + i) * 8;
-        if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-      }
-      ctx.stroke();
-    }
-    
     for (const brick of this.bricks) {
       if (brick.breakPhase < 1) {
         ctx.save();
