@@ -8,9 +8,17 @@
     this.buffers = {};
     this.musicOn = false;
     this.nextNoteTime = 0;
+    this._contextCreationQueued = false;
     
-    // Ленивая инициализация: создаём AudioContext при первом pointerdown
-    window.addEventListener('pointerdown', () => this.init(), { once: true });
+    // Создаём AudioContext ПРИ ПЕРВОМ pointerdown — это настоящий user gesture
+    const setupContext = () => {
+      if (this._contextCreationQueued) return;
+      this._contextCreationQueued = true;
+      this.init();
+      this.startMusic();
+    };
+    window.addEventListener('pointerdown', setupContext, { once: true });
+    window.addEventListener('keydown', setupContext, { once: true });
   }
   
   init() {
@@ -23,9 +31,15 @@
       this.master.connect(comp);
       comp.connect(this.context.destination);
       this.initialized = true;
-      if (this.context.state === 'suspended') this.context.resume();
+      // ВАЖНО: resume() вызываем ВНУТРИ pointerdown обработчика — это user gesture
+      if (this.context.state === 'suspended') {
+        this.context.resume().catch(() => {});
+      }
       this.loadSounds();
-    } catch (e) { this.enabled = false; }
+    } catch (e) {
+      console.warn('Audio init failed:', e);
+      this.enabled = false;
+    }
   }
   
   async loadSounds() {
@@ -62,7 +76,6 @@
     return this.enabled;
   }
   
-  // ===== Синтез (фолбэк + музыка) =====
   _tone(freq, dur = 0.1, type = 'square', vol = 0.5, sweepTo = null) {
     if (!this.enabled || !this.context) return;
     const t = this.context.currentTime;
@@ -131,7 +144,6 @@
     osc.start(t); osc.stop(t + 2);
   }
   
-  // ===== Игровые звуки: файл -> иначе синтез =====
   brickHit(row = 0) { if (!this.play('brick-hit', 1 + row * 0.05, 0.7)) this._tone(300 + row * 40, 0.06, 'square', 0.4); }
   brickBreak(row = 0) { if (!this.play('brick-break', 1, 0.8)) { this._tone(500 + row * 30, 0.09, 'triangle', 0.5, 200); this._noise(0.12, 0.4, 1500); } }
   crack() { this._noise(0.06, 0.35, 2500); this._tone(200, 0.05, 'square', 0.25); }
@@ -148,4 +160,3 @@
   gameOver() { if (!this.play('game-over')) [330, 262, 208, 165].forEach((f, i) => setTimeout(() => this._tone(f, 0.35, 'triangle', 0.45), i * 200)); }
   uiClick() { if (!this.play('ui-click')) this._tone(700, 0.04, 'sine', 0.25); }
 }
-

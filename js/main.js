@@ -179,7 +179,7 @@ class Game {
   
   handleStart() {
 
-    this.audio.init();
+    // audio.init() теперь вызывается автоматически
     switch (this.state) {
       case GAME_STATE.MENU:
       case GAME_STATE.GAME_OVER:
@@ -800,5 +800,6 @@ class Game {
 window.addEventListener('DOMContentLoaded', () => {
   new Game();
 });
+
 
 

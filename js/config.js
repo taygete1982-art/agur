@@ -17,7 +17,6 @@
   ],
   BRICK_TYPES: {
     NORMAL:    { score: 10 },
-    CLAY:      { score: 20, hp: 2 },
     SILVER:    { score: 30, hp: 3 },
     EXPLOSIVE: { score: 30, emoji: '\u{1F4A5}' },
     FIRE:      { score: 20, emoji: '\u{1F525}' },
@@ -25,6 +24,7 @@
     MOVING:    { score: 20, emoji: '\u{1F42A}', range: 30, speed: 0.02 },
     GOLD:      { score: 50, emoji: '\u{1FA99}' },
     STEEL:     { score: 0, emoji: '\u{1FAA8}' },
+    CLAY:      { score: 20, hp: 2 },
   },
   ROW_COLORS: [
     { base: '#d9a441', glow: '#f0c96a' },
@@ -66,10 +66,3 @@ export const GAME_STATE = {
 export function lerp(a, b, t) { return a + (b - a) * t; }
 export function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
 export function randomRange(min, max) { return Math.random() * (max - min) + min; }
-
-
-
-
-
-
-
