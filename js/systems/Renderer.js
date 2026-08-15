@@ -69,29 +69,21 @@ export class Renderer {
   drawZShards(ctx) {
     const g = this.g;
     if (!g.zShards.length) return;
-    const F = 260;
-    const cx = CONFIG.WIDTH / 2;
-    const cy = CONFIG.HEIGHT / 2;
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     for (const s of g.zShards) {
-      const scale = F / (F - Math.min(s.z, 250));
-      const px = cx + s.ox * scale;
-      const py = cy + s.oy * scale;
-      if (px < -100 || px > CONFIG.WIDTH + 100 || py < -100 || py > CONFIG.HEIGHT + 100) continue;
-      const sz = s.size * scale;
-      const fade = Math.min(1, s.t * 0.5) * Math.max(0, 1 - s.z / 250);
-      const ang = Math.atan2(py - cy, px - cx) + s.rot;
-      const stretch = 1 + Math.min(scale - 1, 2.5) * 0.9;
-      ctx.globalAlpha = fade;
+      if (s.x < -100 || s.x > CONFIG.WIDTH + 100 || s.y < -100 || s.y > CONFIG.HEIGHT + 100) continue;
+      const sz = s.size * s.scale;
+      ctx.globalAlpha = s.alpha;
       ctx.save();
-      ctx.translate(px, py);
-      ctx.rotate(ang);
+      ctx.translate(s.x, s.y);
+      ctx.rotate(s.rot);
       ctx.fillStyle = s.color;
-      ctx.fillRect((-sz * stretch) / 2, -sz / 3, sz * stretch, sz * 0.66);
+      ctx.fillRect(-sz / 2, -sz / 3, sz, sz * 0.66);
       ctx.fillStyle = 'rgba(255, 249, 230, 0.9)';
       ctx.fillRect(-sz / 3, -sz / 6, sz * 0.66, sz / 3);
       ctx.restore();
+      s.rot += s.vrot;
     }
     ctx.restore();
     ctx.globalAlpha = 1;
@@ -236,4 +228,5 @@ export class Renderer {
     ctx.shadowBlur = 0;
   }
 }
+
 

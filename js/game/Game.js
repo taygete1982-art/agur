@@ -190,12 +190,16 @@ export class Game {
 
     for (let i = this.zShards.length - 1; i >= 0; i--) {
       const s = this.zShards[i];
-      s.t += scaledDt;
-      s.z += s.vz * scaledDt;
-      s.ox += s.lx * scaledDt;
-      s.oy += s.ly * scaledDt;
-      s.ly += 0.06 * scaledDt;
-      if (s.z >= 245) this.zShards.splice(i, 1);
+      s.x += s.vx * scaledDt;
+      s.y += s.vy * scaledDt;
+      s.vy += 0.5 * scaledDt;
+      s.vx *= 0.98;
+      if (s.scale < s.maxScale) {
+        s.scale += 0.15 * scaledDt;
+      } else {
+        s.alpha -= 0.04 * scaledDt;
+        if (s.alpha <= 0) this.zShards.splice(i, 1);
+      }
     }
 
     this.particles.update(scaledDt);
@@ -223,4 +227,5 @@ export class Game {
 }
 
 Object.assign(Game.prototype, Flow, Combat, Collect);
+
 
