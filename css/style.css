@@ -179,3 +179,13 @@ canvas {
 .slot.q-legendary.got { border-color: #f0c96a; box-shadow: 0 0 12px rgba(240,201,106,0.6); }
 .slot.relic.got { border-color: #ff4466; box-shadow: 0 0 12px rgba(255,68,102,0.5); }
 #museumContent { max-height: 70vh; overflow-y: auto; }
+
+/* agur-slot-styles */
+.museum-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; margin: 8px 0; }
+.slot { font-size: 22px; text-align: center; padding: 6px 0; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid rgba(217,164,65,0.15); }
+.slot.empty { filter: brightness(0); opacity: 0.35; }
+.slot.got { background: rgba(217,164,65,0.12); }
+.slot.q-rare.got { border-color: #63d1c0; box-shadow: 0 0 8px rgba(99,209,192,0.4); }
+.slot.q-legendary.got { border-color: #f0c96a; box-shadow: 0 0 12px rgba(240,201,106,0.6); }
+.slot.relic.got { border-color: #ff4466; box-shadow: 0 0 12px rgba(255,68,102,0.5); }
+#museumContent { max-height: 70vh; overflow-y: auto; }

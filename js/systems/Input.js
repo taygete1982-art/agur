@@ -1,4 +1,4 @@
-﻿import { CONFIG, clamp } from '../config.js';
+﻿﻿import { CONFIG, clamp } from '../config.js';
 
 export class InputManager {
   constructor(canvas) {
@@ -13,6 +13,8 @@ export class InputManager {
     this.onPause = null;
     this.onRestart = null;
     this.onMuseum = null;
+    this.onLeftBtn = null;
+    this.onRightBtn = null;
     this.onLeftBtn = null;
     this.onRightBtn = null;
 
@@ -124,3 +126,4 @@ export class InputManager {
       : '\u{1F5B1}\u{FE0F} Мышь / \u{2190} \u{2192} \u{00B7} M = музей';
   }
 }
+

@@ -1,4 +1,4 @@
-﻿import { CONFIG, GAME_STATE, clamp } from './config.js';
+﻿﻿import { CONFIG, GAME_STATE, clamp } from './config.js';
 import { Ball } from './entities/Ball.js';
 import { Paddle } from './entities/Paddle.js';
 import { PowerUp } from './entities/PowerUp.js';
@@ -100,7 +100,7 @@ class Game {
     import('./systems/Museum.js').then(mod => {
       this.museum = new mod.Museum();
       const cnt = document.getElementById('museumCount');
-      if (cnt) cnt.textContent = this.museum.totalShards();
+      if (cnt) cnt.textContent = this.museum.count();
     }).catch(() => {});
     
     this.paddle = new Paddle();
@@ -123,6 +123,8 @@ class Game {
     this.banner = null;
     this.museumOpen = false;
     this.shakeIntensity = 0;
+    this.quakeCooldown = 0;
+    this.aimCooldown = 0;
     this.quakeCooldown = 0;
     this.aimCooldown = 0;
     this.quakeCooldown = 0;
@@ -170,6 +172,8 @@ class Game {
     this.input.onPause = () => this.togglePause();
     this.input.onRestart = () => this.restartGame();
     this.input.onMuseum = () => this.toggleMuseum();
+    this.input.onLeftBtn = () => this.earthquake();
+    this.input.onRightBtn = () => this.aimShot();
     this.input.onLeftBtn = () => this.earthquake();
     this.input.onRightBtn = () => this.aimShot();
     this.input.onLeftBtn = () => this.earthquake();
@@ -519,6 +523,41 @@ class Game {
     if (navigator.vibrate) navigator.vibrate(40);
   }
   
+  earthquake() {
+    if (this.state !== GAME_STATE.PLAYING || this.quakeCooldown > 0) return;
+    this.quakeCooldown = 45 * 60;
+    this.shakeIntensity = 18;
+    this.effects.flash('#d9a441', 0.25);
+    this.audio.wallBeam();
+    if (navigator.vibrate) navigator.vibrate(120);
+    for (const brick of this.bricks) {
+      if (!brick.alive || brick.isBreaking || brick.isSteel) continue;
+      if (brick.takeDamage()) this.destroyBrick(brick);
+    }
+  }
+
+  aimShot() {
+    if (this.state !== GAME_STATE.PLAYING || this.aimCooldown > 0) return;
+    const ball = this.balls[0];
+    if (!ball || ball.isLaunched) return;
+    let target = null, best = -1;
+    for (const b of this.bricks) {
+      if (!b.alive || b.isSteel) continue;
+      const d = Math.hypot(b.x - ball.x, b.y - ball.y);
+      if (d > best) { best = d; target = b; }
+    }
+    if (!target) return;
+    this.aimCooldown = 20 * 60;
+    const tx = target.x + target.width / 2, ty = target.y + target.height / 2;
+    const dx = tx - ball.x, dy = ty - ball.y;
+    const len = Math.hypot(dx, dy) || 1;
+    ball.dx = dx / len; ball.dy = dy / len;
+    ball.isLaunched = true;
+    this.effects.bolt(ball.x, ball.y, tx, ty);
+    this.audio.launch();
+    if (navigator.vibrate) navigator.vibrate(40);
+  }
+
   showBanner(text) { this.banner = { text: text, timer: 180 }; }
   
   applySlowEffect() { this.slowMotion = true; this.slowTimer = CONFIG.POWERUP_TYPES.SLOW.duration; }
@@ -594,9 +633,9 @@ class Game {
     }
     
     
+
     if (this.quakeCooldown > 0) this.quakeCooldown -= dt;
     if (this.aimCooldown > 0) this.aimCooldown -= dt;
-
     this.input.updateKeyboard(dt);
     this.paddle.update(scaledDt);
     
@@ -699,6 +738,24 @@ class Game {
     }
     
     ctx.clearRect(-20, -20, CONFIG.WIDTH + 40, CONFIG.HEIGHT + 40);
+
+    const hzT = performance.now() / 1000;
+    const pulse = 0.5 + Math.sin(hzT * 0.8) * 0.5;
+    const bgGrad = ctx.createRadialGradient(CONFIG.WIDTH / 2, CONFIG.HEIGHT * 0.35, 50, CONFIG.WIDTH / 2, CONFIG.HEIGHT * 0.5, CONFIG.HEIGHT * 0.8);
+    bgGrad.addColorStop(0, 'rgba(217, 164, 65, ' + (0.05 + pulse * 0.05).toFixed(3) + ')');
+    bgGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT);
+    ctx.strokeStyle = 'rgba(240, 201, 106, 0.05)';
+    ctx.lineWidth = 2;
+    for (let hi = 0; hi < 3; hi++) {
+      ctx.beginPath();
+      for (let x = 0; x <= CONFIG.WIDTH; x += 20) {
+        const y = CONFIG.HEIGHT * 0.25 + hi * 90 + Math.sin(x * 0.02 + hzT * 2 + hi) * 8;
+        if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
     
     // ===== heat-haze: дышащая жара пустыни =====
     const hzT = performance.now() / 1000;
@@ -862,6 +919,12 @@ class Game {
     ctx.fillStyle = vg;
     ctx.fillRect(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT);
     
+    const vg = ctx.createRadialGradient(CONFIG.WIDTH / 2, CONFIG.HEIGHT / 2, CONFIG.HEIGHT * 0.35, CONFIG.WIDTH / 2, CONFIG.HEIGHT / 2, CONFIG.HEIGHT * 0.75);
+    vg.addColorStop(0, 'rgba(0, 0, 0, 0)');
+    vg.addColorStop(1, 'rgba(0, 0, 0, 0.45)');
+    ctx.fillStyle = vg;
+    ctx.fillRect(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT);
+
     this.drawMessages(ctx);
   }
   
@@ -930,6 +993,8 @@ class Game {
 window.addEventListener('DOMContentLoaded', () => {
   new Game();
 });
+
+
 
 
 

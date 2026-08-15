@@ -2,88 +2,56 @@
 
 export class PowerUp {
   constructor(x, y, type, artifactId = null) {
-    this.x = x;
-    this.y = y;
+    this.x = x - 17;
+    this.y = y - 17;
+    this.width = 34;
+    this.height = 34;
     this.type = type;
     this.artifactId = artifactId;
     this.config = CONFIG.POWERUP_TYPES[type];
-    this.width = 40;
-    this.height = 40;
-    this.speed = CONFIG.GAME.POWERUP_FALL_SPEED;
+    this.customEmoji = null;
+    this.customColor = null;
     this.alive = true;
-    this.collected = false;
-    this.rotation = 0;
-    this.pulsePhase = Math.random() * Math.PI * 2;
+    this.time = 0;
   }
-  
+
   update(dt = 1) {
-    this.y += this.speed * dt;
-    this.rotation += dt * 0.05;
-    this.pulsePhase += dt * 0.1;
-    if (this.y > CONFIG.HEIGHT + this.height) this.alive = false;
+    this.y += CONFIG.GAME.POWERUP_FALL_SPEED * dt;
+    this.time += dt;
+    if (this.y > CONFIG.HEIGHT + 40) this.alive = false;
   }
-  
-  checkCollision(paddle) {
-    return (
-      this.alive &&
-      this.y + this.height >= paddle.y &&
-      this.y <= paddle.y + paddle.height &&
-      this.x + this.width >= paddle.x &&
-      this.x <= paddle.x + paddle.width
-    );
-  }
-  
+
   apply(game) {
-    if (this.type === 'FRAGMENT') {
-      game.collectFragment(this.artifactId);
-    } else {
-      switch (this.type) {
-        case 'WIDE':  game.paddle.activateWide(); break;
-        case 'MULTI': game.spawnExtraBalls(1); break;
-        case 'SLOW':  game.applySlowEffect(); break;
-        case 'LASER': game.activateLaser(this.config.duration); break;
-        case 'LIFE':  game.addLife(); break;
-      }
-      game.audio.powerUp();
+    switch (this.type) {
+      case 'WIDE': game.paddle.activateWide(this.config.duration); break;
+      case 'SLOW': game.applySlowEffect(); break;
+      case 'LIFE': game.addLife(); break;
+      case 'FRAGMENT': game.collectFragment(this.artifactId); break;
     }
-    this.collected = true;
-    this.alive = false;
   }
-  
+
   draw(ctx) {
-    if (!this.alive) return;
-    const pulse = 1 + Math.sin(this.pulsePhase) * 0.1;
     const cx = this.x + this.width / 2;
     const cy = this.y + this.height / 2;
-    
+    const pulse = 1 + Math.sin(this.time * 0.15) * 0.08;
+    const color = this.customColor || this.config.color;
+
     ctx.save();
-    ctx.translate(cx, cy);
-    ctx.rotate(this.rotation);
-    ctx.scale(pulse, pulse);
-    
-    ctx.shadowColor = this.config.color;
-    ctx.shadowBlur = this.type === 'FRAGMENT' ? 30 : 20;
-    
-    ctx.fillStyle = this.config.color;
-    ctx.globalAlpha = 0.3;
-    ctx.beginPath();
-    ctx.arc(0, 0, this.width / 2, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.globalAlpha = 1;
-    
-    ctx.strokeStyle = this.config.color;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 14;
+    ctx.strokeStyle = color;
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.arc(0, 0, this.width / 2, 0, Math.PI * 2);
+    ctx.arc(cx, cy, 16 * pulse, 0, Math.PI * 2);
     ctx.stroke();
-    
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+    ctx.fill();
+
     ctx.shadowBlur = 0;
-    ctx.font = '20px sans-serif';
+    ctx.font = '18px "Segoe UI Emoji", "Segoe UI", sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText((this.customEmoji || this.config.emoji), 0, 0);
-    
+    ctx.fillText(this.customEmoji || this.config.emoji, cx, cy + 1);
     ctx.restore();
   }
 }
-
