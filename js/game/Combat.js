@@ -42,8 +42,11 @@ export const Combat = {
 
     this.audio.brickBreak(brick.row);
     this.particles.explodeBrick(brick.x, brick.y, brick.width, brick.height, brick.getColors().glow);
-    this.spawnZShards(brick);
     this.effects.wave(brick.x + brick.width / 2, brick.y + brick.height / 2, brick.getColors().glow);
+    // Z-осколки только от особенных кирпичей (не от обычных)
+    if (brick.type !== 'normal' && brick.type !== 'clay' && brick.type !== 'moving') {
+      this.spawnZShards(brick);
+    }
 
     if (brick.type === 'explosive') {
       this.shakeIntensity = Math.max(this.shakeIntensity, 8);
@@ -91,22 +94,24 @@ export const Combat = {
   },
 
   spawnZShards(brick) {
-    if (this.zShards.length > 160) return;
+    if (this.zShards.length > 200) return;
     const cx = brick.x + brick.width / 2;
     const cy = brick.y + brick.height / 2;
     const color = brick.getColors().glow;
-    for (let i = 0; i < 6; i++) {
+    const count = 10 + Math.floor(Math.random() * 4);
+    for (let i = 0; i < count; i++) {
+      const towardFace = Math.random() < 0.35;
       this.zShards.push({
-        ox: cx - CONFIG.WIDTH / 2 + (Math.random() - 0.5) * brick.width * 0.8,
-        oy: cy - CONFIG.HEIGHT / 2 + (Math.random() - 0.5) * brick.height * 0.8,
-        lx: (Math.random() - 0.5) * 1.6,
-        ly: (Math.random() - 0.5) * 1.2 - 0.3,
+        ox: towardFace ? (Math.random() - 0.5) * 40 : cx - CONFIG.WIDTH / 2 + (Math.random() - 0.5) * brick.width,
+        oy: towardFace ? (Math.random() - 0.5) * 40 : cy - CONFIG.HEIGHT / 2 + (Math.random() - 0.5) * brick.height,
+        lx: towardFace ? (Math.random() - 0.5) * 0.4 : (Math.random() - 0.5) * 2.2,
+        ly: towardFace ? (Math.random() - 0.5) * 0.3 - 0.1 : (Math.random() - 0.5) * 1.8 - 0.4,
         t: 0,
         z: 0,
-        vz: 5 + Math.random() * 4,
-        size: 5 + Math.random() * 4,
+        vz: towardFace ? 7 + Math.random() * 3 : 4 + Math.random() * 3,
+        size: towardFace ? 6 + Math.random() * 5 : 4 + Math.random() * 4,
         color: color,
-        rot: (Math.random() - 0.5) * 0.5,
+        rot: (Math.random() - 0.5) * 0.6,
       });
     }
   },
@@ -148,6 +153,7 @@ export const Combat = {
     if (navigator.vibrate) navigator.vibrate(40);
   },
 };
+
 
 
 
