@@ -1,7 +1,6 @@
 ﻿import { CONFIG, randomRange } from '../config.js';
 import { getBrickSprite } from './brickSprites.js';
 import { getBrickTexture } from './brickTextures.js';
-import { getBrickTexture } from './brickTextures.js';
 
 export class Brick {
   constructor(x, y, color, row, col) {
