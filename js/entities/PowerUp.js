@@ -2,23 +2,32 @@
 
 export class PowerUp {
   constructor(x, y, type, artifactId = null) {
-    this.x = x - 17;
-    this.y = y - 17;
     this.width = 34;
     this.height = 34;
+    this.x = x - this.width / 2;
+    this.y = y - this.height / 2;
     this.type = type;
     this.artifactId = artifactId;
     this.config = CONFIG.POWERUP_TYPES[type];
-    this.customEmoji = null;
-    this.customColor = null;
+    this.speed = CONFIG.GAME.POWERUP_FALL_SPEED;
     this.alive = true;
-    this.time = 0;
+    this.phase = Math.random() * Math.PI * 2;
   }
 
   update(dt = 1) {
-    this.y += CONFIG.GAME.POWERUP_FALL_SPEED * dt;
-    this.time += dt;
+    this.y += this.speed * dt;
+    this.phase += 0.08 * dt;
+    this.x += Math.sin(this.phase) * 0.5 * dt;
     if (this.y > CONFIG.HEIGHT + 40) this.alive = false;
+  }
+
+  checkCollision(paddle) {
+    return (
+      this.y + this.height >= paddle.y &&
+      this.y <= paddle.y + paddle.height &&
+      this.x + this.width >= paddle.x &&
+      this.x <= paddle.x + paddle.width
+    );
   }
 
   apply(game) {
@@ -28,30 +37,25 @@ export class PowerUp {
       case 'LIFE': game.addLife(); break;
       case 'FRAGMENT': game.collectFragment(this.artifactId); break;
     }
+    game.audio.powerUp();
   }
 
   draw(ctx) {
     const cx = this.x + this.width / 2;
     const cy = this.y + this.height / 2;
-    const pulse = 1 + Math.sin(this.time * 0.15) * 0.08;
-    const color = this.customColor || this.config.color;
-
+    const pulse = 1 + Math.sin(this.phase * 2) * 0.1;
     ctx.save();
-    ctx.shadowColor = color;
-    ctx.shadowBlur = 14;
-    ctx.strokeStyle = color;
+    ctx.strokeStyle = this.config.color;
     ctx.lineWidth = 2;
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
     ctx.beginPath();
     ctx.arc(cx, cy, 16 * pulse, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
     ctx.fill();
-
-    ctx.shadowBlur = 0;
-    ctx.font = '18px "Segoe UI Emoji", "Segoe UI", sans-serif';
+    ctx.stroke();
+    ctx.font = '16px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(this.customEmoji || this.config.emoji, cx, cy + 1);
+    ctx.fillText(this.config.emoji, cx, cy + 1);
     ctx.restore();
   }
 }
