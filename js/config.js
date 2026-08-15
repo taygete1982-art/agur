@@ -37,7 +37,7 @@
   ],
   POWERUP_TYPES: {
     WIDE:    { emoji: '\u{1F334}', color: '#40b3a2', duration: 10000, desc: 'Широкая платформа' },
-    SLOW:    { emoji: '\u{1F98E}', color: '#63d1c0', duration: 8000,  desc: 'Замедление мяча' },
+    SLOW:    { emoji: '\u{1F98E}', color: '#63d1c0', duration: 4000,  desc: 'Замедление мяча' },
     LIFE:    { emoji: '\u{1F4A7}', color: '#40b3a2', duration: 0,     desc: '+1 жизнь' },
     FRAGMENT:{ emoji: '\u{1F9E9}', color: '#e8c98a', duration: 0,     desc: 'Черепок артефакта' },
   },
@@ -69,3 +69,4 @@ export const GAME_STATE = {
 export function lerp(a, b, t) { return a + (b - a) * t; }
 export function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
 export function randomRange(min, max) { return Math.random() * (max - min) + min; }
+

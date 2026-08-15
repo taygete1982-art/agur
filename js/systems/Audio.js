@@ -10,7 +10,7 @@
     this.nextNoteTime = 0;
     this._gestureUnlocked = false;
 
-    // Только отмечаем что жест был. AudioContext создадим при ПЕРВОМ звуке.
+    // Только ставим флаг что жест был. AudioContext создадим при ПЕРВОМ звуке.
     const unlock = () => {
       if (this._gestureUnlocked) return;
       this._gestureUnlocked = true;

@@ -386,8 +386,8 @@ class Game {
         vx: (Math.random() - 0.5) * 3,
         vy: (Math.random() - 0.5) * 3 - 1,
         z: 0,
-        vz: 8 + Math.random() * 6, // скорость приближения к игроку
-        size: 8 + Math.random() * 8,
+        vz: 0.9 + Math.random() * 0.9, // скорость приближения к игроку
+        size: 10 + Math.random() * 10,
         color: color,
         life: 1,
         rotation: Math.random() * Math.PI * 2,
@@ -397,9 +397,9 @@ class Game {
   }
   
   spawnPowerUp(x, y) {
-    const types = Object.keys(CONFIG.POWERUP_TYPES);
-    const randomType = types[Math.floor(Math.random() * types.length)];
-    this.powerUps.push(new PowerUp(x, y, randomType));
+    const roll = Math.random();
+    const type = roll < 0.50 ? 'WIDE' : (roll < 0.85 ? 'LIFE' : 'SLOW');
+    this.powerUps.push(new PowerUp(x, y, type));
   }
   
   collectPowerUp(powerUp) {
@@ -580,7 +580,7 @@ class Game {
     if (!this.paddle || !this.balls || !this.bricks) return;
     if (this.state !== GAME_STATE.PLAYING || this.museumOpen) return;
     
-    const timeScale = this.slowMotion ? 0.5 : 1;
+    const timeScale = this.slowMotion ? 0.7 : 1;
     const scaledDt = dt * timeScale;
     
     if (this.slowMotion) {
@@ -669,8 +669,8 @@ class Game {
       s.y += s.vy * scaledDt;
       s.z += s.vz * scaledDt;
       s.rotation += s.vrot * scaledDt;
-      s.life -= 0.02 * scaledDt;
-      if (s.life <= 0 || s.z > 40) this.zShards.splice(i, 1);
+      s.life -= 0.016 * scaledDt;
+      if (s.life <= 0 || s.z > 70) this.zShards.splice(i, 1);
     }
     
     this.particles.update(scaledDt);
@@ -930,6 +930,7 @@ class Game {
 window.addEventListener('DOMContentLoaded', () => {
   new Game();
 });
+
 
 
 
