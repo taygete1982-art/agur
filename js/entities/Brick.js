@@ -138,19 +138,15 @@ export class Brick {
     ctx.translate(-centerX, -centerY);
     if (this.isBreaking) ctx.globalAlpha = 1 - this.breakProgress;
 
+    // ТЕКСТУРА-артефакт, если загрузилась; иначе процедурный спрайт
     const tex = getBrickTexture(this.type === 'fire' ? 'explosive' : this.type);
-    if (tex) {
-      ctx.drawImage(tex, this.x, this.y, this.width, this.height);
-    } else {
-      const tex = getBrickTexture(this.type === 'fire' ? 'explosive' : this.type);
     if (tex) {
       ctx.drawImage(tex, this.x, this.y, this.width, this.height);
     } else {
       ctx.drawImage(getBrickSprite(this.getColors(), this.width, this.height, this.type), this.x - 4, this.y - 4);
     }
-    }
 
-    // Анимация "живых" кирпичей: без shadowBlur и градиентов
+    // Анимация "живых" кирпичей
     if (this.type === 'explosive' || this.type === 'fire') {
       const a = 0.2 + Math.abs(Math.sin(performance.now() / 300 + this.col)) * 0.35;
       ctx.strokeStyle = 'rgba(255, 90, 30, ' + a.toFixed(3) + ')';
@@ -242,5 +238,3 @@ export class Brick {
     ctx.restore();
   }
 }
-
-
