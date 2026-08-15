@@ -81,8 +81,9 @@ export class PowerUp {
     ctx.font = '20px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(this.config.emoji, 0, 0);
+    ctx.fillText((this.customEmoji || this.config.emoji), 0, 0);
     
     ctx.restore();
   }
 }
+

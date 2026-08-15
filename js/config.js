@@ -58,6 +58,9 @@ export const WORDS = [
   { word: 'AB', meaning: 'море' },
 ];
 
+// КРИТИЧНО: добавляем WORDS в CONFIG — иначе collectWord() и renderWords() падают
+CONFIG.WORDS = WORDS;
+
 export const GAME_STATE = {
   MENU: 'menu', PLAYING: 'playing', PAUSED: 'paused',
   GAME_OVER: 'gameOver', WIN: 'win', LEVEL_TRANSITION: 'levelTransition',

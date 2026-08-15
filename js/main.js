@@ -86,7 +86,7 @@ class Game {
     this.canvas.width = CONFIG.WIDTH;
     this.canvas.height = CONFIG.HEIGHT;
     this.canvas.style.aspectRatio = CONFIG.WIDTH + ' / ' + CONFIG.HEIGHT;
-    this.canvas.style.width = 'min(96vw, calc(88vh * ' + (CONFIG.WIDTH / CONFIG.HEIGHT) + '))';
+    this.canvas.style.width = 'min(96vw, calc(70vh * ' + (CONFIG.WIDTH / CONFIG.HEIGHT) + '))';
     this.canvas.style.height = 'auto';
     
     this.input = new InputManager(this.canvas);
@@ -123,6 +123,10 @@ class Game {
     this.banner = null;
     this.museumOpen = false;
     this.shakeIntensity = 0;
+    this.quakeCooldown = 0;
+    this.aimCooldown = 0;
+    this.quakeCooldown = 0;
+    this.aimCooldown = 0;
     this.lastTime = 0;
     
     this.input.setPaddle(this.paddle);
@@ -166,6 +170,10 @@ class Game {
     this.input.onPause = () => this.togglePause();
     this.input.onRestart = () => this.restartGame();
     this.input.onMuseum = () => this.toggleMuseum();
+    this.input.onLeftBtn = () => this.earthquake();
+    this.input.onRightBtn = () => this.aimShot();
+    this.input.onLeftBtn = () => this.earthquake();
+    this.input.onRightBtn = () => this.aimShot();
     
     const mBtn = document.getElementById('museumBtn');
     if (mBtn) mBtn.addEventListener('click', (e) => { e.stopPropagation(); this.toggleMuseum(); });
@@ -323,10 +331,14 @@ class Game {
       this.spawnPowerUp(cx, cy);
     } else {
       const roll = Math.random();
-      if (roll < CONFIG.MUSEUM.FRAGMENT_CHANCE && this.museum) {
-        const artifactId = this.museum.randomIncompleteId();
-        if (artifactId) this.powerUps.push(new PowerUp(cx, cy, 'FRAGMENT', artifactId));
-      } else if (roll < CONFIG.MUSEUM.FRAGMENT_CHANCE + CONFIG.GAME.POWERUP_DROP_CHANCE) {
+      if (roll < 0.05 && this.museum) {
+        const art = this.museum.rollDrop();
+        if (art) {
+          const p = new PowerUp(cx, cy, 'FRAGMENT', art.id);
+          p.customEmoji = art.form.emoji;
+          this.powerUps.push(p);
+        }
+      } else if (roll < 0.05 + CONFIG.GAME.POWERUP_DROP_CHANCE) {
         this.spawnPowerUp(cx, cy);
       }
     }
@@ -397,28 +409,22 @@ class Game {
   
   collectFragment(artifactId) {
     if (!this.museum) return;
-    const art = CONFIG.ARTIFACTS.find(a => a.id === artifactId);
+    const art = this.museum.byId(artifactId);
     if (!art) return;
-    const completed = this.museum.addShard(artifactId);
-    this.audio.fragment();
-    if (completed) {
-      this.showBanner('\u{1F3FA} Артефакт собран: ' + art.name + '!');
-      this.effects.flash('#f0c96a', 0.3);
-      this.audio.artifact();
-      for (let i = 0; i < 4; i++) {
-        this.effects.bolt(CONFIG.WIDTH / 2, 0, Math.random() * CONFIG.WIDTH, Math.random() * CONFIG.HEIGHT / 2);
-      }
-    } else {
-      this.showBanner('\u{1F9E9} Черепок: ' + art.name + ' (' + this.museum.data[artifactId] + '/' + art.shards + ')');
-    }
+    this.museum.add(artifactId);
+    this.audio.artifact();
+    this.showBanner(art.form.emoji + ' Артефакт: ' + art.name + ' (' + this.museum.count() + '/216)');
+    this.effects.flash(art.material.color, 0.25);
+    this.effects.wave(CONFIG.WIDTH / 2, CONFIG.HEIGHT / 2, art.material.color);
     const cnt = document.getElementById('museumCount');
-    if (cnt) cnt.textContent = this.museum.totalShards();
+    if (cnt) cnt.textContent = this.museum.count();
   }
   
   collectWord() {
     if (!this.museum || !this.museum.hasWord) return;
-    if (!Array.isArray(CONFIG.WORDS)) return;
-    const uncollected = CONFIG.WORDS.filter(w => !this.museum.hasWord(w.word));
+    const words = Array.isArray(CONFIG.WORDS) ? CONFIG.WORDS : [];
+    if (words.length === 0) { this.addLife(); this.showBanner('\u{1F4DC} +1 жизнь'); return; }
+    const uncollected = words.filter(w => !this.museum.hasWord(w.word));
     if (uncollected.length === 0) {
       this.addLife();
       this.showBanner('\u{1F4DC} Все слова собраны! +1 жизнь');
@@ -435,6 +441,82 @@ class Game {
     this.slowTimer = 600; // 0.6 секунды слоу-мо
     this.effects.flash('#f0c96a', 0.3);
     this.shakeIntensity = 10;
+  }
+  
+  earthquake() {
+    if (this.state !== GAME_STATE.PLAYING || this.quakeCooldown > 0) return;
+    this.quakeCooldown = 45 * 60;
+    this.shakeIntensity = 18;
+    this.effects.flash('#d9a441', 0.25);
+    this.audio.wallBeam();
+    if (navigator.vibrate) navigator.vibrate(120);
+    for (const brick of this.bricks) {
+      if (!brick.alive || brick.isBreaking || brick.isSteel) continue;
+      const destroyed = brick.takeDamage();
+      if (destroyed) this.destroyBrick(brick);
+    }
+  }
+  
+  aimShot() {
+    if (this.state !== GAME_STATE.PLAYING || this.aimCooldown > 0) return;
+    const ball = this.balls[0];
+    if (!ball || ball.isLaunched) return;
+    let target = null, best = -1;
+    for (const b of this.bricks) {
+      if (!b.alive || b.isSteel) continue;
+      const d = Math.hypot(b.x - ball.x, b.y - ball.y);
+      if (d > best) { best = d; target = b; }
+    }
+    if (!target) return;
+    this.aimCooldown = 20 * 60;
+    const tx = target.x + target.width / 2;
+    const ty = target.y + target.height / 2;
+    const dx = tx - ball.x, dy = ty - ball.y;
+    const len = Math.hypot(dx, dy) || 1;
+    ball.dx = dx / len;
+    ball.dy = dy / len;
+    ball.isLaunched = true;
+    this.effects.bolt(ball.x, ball.y, tx, ty);
+    this.audio.launch();
+    if (navigator.vibrate) navigator.vibrate(40);
+  }
+  
+  earthquake() {
+    if (this.state !== GAME_STATE.PLAYING || this.quakeCooldown > 0) return;
+    this.quakeCooldown = 45 * 60;
+    this.shakeIntensity = 18;
+    this.effects.flash('#d9a441', 0.25);
+    this.audio.wallBeam();
+    if (navigator.vibrate) navigator.vibrate(120);
+    for (const brick of this.bricks) {
+      if (!brick.alive || brick.isBreaking || brick.isSteel) continue;
+      const destroyed = brick.takeDamage();
+      if (destroyed) this.destroyBrick(brick);
+    }
+  }
+  
+  aimShot() {
+    if (this.state !== GAME_STATE.PLAYING || this.aimCooldown > 0) return;
+    const ball = this.balls[0];
+    if (!ball || ball.isLaunched) return;
+    let target = null, best = -1;
+    for (const b of this.bricks) {
+      if (!b.alive || b.isSteel) continue;
+      const d = Math.hypot(b.x - ball.x, b.y - ball.y);
+      if (d > best) { best = d; target = b; }
+    }
+    if (!target) return;
+    this.aimCooldown = 20 * 60;
+    const tx = target.x + target.width / 2;
+    const ty = target.y + target.height / 2;
+    const dx = tx - ball.x, dy = ty - ball.y;
+    const len = Math.hypot(dx, dy) || 1;
+    ball.dx = dx / len;
+    ball.dy = dy / len;
+    ball.isLaunched = true;
+    this.effects.bolt(ball.x, ball.y, tx, ty);
+    this.audio.launch();
+    if (navigator.vibrate) navigator.vibrate(40);
   }
   
   showBanner(text) { this.banner = { text: text, timer: 180 }; }
@@ -511,6 +593,10 @@ class Game {
       if (this.banner.timer <= 0) this.banner = null;
     }
     
+    
+    if (this.quakeCooldown > 0) this.quakeCooldown -= dt;
+    if (this.aimCooldown > 0) this.aimCooldown -= dt;
+
     this.input.updateKeyboard(dt);
     this.paddle.update(scaledDt);
     
@@ -590,6 +676,7 @@ class Game {
     this.particles.update(scaledDt);
     this.effects.update(scaledDt);
     
+    
     if (this.shakeIntensity > 0) {
       this.shakeIntensity *= 0.9;
       if (this.shakeIntensity < 0.1) this.shakeIntensity = 0;
@@ -612,6 +699,26 @@ class Game {
     }
     
     ctx.clearRect(-20, -20, CONFIG.WIDTH + 40, CONFIG.HEIGHT + 40);
+    
+    // ===== heat-haze: дышащая жара пустыни =====
+    const hzT = performance.now() / 1000;
+    const pulse = 0.5 + Math.sin(hzT * 0.8) * 0.5;
+    const bgGrad = ctx.createRadialGradient(CONFIG.WIDTH / 2, CONFIG.HEIGHT * 0.35, 50, CONFIG.WIDTH / 2, CONFIG.HEIGHT * 0.5, CONFIG.HEIGHT * 0.8);
+    bgGrad.addColorStop(0, 'rgba(217, 164, 65, ' + (0.05 + pulse * 0.05).toFixed(3) + ')');
+    bgGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT);
+    
+    ctx.strokeStyle = 'rgba(240, 201, 106, 0.05)';
+    ctx.lineWidth = 2;
+    for (let i = 0; i < 3; i++) {
+      ctx.beginPath();
+      for (let x = 0; x <= CONFIG.WIDTH; x += 20) {
+        const y = CONFIG.HEIGHT * 0.25 + i * 90 + Math.sin(x * 0.02 + hzT * 2 + i) * 8;
+        if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
     
     for (const brick of this.bricks) {
       if (brick.breakPhase < 1) {
@@ -696,14 +803,33 @@ class Game {
     ctx.arc(trackerX - 2, zoneY + 43, 3, 0, Math.PI * 2);
     ctx.fill();
     
-    for (const bx of [35, CONFIG.WIDTH - 35]) {
-      ctx.strokeStyle = 'rgba(217, 164, 65, 0.3)';
+    const btns = [
+      { x: 35, cd: this.quakeCooldown, max: 45 * 60, icon: '\u{1F30D}' },
+      { x: CONFIG.WIDTH - 35, cd: this.aimCooldown, max: 20 * 60, icon: '\u{1F3AF}' },
+    ];
+    for (const b of btns) {
+      const ready = b.cd <= 0;
+      ctx.strokeStyle = ready ? 'rgba(240, 201, 106, 0.8)' : 'rgba(217, 164, 65, 0.25)';
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.arc(bx, zoneY + 45, 24, 0, Math.PI * 2);
+      ctx.arc(b.x, zoneY + 45, 24, 0, Math.PI * 2);
       ctx.stroke();
-      ctx.fillStyle = 'rgba(217, 164, 65, 0.06)';
+      ctx.fillStyle = ready ? 'rgba(240, 201, 106, 0.15)' : 'rgba(217, 164, 65, 0.06)';
       ctx.fill();
+      if (!ready) {
+        ctx.strokeStyle = '#f0c96a';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(b.x, zoneY + 45, 24, -Math.PI / 2, -Math.PI / 2 + (1 - b.cd / b.max) * Math.PI * 2);
+        ctx.stroke();
+      }
+      ctx.globalAlpha = ready ? 1 : 0.35;
+      ctx.font = '20px "Segoe UI", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#f0c96a';
+      ctx.fillText(b.icon, b.x, zoneY + 46);
+      ctx.globalAlpha = 1;
     }
     
     ctx.restore();
@@ -729,6 +855,13 @@ class Game {
       ctx.fillText('Комбо x' + this.combo, CONFIG.WIDTH - 12, 30);
       ctx.shadowBlur = 0;
     }
+    // ===== виньетка по краям (shader-like) =====
+    const vg = ctx.createRadialGradient(CONFIG.WIDTH / 2, CONFIG.HEIGHT / 2, CONFIG.HEIGHT * 0.35, CONFIG.WIDTH / 2, CONFIG.HEIGHT / 2, CONFIG.HEIGHT * 0.75);
+    vg.addColorStop(0, 'rgba(0, 0, 0, 0)');
+    vg.addColorStop(1, 'rgba(0, 0, 0, 0.45)');
+    ctx.fillStyle = vg;
+    ctx.fillRect(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT);
+    
     this.drawMessages(ctx);
   }
   
@@ -797,6 +930,17 @@ class Game {
 window.addEventListener('DOMContentLoaded', () => {
   new Game();
 });
+
+
+
+
+
+
+
+
+
+
+
 
 
 

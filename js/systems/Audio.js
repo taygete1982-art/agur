@@ -8,40 +8,40 @@
     this.buffers = {};
     this.musicOn = false;
     this.nextNoteTime = 0;
-    this._contextCreationQueued = false;
-    
-    // Создаём AudioContext ПРИ ПЕРВОМ pointerdown — это настоящий user gesture
-    const setupContext = () => {
-      if (this._contextCreationQueued) return;
-      this._contextCreationQueued = true;
-      this.init();
-      this.startMusic();
+    this._gestureUnlocked = false;
+
+    // Только отмечаем что жест был. AudioContext создадим при ПЕРВОМ звуке.
+    const unlock = () => {
+      if (this._gestureUnlocked) return;
+      this._gestureUnlocked = true;
     };
-    window.addEventListener('pointerdown', setupContext, { once: true });
-    window.addEventListener('keydown', setupContext, { once: true });
+    window.addEventListener('pointerdown', unlock, { once: true });
+    window.addEventListener('touchstart', unlock, { once: true });
+    window.addEventListener('keydown', unlock, { once: true });
   }
-  
-  init() {
-    if (this.initialized) return;
+
+  ensureContext() {
+    if (this.initialized) return true;
+    if (!this._gestureUnlocked) return false;
     try {
-      this.context = new (window.AudioContext || window.webkitAudioContext)();
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) { this.enabled = false; return false; }
+      this.context = new Ctx();
       this.master = this.context.createGain();
       this.master.gain.value = this.enabled ? this.volume : 0;
       const comp = this.context.createDynamicsCompressor();
       this.master.connect(comp);
       comp.connect(this.context.destination);
       this.initialized = true;
-      // ВАЖНО: resume() вызываем ВНУТРИ pointerdown обработчика — это user gesture
-      if (this.context.state === 'suspended') {
-        this.context.resume().catch(() => {});
-      }
       this.loadSounds();
+      this.startMusic();
+      return true;
     } catch (e) {
-      console.warn('Audio init failed:', e);
       this.enabled = false;
+      return false;
     }
   }
-  
+
   async loadSounds() {
     const names = ['paddle-hit','wall-hit','brick-hit','brick-break','powerup-get','life-lost','level-complete','game-over','ui-click','laser'];
     for (const n of names) {
@@ -53,9 +53,9 @@
       } catch (e) {}
     }
   }
-  
+
   play(name, rate = 1, vol = 1) {
-    if (!this.enabled || !this.context) return false;
+    if (!this.enabled || !this.ensureContext()) return false;
     const buf = this.buffers[name];
     if (!buf) return false;
     try {
@@ -69,15 +69,15 @@
       return true;
     } catch (e) { return false; }
   }
-  
+
   toggle() {
     this.enabled = !this.enabled;
     if (this.master) this.master.gain.value = this.enabled ? this.volume : 0;
     return this.enabled;
   }
-  
+
   _tone(freq, dur = 0.1, type = 'square', vol = 0.5, sweepTo = null) {
-    if (!this.enabled || !this.context) return;
+    if (!this.enabled || !this.ensureContext()) return;
     const t = this.context.currentTime;
     const osc = this.context.createOscillator();
     const g = this.context.createGain();
@@ -89,9 +89,9 @@
     osc.connect(g); g.connect(this.master);
     osc.start(t); osc.stop(t + dur);
   }
-  
+
   _noise(dur = 0.15, vol = 0.4, filterFreq = 1200) {
-    if (!this.enabled || !this.context) return;
+    if (!this.enabled || !this.ensureContext()) return;
     const t = this.context.currentTime;
     const len = Math.floor(this.context.sampleRate * dur);
     const buf = this.context.createBuffer(1, len, this.context.sampleRate);
@@ -107,7 +107,7 @@
     src.connect(f); f.connect(g); g.connect(this.master);
     src.start(t);
   }
-  
+
   startMusic() {
     if (!this.initialized || this.musicOn) return;
     this.musicOn = true;
@@ -121,7 +121,7 @@
     this.nextNoteTime = this.context.currentTime + 1;
     setInterval(() => this.scheduleMusic(), 400);
   }
-  
+
   scheduleMusic() {
     if (!this.context || !this.musicOn) return;
     while (this.nextNoteTime < this.context.currentTime + 1) {
@@ -129,7 +129,7 @@
       this.nextNoteTime += 1.5 + Math.random() * 2.5;
     }
   }
-  
+
   pluck(t) {
     const scale = [294, 311, 370, 392, 440, 466, 587];
     const f = scale[Math.floor(Math.random() * scale.length)];
@@ -143,7 +143,7 @@
     osc.connect(g); g.connect(this.master);
     osc.start(t); osc.stop(t + 2);
   }
-  
+
   brickHit(row = 0) { if (!this.play('brick-hit', 1 + row * 0.05, 0.7)) this._tone(300 + row * 40, 0.06, 'square', 0.4); }
   brickBreak(row = 0) { if (!this.play('brick-break', 1, 0.8)) { this._tone(500 + row * 30, 0.09, 'triangle', 0.5, 200); this._noise(0.12, 0.4, 1500); } }
   crack() { this._noise(0.06, 0.35, 2500); this._tone(200, 0.05, 'square', 0.25); }
