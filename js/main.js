@@ -8,7 +8,6 @@ import { CollisionSystem } from './systems/Collision.js';
 import { AudioManager } from './systems/Audio.js';
 import { LevelManager } from './levels/LevelManager.js';
 
-// ===== ЭФФЕКТЫ В СТИЛЕ MONTEZUMA: молнии, волны, вспышки =====
 class Effects {
   constructor() { this.bolts = []; this.waves = []; this.flashes = []; }
   
@@ -36,6 +35,7 @@ class Effects {
   }
   
   draw(ctx) {
+    if (!this.bolts || !this.waves || !this.flashes) return;
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     
@@ -79,7 +79,6 @@ class Game {
     this.canvas = document.getElementById('gameCanvas');
     this.ctx = this.canvas.getContext('2d');
     
-    // ===== Портретный режим на тач-устройствах =====
     const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
     if (isTouch && window.matchMedia('(orientation: portrait)').matches) {
       CONFIG.WIDTH = 540;
@@ -90,11 +89,10 @@ class Game {
     }
     this.canvas.width = CONFIG.WIDTH;
     this.canvas.height = CONFIG.HEIGHT;
-      this.canvas.style.aspectRatio = CONFIG.WIDTH + ' / ' + CONFIG.HEIGHT;
-      this.canvas.style.width = 'min(96vw, calc(88vh * ' + (CONFIG.WIDTH / CONFIG.HEIGHT) + '))';
-      this.canvas.style.height = 'auto';
+    this.canvas.style.aspectRatio = CONFIG.WIDTH + ' / ' + CONFIG.HEIGHT;
+    this.canvas.style.width = 'min(96vw, calc(88vh * ' + (CONFIG.WIDTH / CONFIG.HEIGHT) + '))';
+    this.canvas.style.height = 'auto';
     
-    // Системы
     this.input = new InputManager(this.canvas);
     this.particles = new ParticleSystem();
     this.collision = new CollisionSystem();
@@ -102,7 +100,6 @@ class Game {
     this.levelManager = new LevelManager();
     this.effects = new Effects();
     
-    // Музей (опционально, если файл есть)
     this.museum = null;
     import('./systems/Museum.js').then(mod => {
       this.museum = new mod.Museum();
@@ -110,13 +107,12 @@ class Game {
       if (cnt) cnt.textContent = this.museum.totalShards();
     }).catch(() => {});
     
-    // Объекты
     this.paddle = new Paddle();
     this.balls = [];
     this.bricks = [];
     this.powerUps = [];
+    this.zShards = [];
     
-    // Состояние
     this.state = GAME_STATE.MENU;
     this.score = 0;
     this.lives = CONFIG.GAME.MAX_LIVES;
@@ -137,20 +133,33 @@ class Game {
     this.setupCallbacks();
     this.loadLevel(1);
     this.resetBall();
+    if (!this.balls || this.balls.length === 0) this.resetBall();
+    
+    if (!window.__pauseBtn) {
+      window.__pauseBtn = 1;
+      const pauseBtn = document.createElement('button');
+      pauseBtn.className = 'hud-item museum-btn';
+      pauseBtn.innerHTML = '<span class="hud-label">Пауза</span><span class="hud-value" id="pauseIcon">\u{23F8}</span>';
+      pauseBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.togglePause();
+        document.getElementById('pauseIcon').textContent = this.state === GAME_STATE.PAUSED ? '\u{25B6}' : '\u{23F8}';
+      });
+      document.querySelector('.hud').appendChild(pauseBtn);
+    }
     
     if (!window.__sndBtn) {
-    window.__sndBtn = 1;
-    // Кнопка звука в HUD
-    const sndBtn = document.createElement('button');
-    sndBtn.className = 'hud-item museum-btn';
-    sndBtn.innerHTML = '<span class="hud-label">Звук</span><span class="hud-value" id="sndIcon">' + (this.audio.enabled ? '\u{1F50A}' : '\u{1F507}') + '</span>';
-    sndBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const on = this.audio.toggle();
-      try { localStorage.setItem('agur_mute', on ? '0' : '1'); } catch (err) {}
-      document.getElementById('sndIcon').textContent = on ? '\u{1F50A}' : '\u{1F507}';
-    });
-    document.querySelector('.hud').appendChild(sndBtn);
+      window.__sndBtn = 1;
+      const sndBtn = document.createElement('button');
+      sndBtn.className = 'hud-item museum-btn';
+      sndBtn.innerHTML = '<span class="hud-label">Звук</span><span class="hud-value" id="sndIcon">' + (this.audio.enabled ? '\u{1F50A}' : '\u{1F507}') + '</span>';
+      sndBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const on = this.audio.toggle();
+        try { localStorage.setItem('agur_mute', on ? '0' : '1'); } catch (err) {}
+        document.getElementById('sndIcon').textContent = on ? '\u{1F50A}' : '\u{1F507}';
+      });
+      document.querySelector('.hud').appendChild(sndBtn);
     }
     
     requestAnimationFrame((t) => this.gameLoop(t));
@@ -169,8 +178,8 @@ class Game {
   }
   
   handleStart() {
+
     this.audio.init();
-    this.audio.startMusic();
     switch (this.state) {
       case GAME_STATE.MENU:
       case GAME_STATE.GAME_OVER:
@@ -178,11 +187,19 @@ class Game {
         this.startGame();
         break;
       case GAME_STATE.PLAYING:
-        for (const ball of this.balls) {
-          if (!ball.isLaunched) {
-            ball.launch();
-            this.audio.launch();
+        if (this.balls && this.balls.length > 0) {
+          const hasLaunched = this.balls.some(b => b.isLaunched);
+          if (!hasLaunched) {
+            for (const ball of this.balls) {
+              if (ball && !ball.isLaunched) {
+                ball.launch();
+                if (this.audio) this.audio.launch();
+              }
+            }
           }
+        } else {
+          this.resetBall();
+          if (this.balls[0]) this.balls[0].launch();
         }
         break;
     }
@@ -220,15 +237,21 @@ class Game {
   loadLevel(levelNumber) {
     this.level = levelNumber;
     this.bricks = this.levelManager.loadLevel(levelNumber);
+    // Стаггер: каждый кирпич появляется с задержкой по рядам
+    for (let i = 0; i < this.bricks.length; i++) {
+      this.bricks[i].breakPhase = 0.01 + this.bricks[i].row * 0.04 + Math.random() * 0.02;
+    }
     this.powerUps = [];
+    this.zShards = [];
     this.slowMotion = false;
     this.wallCharge = { left: 0, right: 0 };
+    this.showBanner(this.levelManager.getLevelName(levelNumber));
     const ballSpeed = this.levelManager.getBallSpeed(levelNumber);
     for (const ball of this.balls) ball.speed = ballSpeed;
   }
   
   resetBall() {
-    this.paddle.y = CONFIG.HEIGHT - CONFIG.PADDLE.Y_OFFSET;
+    if (!this.paddle) return;
     this.paddle.y = CONFIG.HEIGHT - CONFIG.PADDLE.Y_OFFSET;
     this.balls = [new Ball(
       this.paddle.x + this.paddle.width / 2,
@@ -237,7 +260,6 @@ class Game {
     this.balls[0].speed = this.levelManager.getBallSpeed(this.level);
   }
   
-  // ===== Руны стен =====
   wallHit(side, ball) {
     this.wallCharge[side]++;
     this.audio.wallHit();
@@ -269,8 +291,11 @@ class Game {
     this.audio.wallBeam();
   }
   
-  // ===== Разрушение кирпича =====
   destroyBrick(brick) {
+    const isLast = this.levelManager.aliveCount <= 1;
+    if (isLast && this.state === GAME_STATE.PLAYING) {
+      this.triggerDramaticSlowMo();
+    }
     if (brick.isDead || !brick.alive || brick.isSteel) return;
     brick.isDead = true;
     
@@ -284,6 +309,8 @@ class Game {
     
     this.audio.brickBreak(brick.row);
     this.particles.explodeBrick(brick.x, brick.y, brick.width, brick.height, brick.getColors().glow);
+    // Особые осколки, летящие в экран (Angry Birds style)
+    this.spawnZShards(brick);
     this.effects.wave(brick.x + brick.width / 2, brick.y + brick.height / 2, brick.getColors().glow);
     
     if (brick.type === 'explosive') {
@@ -317,7 +344,6 @@ class Game {
       const dr = Math.abs(other.row - source.row);
       const dc = Math.abs(other.col - source.col);
       if (dr <= 1 && dc <= 1) {
-        // Молния между кирпичами!
         this.effects.bolt(
           source.x + source.width / 2, source.y + source.height / 2,
           other.x + other.width / 2, other.y + other.height / 2
@@ -336,6 +362,29 @@ class Game {
         const destroyed = other.takeDamage();
         if (destroyed) this.destroyBrick(other);
       }
+    }
+  }
+  
+  spawnZShards(brick) {
+    if (!this.zShards) this.zShards = [];
+    const cx = brick.x + brick.width / 2;
+    const cy = brick.y + brick.height / 2;
+    const color = brick.getColors().glow;
+    const count = 4 + Math.floor(Math.random() * 3);
+    for (let i = 0; i < count; i++) {
+      this.zShards.push({
+        x: cx + (Math.random() - 0.5) * brick.width * 0.8,
+        y: cy + (Math.random() - 0.5) * brick.height * 0.8,
+        vx: (Math.random() - 0.5) * 3,
+        vy: (Math.random() - 0.5) * 3 - 1,
+        z: 0,
+        vz: 8 + Math.random() * 6, // скорость приближения к игроку
+        size: 8 + Math.random() * 8,
+        color: color,
+        life: 1,
+        rotation: Math.random() * Math.PI * 2,
+        vrot: (Math.random() - 0.5) * 0.3,
+      });
     }
   }
   
@@ -382,6 +431,13 @@ class Game {
     this.museum.addWord(w.word);
     this.audio.word();
     this.showBanner('\u{1F4DC} Слово Шумера: ' + w.word + ' — ' + w.meaning);
+  }
+  
+  triggerDramaticSlowMo() {
+    this.slowMotion = true;
+    this.slowTimer = 600; // 0.6 секунды слоу-мо
+    this.effects.flash('#f0c96a', 0.3);
+    this.shakeIntensity = 10;
   }
   
   showBanner(text) { this.banner = { text: text, timer: 180 }; }
@@ -441,8 +497,8 @@ class Game {
     document.getElementById('livesDisplay').textContent = this.lives;
   }
   
-  // ===== Обновление =====
   update(dt) {
+    if (!this.paddle || !this.balls || !this.bricks) return;
     if (this.state !== GAME_STATE.PLAYING || this.museumOpen) return;
     
     const timeScale = this.slowMotion ? 0.5 : 1;
@@ -522,6 +578,18 @@ class Game {
       }
     }
     
+    // Z-осколки
+    if (!this.zShards) this.zShards = [];
+    for (let i = this.zShards.length - 1; i >= 0; i--) {
+      const s = this.zShards[i];
+      s.x += s.vx * scaledDt;
+      s.y += s.vy * scaledDt;
+      s.z += s.vz * scaledDt;
+      s.rotation += s.vrot * scaledDt;
+      s.life -= 0.02 * scaledDt;
+      if (s.life <= 0 || s.z > 40) this.zShards.splice(i, 1);
+    }
+    
     this.particles.update(scaledDt);
     this.effects.update(scaledDt);
     
@@ -535,8 +603,10 @@ class Game {
     }
   }
   
-  // ===== Отрисовка =====
   draw() {
+    if (!this.paddle || !this.canvas || !this.ctx) return;
+    if (this.canvas.width === 0) return;
+    
     const ctx = this.ctx;
     
     ctx.save();
@@ -546,27 +616,101 @@ class Game {
     
     ctx.clearRect(-20, -20, CONFIG.WIDTH + 40, CONFIG.HEIGHT + 40);
     
-    for (const brick of this.bricks) brick.draw(ctx);
-    for (const powerUp of this.powerUps) powerUp.draw(ctx);
-    try {
-      if (!isFinite(this.paddle.x)) this.paddle.x = CONFIG.WIDTH / 2 - this.paddle.width / 2;
-      if (!isFinite(this.paddle.y)) this.paddle.y = CONFIG.HEIGHT - CONFIG.PADDLE.Y_OFFSET;
-
-      this.paddle.draw(ctx);
-    } catch (err) {
-      ctx.fillStyle = '#f0d9a8';
-      ctx.fillRect(this.paddle.x, this.paddle.y, this.paddle.width, this.paddle.height);
-      this.debugError = String(err);
+    for (const brick of this.bricks) {
+      if (brick.breakPhase < 1) {
+        ctx.save();
+        const cx = brick.x + brick.width / 2;
+        const cy = brick.y + brick.height / 2;
+        ctx.translate(cx, cy);
+        ctx.scale(brick.breakPhase, brick.breakPhase);
+        ctx.globalAlpha = brick.breakPhase;
+        ctx.translate(-cx, -cy);
+        brick.draw(ctx);
+        ctx.restore();
+      } else {
+        brick.draw(ctx);
+      }
     }
+    for (const powerUp of this.powerUps) powerUp.draw(ctx);
+    this.paddle.draw(ctx);
     for (const ball of this.balls) ball.draw(ctx);
+    // Z-осколки (ближе всех к игроку, рисуются ПОСЛЕ частиц)
+    if (this.zShards) {
+      for (const s of this.zShards) {
+        const depth = 1 + s.z / 10; // чем больше z, тем крупнее
+        const drawSize = s.size * depth;
+        const shadowSize = drawSize * (1 + depth * 0.3);
+        const alpha = Math.max(0, s.life);
+        
+        ctx.save();
+        ctx.globalAlpha = alpha * 0.3;
+        ctx.fillStyle = '#000';
+        ctx.beginPath();
+        ctx.ellipse(s.x + 4, s.y + 8 + depth * 3, shadowSize, shadowSize * 0.4, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
+        ctx.globalAlpha = alpha;
+        ctx.translate(s.x, s.y);
+        ctx.rotate(s.rotation);
+        ctx.fillStyle = s.color;
+        ctx.shadowColor = s.color;
+        ctx.shadowBlur = 10 * depth;
+        ctx.beginPath();
+        ctx.moveTo(-drawSize * 0.5, -drawSize * 0.3);
+        ctx.lineTo(drawSize * 0.4, -drawSize * 0.5);
+        ctx.lineTo(drawSize * 0.3, drawSize * 0.5);
+        ctx.lineTo(-drawSize * 0.4, drawSize * 0.3);
+        ctx.closePath();
+        ctx.fill();
+        
+        ctx.restore();
+      }
+    }
+    
     this.particles.draw(ctx);
     this.effects.draw(ctx);
     
-
+    // ===== Тач-зона: песчаная канавка + трекер + кнопки =====
+    const zoneY = CONFIG.HEIGHT - CONFIG.TOUCH.ZONE_HEIGHT;
+    const trackX = 70;
+    const trackW = CONFIG.WIDTH - 140;
+    
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+    ctx.beginPath();
+    ctx.roundRect(trackX, zoneY + 40, trackW, 10, 5);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(217, 164, 65, 0.25)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.roundRect(trackX, zoneY + 40, trackW, 10, 5);
+    ctx.stroke();
+    
+    const trackT = (CONFIG.WIDTH - this.paddle.width) > 0 ? this.paddle.x / (CONFIG.WIDTH - this.paddle.width) : 0.5;
+    const trackerX = trackX + trackT * trackW;
+    ctx.shadowColor = '#ffe066';
+    ctx.shadowBlur = 15;
+    ctx.fillStyle = '#f0c96a';
+    ctx.beginPath();
+    ctx.arc(trackerX, zoneY + 45, 8, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#fff9e6';
+    ctx.beginPath();
+    ctx.arc(trackerX - 2, zoneY + 43, 3, 0, Math.PI * 2);
+    ctx.fill();
+    
+    for (const bx of [35, CONFIG.WIDTH - 35]) {
+      ctx.strokeStyle = 'rgba(217, 164, 65, 0.3)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(bx, zoneY + 45, 24, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.fillStyle = 'rgba(217, 164, 65, 0.06)';
+      ctx.fill();
+    }
     
     ctx.restore();
     
-    // Баннер
     if (this.banner) {
       ctx.globalAlpha = Math.min(1, this.banner.timer / 30);
       ctx.fillStyle = '#f0c96a';
@@ -579,6 +723,15 @@ class Game {
       ctx.globalAlpha = 1;
     }
     
+    if (this.combo >= 2 && this.state === GAME_STATE.PLAYING) {
+      ctx.fillStyle = '#f0c96a';
+      ctx.font = 'bold ' + Math.min(20 + this.combo, 40) + 'px "Segoe UI", sans-serif';
+      ctx.textAlign = 'right';
+      ctx.shadowColor = '#d9a441';
+      ctx.shadowBlur = 15;
+      ctx.fillText('Комбо x' + this.combo, CONFIG.WIDTH - 12, 30);
+      ctx.shadowBlur = 0;
+    }
     this.drawMessages(ctx);
   }
   
@@ -635,36 +788,11 @@ class Game {
     if (this.canvas.width !== CONFIG.WIDTH || this.canvas.height !== CONFIG.HEIGHT) {
       this.canvas.width = CONFIG.WIDTH;
       this.canvas.height = CONFIG.HEIGHT;
-      this.canvas.style.aspectRatio = CONFIG.WIDTH + ' / ' + CONFIG.HEIGHT;
-      this.canvas.style.width = 'min(96vw, calc(88vh * ' + (CONFIG.WIDTH / CONFIG.HEIGHT) + '))';
-      this.canvas.style.height = 'auto';
-    }
-    if (this.canvas.width !== CONFIG.WIDTH || this.canvas.height !== CONFIG.HEIGHT) {
-      this.canvas.width = CONFIG.WIDTH;
-      this.canvas.height = CONFIG.HEIGHT;
-      this.canvas.style.aspectRatio = CONFIG.WIDTH + ' / ' + CONFIG.HEIGHT;
-      this.canvas.style.width = 'min(96vw, calc(88vh * ' + (CONFIG.WIDTH / CONFIG.HEIGHT) + '))';
-      this.canvas.style.height = 'auto';
     }
     const dt = Math.min((timestamp - this.lastTime) / 16.67, 2);
     this.lastTime = timestamp;
     this.update(dt);
     this.draw();
-    if (!window.__sndBtn) {
-    window.__sndBtn = 1;
-    // Кнопка звука в HUD
-    const sndBtn = document.createElement('button');
-    sndBtn.className = 'hud-item museum-btn';
-    sndBtn.innerHTML = '<span class="hud-label">Звук</span><span class="hud-value" id="sndIcon">' + (this.audio.enabled ? '\u{1F50A}' : '\u{1F507}') + '</span>';
-    sndBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const on = this.audio.toggle();
-      try { localStorage.setItem('agur_mute', on ? '0' : '1'); } catch (err) {}
-      document.getElementById('sndIcon').textContent = on ? '\u{1F50A}' : '\u{1F507}';
-    });
-    document.querySelector('.hud').appendChild(sndBtn);
-    }
-    
     requestAnimationFrame((t) => this.gameLoop(t));
   }
 }
@@ -672,11 +800,5 @@ class Game {
 window.addEventListener('DOMContentLoaded', () => {
   new Game();
 });
-
-
-
-
-
-
 
 

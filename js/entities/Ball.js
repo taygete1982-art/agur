@@ -18,6 +18,7 @@ export class Ball {
   
   // Запуск мяча в случайном направлении вверх
   launch() {
+
     const angle = -Math.PI / 2 + (Math.random() - 0.5) * 1.0;
     this.dx = Math.cos(angle) * this.speed;
     this.dy = Math.sin(angle) * this.speed;
@@ -148,4 +149,6 @@ export class Ball {
     ctx.fill();
   }
 }
+
+
 

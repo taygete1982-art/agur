@@ -8,6 +8,9 @@
     this.buffers = {};
     this.musicOn = false;
     this.nextNoteTime = 0;
+    
+    // Ленивая инициализация: создаём AudioContext при первом pointerdown
+    window.addEventListener('pointerdown', () => this.init(), { once: true });
   }
   
   init() {
@@ -145,3 +148,4 @@
   gameOver() { if (!this.play('game-over')) [330, 262, 208, 165].forEach((f, i) => setTimeout(() => this._tone(f, 0.35, 'triangle', 0.45), i * 200)); }
   uiClick() { if (!this.play('ui-click')) this._tone(700, 0.04, 'sine', 0.25); }
 }
+

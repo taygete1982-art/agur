@@ -16,10 +16,15 @@ export class Brick {
     
     this.alive = true;
     this.isSteel = false;
-    this.isDead = false; // защита от двойного уничтожения
+    this.isDead = false;
+    this.shardZ = 0; // глубина осколка (0 = плоскость, >0 = ближе к игроку)
+    this.shardScale = 1;
+    this.shardAlpha = 1;
+    this.shardShadow = 0; // защита от двойного уничтожения
     
     // Анимация разрушения
     this.isBreaking = false;
+    this.breakPhase = 0; // для стаггера
     this.breakProgress = 0;
     this.scale = 1;
     this.flashOpacity = 0;
@@ -94,6 +99,11 @@ export class Brick {
   }
   
   update(dt = 1) {
+    // Стаггер-проявление (при загрузке уровня)
+    if (this.breakPhase > 0 && this.breakPhase < 1) {
+      this.breakPhase = Math.min(1, this.breakPhase + dt * 0.08);
+    }
+    
     // Движущийся кирпич
     if (this.alive && !this.isBreaking && this.type === 'moving') {
       const T = CONFIG.BRICK_TYPES.MOVING;
@@ -109,6 +119,7 @@ export class Brick {
       if (this.breakProgress >= 1) {
         this.alive = false;
         this.isBreaking = false;
+    this.breakPhase = 0; // для стаггера
         this.scale = 1;
         
         // Регенерирующий кирпич начинает воскрешение
@@ -126,6 +137,10 @@ export class Brick {
         this.regensLeft--;
         this.alive = true;
         this.isDead = false;
+    this.shardZ = 0; // глубина осколка (0 = плоскость, >0 = ближе к игроку)
+    this.shardScale = 1;
+    this.shardAlpha = 1;
+    this.shardShadow = 0;
         this.hp = this.maxHP;
         this.justRegenerated = true;
       }
@@ -204,7 +219,7 @@ export class Brick {
     grad.addColorStop(1, colors.glow);
     
     ctx.shadowColor = colors.glow;
-    ctx.shadowBlur = this.isBreaking ? 30 : 18;
+    ctx.shadowBlur = this.isBreaking ? 20 : 10;
     
     ctx.fillStyle = grad;
     ctx.beginPath();
@@ -278,4 +293,6 @@ export class Brick {
     ctx.restore();
   }
 }
+
+
 
