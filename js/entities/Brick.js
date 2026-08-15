@@ -141,7 +141,7 @@ export class Brick {
     // ТЕКСТУРА-артефакт, если загрузилась; иначе процедурный спрайт
     const tex = getBrickTexture(this.type === 'fire' ? 'explosive' : this.type);
     if (tex) {
-      ctx.drawImage(tex, this.x, this.y, this.width, this.height);
+      ctx.drawImage(tex.img, tex.sx, tex.sy, tex.sw, tex.sh, this.x, this.y, this.width, this.height);
     } else {
       ctx.drawImage(getBrickSprite(this.getColors(), this.width, this.height, this.type), this.x - 4, this.y - 4);
     }
@@ -238,3 +238,4 @@ export class Brick {
     ctx.restore();
   }
 }
+
