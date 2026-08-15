@@ -27,13 +27,13 @@
     CLAY:      { score: 20, hp: 2 },
   },
   ROW_COLORS: [
-    { base: '#d9a441', glow: '#f0c96a' },
-    { base: '#c9853f', glow: '#e0a35c' },
-    { base: '#c96f4a', glow: '#e08d63' },
-    { base: '#a84a32', glow: '#c4654a' },
-    { base: '#8a5a3b', glow: '#a87550' },
-    { base: '#40b3a2', glow: '#63d1c0' },
-    { base: '#2a8c7e', glow: '#45ab9c' },
+    { base: '#9c4a34', glow: '#b86a4a' },
+    { base: '#b89868', glow: '#d0b080' },
+    { base: '#cbb995', glow: '#e0d0b0' },
+    { base: '#a85a3a', glow: '#c07a52' },
+    { base: '#8a6a4a', glow: '#a88a62' },
+    { base: '#7a8a4a', glow: '#98aa62' },
+    { base: '#6a5a44', glow: '#8a7a5c' },
   ],
   POWERUP_TYPES: {
     WIDE:    { emoji: '\u{1F334}', color: '#40b3a2', duration: 10000, desc: 'Широкая платформа' },
@@ -109,3 +109,4 @@ export const RELICS = [
   { id: 'r7', name: 'Зеркало судьбы', emoji: '\u{1FA9E}' },
   { id: 'r8', name: 'Штандарт Ура', emoji: '\u{1F6A9}' },
 ];
+
