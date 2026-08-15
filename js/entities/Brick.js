@@ -1,57 +1,6 @@
 ﻿import { CONFIG, randomRange } from '../config.js';
 import { getBrickSprite } from './brickSprites.js';
 
-const PAD = 4;
-const spriteCache = new Map();
-
-function shade(hex, f) {
-  const n = parseInt(hex.slice(1), 16);
-  const r = Math.min(255, Math.max(0, Math.round(((n >> 16) & 255) * f)));
-  const g = Math.min(255, Math.max(0, Math.round(((n >> 8) & 255) * f)));
-  const b = Math.min(255, Math.max(0, Math.round((n & 255) * f)));
-  return 'rgb(' + r + ',' + g + ',' + b + ')';
-}
-
-function getBrickSprite(colors, w, h) {
-  const key = colors.base + '|' + w + 'x' + h;
-  if (spriteCache.has(key)) return spriteCache.get(key);
-  const cv = document.createElement('canvas');
-  cv.width = w + PAD * 2;
-  cv.height = h + PAD * 2;
-  const c = cv.getContext('2d');
-
-  // Матовая глиняная плита: светлее сверху, темнее снизу
-  const grad = c.createLinearGradient(0, PAD, 0, PAD + h);
-  grad.addColorStop(0, shade(colors.base, 1.25));
-  grad.addColorStop(0.5, colors.base);
-  grad.addColorStop(1, shade(colors.base, 0.7));
-  c.fillStyle = grad;
-  c.beginPath();
-  c.roundRect(PAD, PAD, w, h, 3);
-  c.fill();
-
-  // Тёмная обводка — кирпич читается как камень, а не подушка
-  c.strokeStyle = 'rgba(30, 15, 5, 0.6)';
-  c.lineWidth = 2;
-  c.beginPath();
-  c.roundRect(PAD + 1, PAD + 1, w - 2, h - 2, 3);
-  c.stroke();
-
-  // Верхняя грань — светлая кромка
-  c.fillStyle = 'rgba(255, 240, 200, 0.22)';
-  c.fillRect(PAD + 2, PAD + 2, w - 4, 2);
-
-  // Крапинки-песчинки (детерминированные)
-  let seed = 0;
-  for (let i = 0; i < key.length; i++) seed = (seed * 31 + key.charCodeAt(i)) | 0;
-  const rnd = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };
-  c.fillStyle = 'rgba(0, 0, 0, 0.12)';
-  for (let i = 0; i < 5; i++) c.fillRect(PAD + 2 + rnd() * (w - 5), PAD + 3 + rnd() * (h - 6), 2, 2);
-
-  spriteCache.set(key, cv);
-  return cv;
-}
-
 export class Brick {
   constructor(x, y, color, row, col) {
     this.x = x;
@@ -190,9 +139,8 @@ export class Brick {
 
     ctx.drawImage(getBrickSprite(this.getColors(), this.width, this.height, this.type), this.x - 4, this.y - 4);
 
-    // Анимация "живых" кирпичей: без shadowBlur и градиентов — копейки для CPU
+    // Анимация "живых" кирпичей: без shadowBlur и градиентов
     if (this.type === 'explosive' || this.type === 'fire') {
-      // тлеющие трещины пульсируют
       const a = 0.2 + Math.abs(Math.sin(performance.now() / 300 + this.col)) * 0.35;
       ctx.strokeStyle = 'rgba(255, 90, 30, ' + a.toFixed(3) + ')';
       ctx.lineWidth = 1.5;
@@ -203,7 +151,6 @@ export class Brick {
       ctx.lineTo(this.x + this.width - 6, this.y + this.height * 0.4);
       ctx.stroke();
     } else if (this.type === 'gold') {
-      // блик-шиммер пробегает по слитку
       const p = (performance.now() / 1400 + this.col * 0.13) % 1;
       const sx = this.x - 10 + p * (this.width + 20);
       ctx.save();
@@ -221,7 +168,6 @@ export class Brick {
       ctx.fill();
       ctx.restore();
     } else if (this.type === 'regen') {
-      // росток покачивается
       const sw = Math.sin(performance.now() / 500 + this.col) * 2;
       ctx.strokeStyle = '#7a9a4a';
       ctx.lineWidth = 1.5;
@@ -285,5 +231,3 @@ export class Brick {
     ctx.restore();
   }
 }
-
-
