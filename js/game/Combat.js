@@ -97,17 +97,16 @@ export const Combat = {
     const color = brick.getColors().glow;
     for (let i = 0; i < 6; i++) {
       this.zShards.push({
-        x: cx + (Math.random() - 0.5) * brick.width * 0.6,
-        y: cy + (Math.random() - 0.5) * brick.height * 0.6,
-        vx: (Math.random() - 0.5) * 8,
-        vy: -3 - Math.random() * 4,
-        scale: 1,
-        maxScale: 2.5 + Math.random() * 0.8,
-        alpha: 1,
+        ox: cx - CONFIG.WIDTH / 2 + (Math.random() - 0.5) * brick.width * 0.8,
+        oy: cy - CONFIG.HEIGHT / 2 + (Math.random() - 0.5) * brick.height * 0.8,
+        lx: (Math.random() - 0.5) * 1.6,
+        ly: (Math.random() - 0.5) * 1.2 - 0.3,
+        t: 0,
+        z: 0,
+        vz: 5 + Math.random() * 4,
         size: 5 + Math.random() * 4,
         color: color,
-        rot: Math.random() * Math.PI * 2,
-        vrot: (Math.random() - 0.5) * 0.3,
+        rot: (Math.random() - 0.5) * 0.5,
       });
     }
   },
@@ -149,5 +148,6 @@ export const Combat = {
     if (navigator.vibrate) navigator.vibrate(40);
   },
 };
+
 
 
