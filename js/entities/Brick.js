@@ -61,7 +61,6 @@ export class Brick {
   }
   
   setHP(hp) { this.maxHP = hp; this.hp = hp; return this; }
-  
   setSteel() { this.isSteel = true; this.type = 'steel'; this.hp = Infinity; return this; }
   
   setType(type) {
@@ -176,7 +175,6 @@ export class Brick {
     
     if (this.isBreaking) ctx.globalAlpha = 1 - this.breakProgress;
     
-    // БЫСТРО: готовый спрайт с запечённым свечением
     ctx.drawImage(getBrickSprite(this.getColors(), this.width, this.height), this.x - PAD, this.y - PAD);
     
     const emoji = this.getEmoji();
@@ -187,7 +185,6 @@ export class Brick {
       ctx.fillText(emoji, centerX, centerY);
     }
     
-    // Цифры HP на прочных кирпичах
     if (this.maxHP > 1 && this.hp > 0) {
       ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
       ctx.font = 'bold 11px sans-serif';
