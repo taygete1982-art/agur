@@ -91,21 +91,22 @@ export const Combat = {
   },
 
   spawnZShards(brick) {
-    if (this.zShards.length > 70) return;
+    if (this.zShards.length > 160) return;
     const cx = brick.x + brick.width / 2;
     const cy = brick.y + brick.height / 2;
     const color = brick.getColors().glow;
-    for (let i = 0; i < 5; i++) {
-      const ang = Math.random() * Math.PI * 2;
+    for (let i = 0; i < 6; i++) {
       this.zShards.push({
-        x: cx + (Math.random() - 0.5) * brick.width * 0.6,
-        y: cy + (Math.random() - 0.5) * brick.height * 0.6,
-        dx: Math.cos(ang), dy: Math.sin(ang),
-        z: 0, vz: 0.05 + Math.random() * 0.04,
-        size: 4 + Math.random() * 5,
-        color: color, life: 1,
-        rot: Math.random() * Math.PI * 2,
-        vrot: (Math.random() - 0.5) * 0.4,
+        ox: cx - CONFIG.WIDTH / 2 + (Math.random() - 0.5) * brick.width * 0.8,
+        oy: cy - CONFIG.HEIGHT / 2 + (Math.random() - 0.5) * brick.height * 0.8,
+        lx: (Math.random() - 0.5) * 1.6,
+        ly: (Math.random() - 0.5) * 1.2 - 0.3,
+        t: 0,
+        z: 0,
+        vz: 5 + Math.random() * 4,
+        size: 5 + Math.random() * 4,
+        color: color,
+        rot: (Math.random() - 0.5) * 0.5,
       });
     }
   },
@@ -147,3 +148,4 @@ export const Combat = {
     if (navigator.vibrate) navigator.vibrate(40);
   },
 };
+
