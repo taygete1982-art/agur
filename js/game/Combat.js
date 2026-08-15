@@ -1,0 +1,149 @@
+﻿import { CONFIG } from '../config.js';
+import { PowerUp } from '../entities/PowerUp.js';
+
+export const Combat = {
+  wallHit(side, ball) {
+    this.wallCharge[side]++;
+    this.audio.wallHit();
+    this.effects.wave(side === 'left' ? 4 : CONFIG.WIDTH - 4, ball.y, '#f0c96a');
+    if (this.wallCharge[side] >= 5) {
+      this.wallCharge[side] = 0;
+      this.fireWallBolt(side, ball.y);
+    }
+  },
+
+  fireWallBolt(side, y) {
+    const row = this.bricks.filter(b => b.alive && !b.isBreaking && !b.isSteel && y > b.y && y < b.y + b.height)
+      .sort((a, b) => side === 'left' ? a.x - b.x : b.x - a.x);
+    const target = row[0];
+    const startX = side === 'left' ? 0 : CONFIG.WIDTH;
+    if (target) {
+      this.effects.bolt(startX, y, target.x + target.width / 2, target.y + target.height / 2);
+      this.effects.flash('#f0c96a', 0.15);
+      this.shakeIntensity = Math.max(this.shakeIntensity, 6);
+      if (target.takeDamage()) this.destroyBrick(target);
+    } else {
+      this.effects.bolt(startX, y, CONFIG.WIDTH / 2, y);
+    }
+    this.audio.wallBeam();
+  },
+
+  destroyBrick(brick) {
+    if (this.levelManager.aliveCount <= 1 && this.state === 'playing') this.triggerDramaticSlowMo();
+    if (brick.isDead || !brick.alive || brick.isSteel) return;
+    brick.isDead = true;
+
+    this.levelManager.brickDestroyed();
+    this.combo++;
+    if (this.combo % 12 === 0) this.collectWord();
+
+    const typeScores = { gold: 50, silver: 30, explosive: 30, fire: 20, regen: 15, moving: 20, clay: 20 };
+    this.score += (typeScores[brick.type] || 10) * this.combo;
+
+    this.audio.brickBreak(brick.row);
+    this.particles.explodeBrick(brick.x, brick.y, brick.width, brick.height, brick.getColors().glow);
+    this.spawnZShards(brick);
+    this.effects.wave(brick.x + brick.width / 2, brick.y + brick.height / 2, brick.getColors().glow);
+
+    if (brick.type === 'explosive') {
+      this.shakeIntensity = Math.max(this.shakeIntensity, 8);
+      this.effects.flash('#f97316', 0.12);
+      this.chainExplosion(brick);
+    } else if (brick.type === 'fire') {
+      this.fireDamage(brick);
+    }
+
+    const cx = brick.x + brick.width / 2;
+    const cy = brick.y + brick.height / 2;
+    if (brick.type === 'gold') {
+      this.spawnPowerUp(cx, cy);
+    } else {
+      const roll = Math.random();
+      if (roll < CONFIG.MUSEUM.FRAGMENT_CHANCE && this.museum) {
+        const artifactId = this.museum.randomIncompleteId();
+        if (artifactId) this.powerUps.push(new PowerUp(cx, cy, 'FRAGMENT', artifactId));
+      } else if (roll < CONFIG.MUSEUM.FRAGMENT_CHANCE + CONFIG.GAME.POWERUP_DROP_CHANCE) {
+        this.spawnPowerUp(cx, cy);
+      }
+    }
+    this.updateHUD();
+  },
+
+  chainExplosion(source) {
+    for (const other of this.bricks) {
+      if (other === source || !other.alive || other.isBreaking || other.isSteel) continue;
+      if (Math.abs(other.row - source.row) <= 1 && Math.abs(other.col - source.col) <= 1) {
+        this.effects.bolt(source.x + source.width / 2, source.y + source.height / 2, other.x + other.width / 2, other.y + other.height / 2);
+        this.destroyBrick(other);
+      }
+    }
+  },
+
+  fireDamage(source) {
+    for (const other of this.bricks) {
+      if (other === source || !other.alive || other.isBreaking || other.isSteel) continue;
+      const dr = Math.abs(other.row - source.row);
+      const dc = Math.abs(other.col - source.col);
+      if ((dr === 1 && dc === 0) || (dr === 0 && dc === 1)) {
+        if (other.takeDamage()) this.destroyBrick(other);
+      }
+    }
+  },
+
+  spawnZShards(brick) {
+    if (this.zShards.length > 70) return;
+    const cx = brick.x + brick.width / 2;
+    const cy = brick.y + brick.height / 2;
+    const color = brick.getColors().glow;
+    for (let i = 0; i < 5; i++) {
+      const ang = Math.random() * Math.PI * 2;
+      this.zShards.push({
+        x: cx + (Math.random() - 0.5) * brick.width * 0.6,
+        y: cy + (Math.random() - 0.5) * brick.height * 0.6,
+        dx: Math.cos(ang), dy: Math.sin(ang),
+        z: 0, vz: 0.05 + Math.random() * 0.04,
+        size: 4 + Math.random() * 5,
+        color: color, life: 1,
+        rot: Math.random() * Math.PI * 2,
+        vrot: (Math.random() - 0.5) * 0.4,
+      });
+    }
+  },
+
+  earthquake() {
+    if (this.state !== 'playing' || this.quakeCooldown > 0) return;
+    this.quakeCooldown = 45 * 60;
+    this.shakeIntensity = 18;
+    this.effects.flash('#d9a441', 0.25);
+    this.audio.wallBeam();
+    if (navigator.vibrate) navigator.vibrate(120);
+    for (const brick of this.bricks) {
+      if (!brick.alive || brick.isBreaking || brick.isSteel) continue;
+      if (brick.takeDamage()) this.destroyBrick(brick);
+    }
+  },
+
+  aimShot() {
+    if (this.state !== 'playing' || this.aimCooldown > 0) return;
+    const ball = this.balls[0];
+    if (!ball || ball.isLaunched) return;
+    let target = null, best = -1;
+    for (const b of this.bricks) {
+      if (!b.alive || b.isSteel) continue;
+      const d = Math.hypot(b.x - ball.x, b.y - ball.y);
+      if (d > best) { best = d; target = b; }
+    }
+    if (!target) return;
+    this.aimCooldown = 20 * 60;
+    const tx = target.x + target.width / 2;
+    const ty = target.y + target.height / 2;
+    const dx = tx - ball.x, dy = ty - ball.y;
+    const len = Math.hypot(dx, dy) || 1;
+    ball.dx = dx / len;
+    ball.dy = dy / len;
+    ball.isLaunched = true;
+    this.effects.bolt(ball.x, ball.y, tx, ty);
+    this.audio.launch();
+    if (navigator.vibrate) navigator.vibrate(40);
+  },
+};
