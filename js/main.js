@@ -79,14 +79,10 @@ class Game {
     this.canvas = document.getElementById('gameCanvas');
     this.ctx = this.canvas.getContext('2d');
     
-    const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
-    if (isTouch && window.matchMedia('(orientation: portrait)').matches) {
-      CONFIG.WIDTH = 540;
-      CONFIG.HEIGHT = 860;
-      CONFIG.BRICK.WIDTH = 38;
-      CONFIG.BRICK.GAP = 4;
-      CONFIG.PADDLE.WIDTH = 110;
-    }
+    // Игра ТОЛЬКО вертикальная — всегда
+    CONFIG.WIDTH = 540;
+    CONFIG.HEIGHT = 860;
+    CONFIG.PADDLE.WIDTH = 110;
     this.canvas.width = CONFIG.WIDTH;
     this.canvas.height = CONFIG.HEIGHT;
     this.canvas.style.aspectRatio = CONFIG.WIDTH + ' / ' + CONFIG.HEIGHT;
@@ -421,6 +417,7 @@ class Game {
   
   collectWord() {
     if (!this.museum || !this.museum.hasWord) return;
+    if (!Array.isArray(CONFIG.WORDS)) return;
     const uncollected = CONFIG.WORDS.filter(w => !this.museum.hasWord(w.word));
     if (uncollected.length === 0) {
       this.addLife();
@@ -800,6 +797,8 @@ class Game {
 window.addEventListener('DOMContentLoaded', () => {
   new Game();
 });
+
+
 
 
 

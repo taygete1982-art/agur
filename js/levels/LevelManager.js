@@ -1,7 +1,8 @@
 ﻿import { CONFIG } from '../config.js';
 import { Brick } from '../entities/Brick.js';
 
-const ROWS = 10, COLS = 12;
+const ROWS = CONFIG.BRICK.ROWS;
+const COLS = CONFIG.BRICK.COLS;
 
 function mulberry32(seed) {
   return function() {
@@ -43,16 +44,15 @@ const BIOMES = [
     palette: [['#a84a32','#c4654a'],['#8c3a28','#ab5742'],['#c96f4a','#e08d63'],['#75301f','#944a38'],['#b85a3f','#d17a5c'],['#63281a','#82422f'],['#9c4430','#bb6249']] },
 ];
 
-// Фирменные первые уровни биомов (картинки)
 const SIGNATURES = [
-  ['000000000GG0','000000000GG0','000001100000','000011110000','000111111000','001111111100','011111111110','111111111111','000000000000','000000000000'],
-  ['011000000110','111100001111','111110011111','011111111110','001111111100','000011110000','000011110000','000011110000','000011110000','000111111000'],
-  ['111001110011','111001110011','001110011100','001110011100','110011100111','110011100111','001110011100','001110011100','111001110011','111001110011'],
-  ['110011001100','110011001100','001100110011','001100110011','110011001100','110011001100','001100110011','001100110011','110011001100','110011001100'],
-  ['000110001100','001111011110','011111111111','111111111111','111111111111','111111111111','000000000000','000000000000','000000000000','000000000000'],
-  ['000111110000','001111111000','011111000000','01111000G000','0111100GGG00','01111000G000','011110000000','011111000000','001111111000','000111110000'],
-  ['000001100000','000011110000','000111111000','001111111100','011111111110','111111111111','011111111110','001111111100','000111111000','000011110000'],
-  ['111111111111','110000000011','110000000011','110011110011','110011110011','110000000011','110000000011','110000000011','110000000011','111111111111'],
+  ['000000000GG0','000000000GG0','000001100000','000011110000','000111111000','001111111100','011111111110','111111111111'],
+  ['011000000110','111100001111','111110011111','011111111110','001111111100','000011110000','000011110000','000111111000'],
+  ['111001110011','111001110011','001110011100','001110011100','110011100111','110011100111','001110011100','001110011100'],
+  ['110011001100','110011001100','001100110011','001100110011','110011001100','110011001100','001100110011','001100110011'],
+  ['000110001100','001111011110','011111111111','111111111111','111111111111','111111111111','111111111111','111111111111'],
+  ['000111110000','001111111000','011111000000','01111000G000','0111100GGG00','01111000G000','011110000000','011111000000'],
+  ['000001100000','000011110000','000111111000','001111111100','011111111110','111111111111','011111111110','001111111100'],
+  ['111111111111','110000000011','110000000011','110011110011','110011110011','110000000011','110000000011','111111111111'],
 ];
 
 const GENERATORS = {
@@ -72,10 +72,11 @@ const GENERATORS = {
   },
   wave(rng, d) {
     const g = emptyGrid();
+    const mid = (ROWS - 1) / 2;
     for (let c = 0; c < COLS; c++) {
-      const center = 4.5 + Math.sin(c * 0.7) * 2.5;
+      const center = mid * 0.6 + Math.sin(c * 0.7) * 3;
       for (let r = 0; r < ROWS; r++)
-        if (Math.abs(r - center) < 1.2 + d * 1.8) g[r][c] = 1;
+        if (Math.abs(r - center) < 1.5 + d * 2.5) g[r][c] = 1;
     }
     return g;
   },
@@ -89,9 +90,10 @@ const GENERATORS = {
   },
   diamond(rng, d) {
     const g = emptyGrid();
+    const mid = (ROWS - 1) / 2;
     for (let r = 0; r < ROWS; r++)
       for (let c = 0; c < COLS; c++)
-        if (Math.abs(r - 4.5) / 5.5 + Math.abs(c - 5.5) / 6.5 < 0.55 + d * 0.5) g[r][c] = 1;
+        if (Math.abs(r - mid) / (mid + 1) + Math.abs(c - 5.5) / 6.5 < 0.55 + d * 0.5) g[r][c] = 1;
     return g;
   },
   stars(rng, d) {
@@ -135,7 +137,14 @@ export class LevelManager {
   }
   
   decode(rows) {
-    return rows.map(rowStr => rowStr.split('').map(ch => CODES[ch] ?? 0));
+    const grid = rows.map(rowStr => rowStr.split('').map(ch => CODES[ch] ?? 0));
+    // Дозеркаливаем сигнатуру до ROWS рядов
+    let i = 0;
+    while (grid.length < ROWS) {
+      grid.push(grid[grid.length - 2 - (i % (grid.length - 1))] || grid[0]);
+      i++;
+    }
+    return grid;
   }
   
   loadLevel(levelNumber) {
@@ -149,14 +158,13 @@ export class LevelManager {
     const d = (levelNumber - 1) / (this.maxLevel - 1);
     const rng = mulberry32(levelNumber * 1337 + 7);
     
-    // Первый уровень биома = фирменная картинка
     let grid = inner === 0
       ? this.decode(SIGNATURES[biomeIndex])
       : GENERATORS[biome.style](rng, Math.min(0.5 + inner * 0.045 + d * 0.3, 1));
     
     let count = 0;
     for (const row of grid) for (const v of row) count += v;
-    if (count < 35) grid = GENERATORS.rows(rng, 0.95);
+    if (count < 60) grid = GENERATORS.rows(rng, 0.95);
     
     for (let r = 0; r < ROWS; r++) {
       for (let c = 0; c < COLS; c++) {
@@ -179,7 +187,7 @@ export class LevelManager {
   }
   
   getBrickX(col) {
-    const totalWidth = CONFIG.BRICK.COLS * (CONFIG.BRICK.WIDTH + CONFIG.BRICK.GAP) - CONFIG.BRICK.GAP;
+    const totalWidth = COLS * (CONFIG.BRICK.WIDTH + CONFIG.BRICK.GAP) - CONFIG.BRICK.GAP;
     const leftOffset = (CONFIG.WIDTH - totalWidth) / 2;
     return leftOffset + col * (CONFIG.BRICK.WIDTH + CONFIG.BRICK.GAP);
   }
@@ -200,4 +208,3 @@ export class LevelManager {
     return CONFIG.BALL.INITIAL_SPEED * (1 + Math.min(level - 1, 66) * 0.004);
   }
 }
-
