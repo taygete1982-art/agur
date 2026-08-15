@@ -3,7 +3,7 @@
 export class Renderer {
   constructor(game) {
     this.g = game;
-    document.body.style.background = '#160f08';
+    document.body.style.background = '#241a14';
   }
 
   draw() {
@@ -238,6 +238,7 @@ export class Renderer {
     ctx.shadowBlur = 0;
   }
 }
+
 
 
 

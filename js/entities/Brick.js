@@ -149,14 +149,14 @@ export class Brick {
 
   getColors() {
     switch (this.type) {
-      case 'silver':    return { base: '#8a8f98', glow: '#c9ced6' };
-      case 'explosive': return { base: '#a83a2a', glow: '#d96a3a' };
+      case 'silver':    return { base: '#1f3a7c', glow: '#3a5a9c' };
+      case 'explosive': return { base: '#9c4a34', glow: '#c06a3a' };
       case 'fire':      return { base: '#b3541e', glow: '#d98a3a' };
-      case 'regen':     return { base: '#3a7d5c', glow: '#6aab8a' };
-      case 'moving':    return { base: '#3a7d8c', glow: '#6aabba' };
-      case 'gold':      return { base: '#b8860b', glow: '#e0b83a' };
-      case 'clay':      return { base: '#8c5a3a', glow: '#ab7d5c' };
-      case 'steel':     return { base: '#5a6068', glow: '#8a9098' };
+      case 'regen':     return { base: '#6a7a4a', glow: '#8a9a5a' };
+      case 'moving':    return { base: '#3a4a5a', glow: '#5a6a7a' };
+      case 'gold':      return { base: '#c98a1a', glow: '#e0b83a' };
+      case 'clay':      return { base: '#b89868', glow: '#d8c9a8' };
+      case 'steel':     return { base: '#26262c', glow: '#4a4a52' };
       default:          return this.color;
     }
   }
@@ -188,6 +188,47 @@ export class Brick {
     if (this.isBreaking) ctx.globalAlpha = 1 - this.breakProgress;
 
     ctx.drawImage(getBrickSprite(this.getColors(), this.width, this.height), this.x - PAD, this.y - PAD);
+
+    // Анимация "живых" кирпичей: без shadowBlur и градиентов — копейки для CPU
+    if (this.type === 'explosive' || this.type === 'fire') {
+      // тлеющие трещины пульсируют
+      const a = 0.2 + Math.abs(Math.sin(performance.now() / 300 + this.col)) * 0.35;
+      ctx.strokeStyle = 'rgba(255, 90, 30, ' + a.toFixed(3) + ')';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(this.x + 6, this.y + this.height * 0.6);
+      ctx.lineTo(this.x + this.width * 0.4, this.y + this.height * 0.35);
+      ctx.lineTo(this.x + this.width * 0.7, this.y + this.height * 0.7);
+      ctx.lineTo(this.x + this.width - 6, this.y + this.height * 0.4);
+      ctx.stroke();
+    } else if (this.type === 'gold') {
+      // блик-шиммер пробегает по слитку
+      const p = (performance.now() / 1400 + this.col * 0.13) % 1;
+      const sx = this.x - 10 + p * (this.width + 20);
+      ctx.save();
+      ctx.beginPath();
+      ctx.roundRect(this.x, this.y, this.width, this.height, 3);
+      ctx.clip();
+      ctx.globalAlpha = 0.3;
+      ctx.fillStyle = '#fff2c9';
+      ctx.beginPath();
+      ctx.moveTo(sx, this.y);
+      ctx.lineTo(sx + 6, this.y);
+      ctx.lineTo(sx - 4, this.y + this.height);
+      ctx.lineTo(sx - 10, this.y + this.height);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    } else if (this.type === 'regen') {
+      // росток покачивается
+      const sw = Math.sin(performance.now() / 500 + this.col) * 2;
+      ctx.strokeStyle = '#7a9a4a';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(this.x + this.width - 8, this.y + 3);
+      ctx.quadraticCurveTo(this.x + this.width - 8 + sw, this.y - 4, this.x + this.width - 5 + sw, this.y - 8);
+      ctx.stroke();
+    }
 
     const emoji = this.getEmoji();
     if (emoji) {
@@ -243,3 +284,4 @@ export class Brick {
     ctx.restore();
   }
 }
+
