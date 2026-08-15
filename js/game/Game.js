@@ -118,7 +118,7 @@ export class Game {
     if (!this.paddle || !this.balls || !this.bricks) return;
     if (this.state !== GAME_STATE.PLAYING || this.museumOpen) return;
 
-    const timeScale = this.slowMotion ? 0.5 : 1;
+    const timeScale = this.slowMotion ? 0.8 : 1;
     const scaledDt = dt * timeScale;
 
     if (this.slowMotion) {
@@ -222,6 +222,7 @@ export class Game {
 }
 
 Object.assign(Game.prototype, Flow, Combat, Collect);
+
 
 
 

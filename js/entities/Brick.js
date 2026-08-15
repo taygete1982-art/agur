@@ -1,6 +1,7 @@
 ﻿import { CONFIG, randomRange } from '../config.js';
 import { getBrickSprite } from './brickSprites.js';
 import { getBrickTexture } from './brickTextures.js';
+import { getBrickTexture } from './brickTextures.js';
 
 export class Brick {
   constructor(x, y, color, row, col) {
@@ -142,7 +143,12 @@ export class Brick {
     if (tex) {
       ctx.drawImage(tex, this.x, this.y, this.width, this.height);
     } else {
+      const tex = getBrickTexture(this.type === 'fire' ? 'explosive' : this.type);
+    if (tex) {
+      ctx.drawImage(tex, this.x, this.y, this.width, this.height);
+    } else {
       ctx.drawImage(getBrickSprite(this.getColors(), this.width, this.height, this.type), this.x - 4, this.y - 4);
+    }
     }
 
     // Анимация "живых" кирпичей: без shadowBlur и градиентов
@@ -237,4 +243,5 @@ export class Brick {
     ctx.restore();
   }
 }
+
 

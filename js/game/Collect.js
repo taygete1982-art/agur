@@ -3,8 +3,13 @@ import { PowerUp } from '../entities/PowerUp.js';
 
 export const Collect = {
   spawnPowerUp(x, y) {
-    const types = Object.keys(CONFIG.POWERUP_TYPES);
-    this.powerUps.push(new PowerUp(x, y, types[Math.floor(Math.random() * types.length)]));
+    const roll = Math.random() * 100;
+    let type;
+    if (roll < 34) type = 'WIDE';
+    else if (roll < 68) type = 'FRAGMENT';
+    else if (roll < 88) type = 'LIFE';
+    else type = 'SLOW';
+    this.powerUps.push(new PowerUp(x, y, type));
   },
 
   collectPowerUp(powerUp) {
@@ -44,3 +49,4 @@ export const Collect = {
     this.showBanner('\u{1F4DC} Слово Шумера: ' + w.word + ' — ' + w.meaning);
   },
 };
+
