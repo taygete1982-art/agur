@@ -76,23 +76,18 @@ export class Paddle {
     const h = this.height;
     const r = this.radius;
     
-    ctx.shadowColor = '#d9a441';
-    ctx.shadowBlur = 18;
-    
     const grad = ctx.createLinearGradient(x, y, x, y + h);
-    grad.addColorStop(0, '#f0d9a8');
-    grad.addColorStop(0.5, '#d9a441');
-    grad.addColorStop(1, '#8a5a2b');
+    grad.addColorStop(0, '#c9955a');
+    grad.addColorStop(0.5, '#a8743a');
+    grad.addColorStop(1, '#6b4a24');
     ctx.fillStyle = grad;
-    
     ctx.beginPath();
     ctx.roundRect(x, y, w, h, r);
     ctx.fill();
-    
-    ctx.shadowBlur = 0;
-    
-    // блик
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+    ctx.strokeStyle = 'rgba(30, 15, 5, 0.7)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(255, 240, 200, 0.25)';
     ctx.beginPath();
     ctx.roundRect(x + 6, y + 2, w - 12, h * 0.35, 3);
     ctx.fill();
@@ -100,4 +95,5 @@ export class Paddle {
     ctx.restore();
   }
 }
+
 

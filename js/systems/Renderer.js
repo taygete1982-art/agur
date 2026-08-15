@@ -1,7 +1,10 @@
 ﻿import { CONFIG, GAME_STATE } from '../config.js';
 
 export class Renderer {
-  constructor(game) { this.g = game; }
+  constructor(game) {
+    this.g = game;
+    document.body.style.background = '#160f08';
+  }
 
   draw() {
     const g = this.g;
@@ -73,24 +76,22 @@ export class Renderer {
     const cx = CONFIG.WIDTH / 2;
     const cy = CONFIG.HEIGHT / 2;
     ctx.save();
-    ctx.globalCompositeOperation = 'lighter';
     for (const s of g.zShards) {
       const scale = F / (F - Math.min(s.z, 250));
-      const px = cx + s.ox * scale;
-      const py = cy + s.oy * scale;
+      const drift = s.face ? 0.15 : 1;
+      const px = cx + s.ox * (1 + (scale - 1) * drift);
+      const py = cy + s.oy * (1 + (scale - 1) * drift);
       if (px < -100 || px > CONFIG.WIDTH + 100 || py < -100 || py > CONFIG.HEIGHT + 100) continue;
-      const sz = s.size * scale;
-      const fade = Math.min(1, s.t * 0.5) * Math.max(0, 1 - s.z / 250);
+      const sz = s.size * scale * (s.face ? 1.4 : 1);
+      const fade = Math.min(1, s.t * 0.6) * Math.max(0, 1 - s.z / 250);
       const ang = Math.atan2(py - cy, px - cx) + s.rot;
-      const stretch = 1 + Math.min(scale - 1, 2.5) * 0.9;
+      const stretch = 1 + Math.min(scale - 1, 2.5) * 0.7;
       ctx.globalAlpha = fade;
       ctx.save();
       ctx.translate(px, py);
       ctx.rotate(ang);
       ctx.fillStyle = s.color;
       ctx.fillRect((-sz * stretch) / 2, -sz / 3, sz * stretch, sz * 0.66);
-      ctx.fillStyle = 'rgba(255, 249, 230, 0.9)';
-      ctx.fillRect(-sz / 3, -sz / 6, sz * 0.66, sz / 3);
       ctx.restore();
     }
     ctx.restore();
@@ -113,13 +114,14 @@ export class Renderer {
     ctx.stroke();
     const trackT = (CONFIG.WIDTH - g.paddle.width) > 0 ? g.paddle.x / (CONFIG.WIDTH - g.paddle.width) : 0.5;
     const trackerX = trackX + trackT * trackW;
-    ctx.shadowColor = '#ffe066';
-    ctx.shadowBlur = 15;
+    ctx.fillStyle = 'rgba(240, 201, 106, 0.25)';
+    ctx.beginPath();
+    ctx.arc(trackerX, zoneY + 45, 14, 0, Math.PI * 2);
+    ctx.fill();
     ctx.fillStyle = '#f0c96a';
     ctx.beginPath();
     ctx.arc(trackerX, zoneY + 45, 8, 0, Math.PI * 2);
     ctx.fill();
-    ctx.shadowBlur = 0;
     ctx.fillStyle = '#fff9e6';
     ctx.beginPath();
     ctx.arc(trackerX - 2, zoneY + 43, 3, 0, Math.PI * 2);
@@ -236,6 +238,7 @@ export class Renderer {
     ctx.shadowBlur = 0;
   }
 }
+
 
 
 

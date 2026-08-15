@@ -94,22 +94,23 @@ export const Combat = {
   },
 
   spawnZShards(brick) {
-    if (this.zShards.length > 200) return;
+    if (this.zShards.length > 120) return;
+    if (brick.type === 'normal' || brick.type === 'clay' || brick.type === 'moving') return;
+    if (brick.type !== 'gold' && Math.random() < 0.5) return;
     const cx = brick.x + brick.width / 2;
     const cy = brick.y + brick.height / 2;
-    const color = brick.getColors().glow;
-    const count = 10 + Math.floor(Math.random() * 4);
+    const color = brick.getColors().base;
+    const count = 6 + Math.floor(Math.random() * 3);
     for (let i = 0; i < count; i++) {
-      const towardFace = Math.random() < 0.35;
+      const face = Math.random() < 0.25 ? 1 : 0;
       this.zShards.push({
-        ox: towardFace ? (Math.random() - 0.5) * 40 : cx - CONFIG.WIDTH / 2 + (Math.random() - 0.5) * brick.width,
-        oy: towardFace ? (Math.random() - 0.5) * 40 : cy - CONFIG.HEIGHT / 2 + (Math.random() - 0.5) * brick.height,
-        lx: towardFace ? (Math.random() - 0.5) * 0.4 : (Math.random() - 0.5) * 2.2,
-        ly: towardFace ? (Math.random() - 0.5) * 0.3 - 0.1 : (Math.random() - 0.5) * 1.8 - 0.4,
+        ox: cx - CONFIG.WIDTH / 2 + (Math.random() - 0.5) * brick.width * 0.8,
+        oy: cy - CONFIG.HEIGHT / 2 + (Math.random() - 0.5) * brick.height * 0.8,
+        face: face,
         t: 0,
         z: 0,
-        vz: towardFace ? 7 + Math.random() * 3 : 4 + Math.random() * 3,
-        size: towardFace ? 6 + Math.random() * 5 : 4 + Math.random() * 4,
+        vz: face ? 6 + Math.random() * 3 : 4 + Math.random() * 3,
+        size: 5 + Math.random() * 4,
         color: color,
         rot: (Math.random() - 0.5) * 0.6,
       });
@@ -153,6 +154,7 @@ export const Combat = {
     if (navigator.vibrate) navigator.vibrate(40);
   },
 };
+
 
 
 
