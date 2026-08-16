@@ -16,6 +16,17 @@ export class Renderer {
       ctx.translate((Math.random() - 0.5) * g.shakeIntensity, (Math.random() - 0.5) * g.shakeIntensity);
     }
     ctx.clearRect(-20, -20, CONFIG.WIDTH + 40, CONFIG.HEIGHT + 40);
+    if (g.background) g.background.draw(ctx, window.__biome || 0);
+    if (g.popups) {
+      for (const p of g.popups) {
+        ctx.globalAlpha = 1 - p.t;
+        ctx.fillStyle = '#f0d9a8';
+        ctx.font = 'bold 13px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(p.text, p.x, p.y - p.t * 30);
+      }
+      ctx.globalAlpha = 1;
+    }
 
     this.drawBackground(ctx);
 
@@ -238,6 +249,8 @@ export class Renderer {
     ctx.shadowBlur = 0;
   }
 }
+
+
 
 
 

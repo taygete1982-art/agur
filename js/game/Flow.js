@@ -52,6 +52,7 @@ export const Flow = {
 
   loadLevel(levelNumber) {
     this.level = levelNumber;
+    window.__biome = (levelNumber - 1) % 8;
     this.bricks = this.levelManager.loadLevel(levelNumber);
     for (let i = 0; i < this.bricks.length; i++) {
       this.bricks[i].breakPhase = 0.01 + this.bricks[i].row * 0.04 + Math.random() * 0.02;
@@ -133,3 +134,4 @@ export const Flow = {
     this.shakeIntensity = 10;
   },
 };
+

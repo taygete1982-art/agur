@@ -43,10 +43,10 @@ export const Combat = {
     this.audio.brickBreak(brick.row);
     this.particles.explodeBrick(brick.x, brick.y, brick.width, brick.height, brick.getColors().glow);
     this.effects.wave(brick.x + brick.width / 2, brick.y + brick.height / 2, brick.getColors().glow);
-    // Z-осколки только от особенных кирпичей (не от обычных)
-    if (brick.type !== 'normal' && brick.type !== 'clay' && brick.type !== 'moving') {
-      this.spawnZShards(brick);
-    }
+    this.spawnZShards(brick);
+    this.hitstop = 2;
+    this.popups = this.popups || [];
+    this.popups.push({ x: brick.x + brick.width / 2, y: brick.y, t: 0, text: '+' + (10 * Math.max(1, this.combo || 1)) });
 
     if (brick.type === 'explosive') {
       this.shakeIntensity = Math.max(this.shakeIntensity, 8);
@@ -94,13 +94,13 @@ export const Combat = {
   },
 
   spawnZShards(brick) {
-    if (this.zShards.length > 120) return;
-    if (brick.type === 'normal' || brick.type === 'clay' || brick.type === 'moving') return;
-    if (brick.type !== 'gold' && Math.random() < 0.5) return;
+    if (this.zShards.length > 200) return;
+    const plain = brick.type === 'normal' || brick.type === 'clay' || brick.type === 'moving';
+    if (!plain && brick.type !== 'gold' && Math.random() < 0.4) return;
     const cx = brick.x + brick.width / 2;
     const cy = brick.y + brick.height / 2;
     const color = brick.getColors().base;
-    const count = 6 + Math.floor(Math.random() * 3);
+    const count = plain ? 3 + Math.floor(Math.random() * 2) : 8 + Math.floor(Math.random() * 4);
     for (let i = 0; i < count; i++) {
       const face = Math.random() < 0.25 ? 1 : 0;
       this.zShards.push({
@@ -154,6 +154,7 @@ export const Combat = {
     if (navigator.vibrate) navigator.vibrate(40);
   },
 };
+
 
 
 

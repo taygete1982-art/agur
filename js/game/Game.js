@@ -7,6 +7,7 @@ import { AudioManager } from '../systems/Audio.js';
 import { LevelManager } from '../levels/LevelManager.js';
 import { Effects } from '../systems/Effects.js';
 import { Renderer } from '../systems/Renderer.js';
+import { Background } from '../systems/Background.js';
 import { Flow } from './Flow.js';
 import { Combat } from './Combat.js';
 import { Collect } from './Collect.js';
@@ -31,6 +32,7 @@ export class Game {
     this.audio = new AudioManager();
     this.levelManager = new LevelManager();
     this.effects = new Effects();
+    this.background = new Background();
     this.renderer = new Renderer(this);
 
     this.museum = null;
@@ -118,6 +120,7 @@ export class Game {
     if (!this.paddle || !this.balls || !this.bricks) return;
     if (this.state !== GAME_STATE.PLAYING || this.museumOpen) return;
 
+    if (this.hitstop > 0) { this.hitstop--; return; }
     const timeScale = this.slowMotion ? 0.8 : 1;
     const scaledDt = dt * timeScale;
 
@@ -196,9 +199,15 @@ export class Game {
       s.oy += (s.ly || 0) * scaledDt;
       if (s.z >= 245) this.zShards.splice(i, 1);
     }
+    for (let i = (this.popups || []).length - 1; i >= 0; i--) {
+      const p = this.popups[i];
+      p.t += 0.02 * scaledDt;
+      if (p.t >= 1) this.popups.splice(i, 1);
+    }
 
     this.particles.update(scaledDt);
     this.effects.update(scaledDt);
+    this.background.update(scaledDt);
 
     if (this.shakeIntensity > 0) {
       this.shakeIntensity *= 0.9;
@@ -222,6 +231,8 @@ export class Game {
 }
 
 Object.assign(Game.prototype, Flow, Combat, Collect);
+
+
 
 
 

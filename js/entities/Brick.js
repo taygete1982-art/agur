@@ -1,6 +1,30 @@
 ﻿import { CONFIG, randomRange } from '../config.js';
 import { getBrickSprite } from './brickSprites.js';
-import { getBrickTexture } from './brickTextures.js';
+
+// Вариант Б: каждая земля = свой материал; ряды = полосы (слои по 2 ряда)
+const BIOME_PALETTES = [
+  // 0 Пески: культурные слои (песок -> керамика -> зола -> древний кирпич)
+  [{ base: '#c9a05a', glow: '#dcb878' }, { base: '#b4593a', glow: '#c97a52' }, { base: '#6a5a4a', glow: '#8a7a5c' }, { base: '#9c4a34', glow: '#b86a4a' }],
+  // 1 Оазис: олива / мох / песок
+  [{ base: '#7a8a4a', glow: '#98aa62' }, { base: '#5a6a3a', glow: '#7a8a52' }, { base: '#b89868', glow: '#d0b080' }, { base: '#9c4a34', glow: '#b86a4a' }],
+  // 2 Река: лазурит / речной камень / ракушка
+  [{ base: '#1f3a7c', glow: '#3a5a9c' }, { base: '#2a6a7a', glow: '#4a8a9a' }, { base: '#d8cfc4', glow: '#ece4d8' }, { base: '#b89868', glow: '#d0b080' }],
+  // 3 Степь: охра / бронза / терракота
+  [{ base: '#c9853f', glow: '#dca058' }, { base: '#8a6a44', glow: '#a88a62' }, { base: '#9c4a34', glow: '#b86a4a' }, { base: '#cbb995', glow: '#e0d0b0' }],
+  // 4 Горы: базальт / серый / бронза
+  [{ base: '#26262c', glow: '#4a4a52' }, { base: '#5a544c', glow: '#7a746c' }, { base: '#6a5a44', glow: '#8a7a5c' }, { base: '#c9853f', glow: '#dca058' }],
+  // 5 Ночная пустыня: тёмный лазурит / серый / золото
+  [{ base: '#16264c', glow: '#2a3a6c' }, { base: '#3a3a44', glow: '#5a5a64' }, { base: '#c98a1a', glow: '#e0b83a' }, { base: '#9c4a34', glow: '#b86a4a' }],
+  // 6 Солёные равнины: алебастр / ракушка / песчаник
+  [{ base: '#e8e0d8', glow: '#f4ece4' }, { base: '#cbb995', glow: '#e0d0b0' }, { base: '#d8cfc4', glow: '#ece4d8' }, { base: '#c9a05a', glow: '#dcb878' }],
+  // 7 Руины: обожжённая / бронза с патиной / серый
+  [{ base: '#a8442a', glow: '#c06a4a' }, { base: '#6a5a44', glow: '#8a7a5c' }, { base: '#9c4a34', glow: '#b86a4a' }, { base: '#5a544c', glow: '#7a746c' }],
+];
+
+export function biomeColor(biome, slot) {
+  const pal = BIOME_PALETTES[biome % BIOME_PALETTES.length];
+  return pal[slot % pal.length];
+}
 
 export class Brick {
   constructor(x, y, color, row, col) {
@@ -106,9 +130,13 @@ export class Brick {
       case 'regen':     return { base: '#6a7a4a', glow: '#8a9a5a' };
       case 'moving':    return { base: '#3a4a5a', glow: '#5a6a7a' };
       case 'gold':      return { base: '#c98a1a', glow: '#e0b83a' };
-      case 'clay':      return { base: '#b89868', glow: '#d8c9a8' };
+      case 'clay':      return { base: '#cbb995', glow: '#e0d0b0' };
       case 'steel':     return { base: '#26262c', glow: '#4a4a52' };
-      default:          return this.color;
+      default: {
+        if (this.color) return this.color;
+        const pal = BIOME_PALETTES[(window.__biome || 0) % BIOME_PALETTES.length];
+        return pal[Math.floor(this.row / 2) % pal.length];
+      }
     }
   }
 
@@ -138,15 +166,8 @@ export class Brick {
     ctx.translate(-centerX, -centerY);
     if (this.isBreaking) ctx.globalAlpha = 1 - this.breakProgress;
 
-    // ТЕКСТУРА-артефакт, если загрузилась; иначе процедурный спрайт
-    const tex = getBrickTexture(this.type === 'fire' ? 'explosive' : this.type);
-    if (tex) {
-      ctx.drawImage(tex, this.x, this.y, this.width, this.height);
-    } else {
-      ctx.drawImage(getBrickSprite(this.getColors(), this.width, this.height, this.type), this.x - 4, this.y - 4);
-    }
+    ctx.drawImage(getBrickSprite(this.getColors(), this.width, this.height, this.type), this.x - 4, this.y - 4);
 
-    // Анимация "живых" кирпичей
     if (this.type === 'explosive' || this.type === 'fire') {
       const a = 0.2 + Math.abs(Math.sin(performance.now() / 300 + this.col)) * 0.35;
       ctx.strokeStyle = 'rgba(255, 90, 30, ' + a.toFixed(3) + ')';
@@ -238,6 +259,4 @@ export class Brick {
     ctx.restore();
   }
 }
-
-
 
