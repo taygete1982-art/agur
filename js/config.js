@@ -38,6 +38,9 @@
   POWERUP_TYPES: {
     WIDE:    { emoji: '\u{1F334}', color: '#40b3a2', duration: 10000, desc: 'Широкая платформа' },
     SLOW:    { emoji: '\u{1F98E}', color: '#63d1c0', duration: 4000,  desc: 'Замедление мяча' },
+    MULTI:    { emoji: '✶',  color: '#f0c96a', duration: 0,     desc: 'Три бога' },
+    LASE:     { emoji: '⚡', color: '#fde047', duration: 8000,  desc: 'Молния Адада' },
+    CATCH:    { emoji: '✋', color: '#f0d9a8', duration: 15000, desc: 'Рука жреца' },
     LIFE:    { emoji: '\u{1F4A7}', color: '#40b3a2', duration: 0,     desc: '+1 жизнь' },
     FRAGMENT:{ emoji: '\u{1F9E9}', color: '#e8c98a', duration: 0,     desc: 'Черепок артефакта' },
   },
@@ -109,6 +112,7 @@ export const RELICS = [
   { id: 'r7', name: 'Зеркало судьбы', emoji: '\u{1FA9E}' },
   { id: 'r8', name: 'Штандарт Ура', emoji: '\u{1F6A9}' },
 ];
+
 
 
 
