@@ -77,6 +77,12 @@ export const Flow = {
   },
 
   loseLife() {
+    if (this.deckHas && this.deckHas('GIR_TAB') && this.shieldUsed !== this.level) {
+      this.shieldUsed = this.level;
+      this.resetBall();
+      this.showBanner('🦂 Щит скорпиона!');
+      return;
+    }
     this.lives--;
     this.combo = 0;
     this.audio.loseLife();
@@ -137,5 +143,7 @@ export const Flow = {
     this.shakeIntensity = 10;
   },
 };
+
+
 
 

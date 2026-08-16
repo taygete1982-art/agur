@@ -11,6 +11,8 @@ import { Background } from '../systems/Background.js';
 import { Flow } from './Flow.js';
 import { Combat } from './Combat.js';
 import { Collect } from './Collect.js';
+import { initDeck } from '../systems/Cards.js';
+import { initDeck } from '../systems/Cards.js';
 import { Enemies } from '../systems/Enemies.js';
 
 export class Game {
@@ -49,6 +51,8 @@ export class Game {
     this.bricks = [];
     this.powerUps = [];
     this.zShards = [];
+    this.deck = [];
+    this.deck = [];
 
     this.state = GAME_STATE.MENU;
     this.score = 0;
@@ -75,6 +79,16 @@ export class Game {
 
     this.input.setPaddle(this.paddle);
     this.setupCallbacks();
+    initDeck(this);
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'KeyN' && this.state === GAME_STATE.PLAYING) { this.loadLevel(Math.min(this.level + 1, 88)); this.resetBall(); }
+      if (e.code === 'KeyC') { window.toggleDeck && window.toggleDeck(this); }
+    });
+    initDeck(this);
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'KeyN' && this.state === GAME_STATE.PLAYING) { this.loadLevel(Math.min(this.level + 1, 88)); this.resetBall(); }
+      if (e.code === 'KeyC') { window.toggleDeck && window.toggleDeck(this); }
+    });
     window.addEventListener('keydown', (e) => {
       if (e.code === 'KeyN' && this.state === GAME_STATE.PLAYING) {
         this.loadLevel(Math.min(this.level + 1, 88));
@@ -286,6 +300,8 @@ export class Game {
 }
 
 Object.assign(Game.prototype, Flow, Combat, Collect, Enemies);
+
+
 
 
 

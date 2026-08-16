@@ -38,7 +38,7 @@ export const Combat = {
     if (this.combo % 12 === 0) this.collectWord();
 
     const typeScores = { gold: 50, silver: 30, explosive: 30, fire: 20, regen: 15, moving: 20, clay: 20 };
-    this.score += (typeScores[brick.type] || 10) * this.combo;
+    this.score += Math.round((typeScores[brick.type] || 10) * this.combo * (this.deckScoreMul || 1));
 
     this.audio.brickBreak(brick.row);
     this.particles.explodeBrick(brick.x, brick.y, brick.width, brick.height, brick.getColors().glow);
@@ -58,7 +58,10 @@ export const Combat = {
 
     const cx = brick.x + brick.width / 2;
     const cy = brick.y + brick.height / 2;
-    if (brick.type === 'gold') {
+    const pityLimit = this.deckHas && this.deckHas('CUP') ? 28 : 40;
+    this.noDrop = (this.noDrop || 0) + 1;
+    if (this.noDrop >= pityLimit) { this.noDrop = 0; this.spawnPowerUp(cx, cy); }
+    else if (brick.type === 'gold') {
       this.spawnPowerUp(cx, cy);
     } else {
       const roll = Math.random();
@@ -94,23 +97,26 @@ export const Combat = {
   },
 
   spawnZShards(brick) {
-    if (this.zShards.length > 200) return;
-    const plain = brick.type === 'normal' || brick.type === 'clay' || brick.type === 'moving';
-    if (!plain && brick.type !== 'gold' && Math.random() < 0.4) return;
+    if (this.zShards.length > 240) return;
     const cx = brick.x + brick.width / 2;
     const cy = brick.y + brick.height / 2;
     const color = brick.getColors().base;
-    const count = plain ? 6 + Math.floor(Math.random() * 4) : 10 + Math.floor(Math.random() * 5);
+    const special = brick.type !== 'normal' && brick.type !== 'clay' && brick.type !== 'moving';
+    if (!special && Math.random() > 0.12) return;
+    if (special && brick.type !== 'gold' && brick.type !== 'explosive' && Math.random() < 0.5) return;
+    const count = special ? 8 + Math.floor(Math.random() * 4) : 5 + Math.floor(Math.random() * 3);
     for (let i = 0; i < count; i++) {
-      const face = Math.random() < 0.35 ? 1 : 0;
+      const face = Math.random() < 0.5 ? 1 : 0;
       this.zShards.push({
         ox: cx - CONFIG.WIDTH / 2 + (Math.random() - 0.5) * brick.width * 0.8,
         oy: cy - CONFIG.HEIGHT / 2 + (Math.random() - 0.5) * brick.height * 0.8,
+        lx: (Math.random() - 0.5) * 1.5,
+        ly: 1.5 + Math.random() * 2.5,
         face: face,
         t: 0,
         z: 0,
-        vz: face ? 5 + Math.random() * 3 : 2.5 + Math.random() * 2,
-        size: 6 + Math.random() * 6,
+        vz: face ? 3 + Math.random() * 2 : 2 + Math.random() * 1.5,
+        size: 7 + Math.random() * 7,
         color: color,
         rot: (Math.random() - 0.5) * 0.6,
       });
@@ -154,6 +160,11 @@ export const Combat = {
     if (navigator.vibrate) navigator.vibrate(40);
   },
 };
+
+
+
+
+
 
 
 

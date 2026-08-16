@@ -43,6 +43,8 @@
     CATCH:    { emoji: '✋', color: '#f0d9a8', duration: 15000, desc: 'Рука жреца' },
     LIFE:    { emoji: '\u{1F4A7}', color: '#40b3a2', duration: 0,     desc: '+1 жизнь' },
     FRAGMENT:{ emoji: '\u{1F9E9}', color: '#e8c98a', duration: 0,     desc: 'Черепок артефакта' },
+    CARD:    { emoji: '🃏', color: '#e8c98a', duration: 0,     desc: 'Карта Судеб' },
+    SIGN:    { emoji: '𒀭', color: '#e8c98a', duration: 0,     desc: 'Клинописный знак' },
   },
 };
 
@@ -112,6 +114,9 @@ export const RELICS = [
   { id: 'r7', name: 'Зеркало судьбы', emoji: '\u{1FA9E}' },
   { id: 'r8', name: 'Штандарт Ура', emoji: '\u{1F6A9}' },
 ];
+
+
+
 
 
 

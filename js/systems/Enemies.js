@@ -8,13 +8,15 @@ export const Enemies = {
     this.demons.push({
       x: fromLeft ? -30 : CONFIG.WIDTH + 30,
       y: 120 + Math.random() * 160,
-      vx: (fromLeft ? 1 : -1) * (1.2 + Math.random() * 0.8),
+      vx: (fromLeft ? 1 : -1) * (1.2 + Math.random() * 0.8) * (this.deckHas && this.deckHas('MUS') ? 0.6 : 1),
       phase: Math.random() * 6.28,
       hp: 2,
     });
   },
 
   updateEnemies(scaledDt) {
+    if (this.freezeDemons > 0) this.freezeDemons -= scaledDt;
+    if (this.freezeDemons > 0) this.freezeDemons -= scaledDt;
     if (!this.demons) this.demons = [];
     this.demonTimer = (this.demonTimer || 600) - scaledDt;
     if (this.demonTimer <= 0 && this.state === 'playing') {
@@ -23,9 +25,11 @@ export const Enemies = {
     }
     for (let i = this.demons.length - 1; i >= 0; i--) {
       const d = this.demons[i];
-      d.x += d.vx * scaledDt;
-      d.phase += 0.05 * scaledDt;
-      d.y += Math.sin(d.phase) * 0.6 * scaledDt;
+      if (!(this.freezeDemons > 0)) {
+        d.x += d.vx * scaledDt;
+        d.phase += 0.05 * scaledDt;
+        d.y += Math.sin(d.phase) * 0.6 * scaledDt;
+      }
       let dead = false;
       for (let j = (this.lasers || []).length - 1; j >= 0; j--) {
         const l = this.lasers[j];
@@ -44,8 +48,16 @@ export const Enemies = {
       if (!dead) {
         for (const b of this.balls) {
           if (b.isLaunched && Math.abs(b.x - d.x) < 16 + b.radius && Math.abs(b.y - d.y) < 14 + b.radius) {
-            b.dy = -b.dy;
+            if (!(this.deckHas && this.deckHas('GALLA'))) b.dy = -b.dy;
+            d.hp--;
+            this.particles.explodeBrick(d.x - 10, d.y - 10, 20, 20, '#8a5a9c');
             this.shakeIntensity = Math.max(this.shakeIntensity, 4);
+            if (d.hp <= 0) {
+              this.score += 100;
+              this.showBanner('𒀭 Демон сбит +100');
+              this.spawnPowerUp(d.x, d.y);
+              dead = true;
+            }
             break;
           }
         }
@@ -68,7 +80,7 @@ export const Enemies = {
             b.x > bs.x - b.radius && b.x < bs.x + bs.w + b.radius &&
             b.y - b.radius < bs.y + bs.h && b.y > bs.y) {
           b.dy = -b.dy;
-          bs.hp--;
+          bs.hp -= (this.deckHas && this.deckHas('NAM_TAR') ? 2 : 1);
           this.particles.explodeBrick(b.x - 15, bs.y + bs.h - 10, 30, 12, '#c98a1a');
           this.shakeIntensity = Math.max(this.shakeIntensity, 5);
           if (bs.hp <= 0) { this.killBoss(); break; }
@@ -119,4 +131,7 @@ export const Enemies = {
     }
   },
 };
+
+
+
 

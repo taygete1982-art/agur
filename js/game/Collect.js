@@ -1,8 +1,26 @@
 ﻿import { CONFIG } from '../config.js';
 import { PowerUp } from '../entities/PowerUp.js';
+import { Ball } from '../entities/Ball.js';
+import { CARDS } from '../systems/Cards.js';
 
 export const Collect = {
+  deckHas(id) { return Array.isArray(this.deck) && this.deck.includes(id); },
+
+  setDeckMods() {
+    let mul = 1;
+    if (this.deckHas('AB2')) mul += 0.10;
+    if (this.deckHas('PUABI')) mul += 0.15;
+    if (this.deckHas('UG')) mul += 0.10;
+    this.deckScoreMul = mul;
+  },
+
   spawnPowerUp(x, y) {
+    this.noDrop = 0;
+    const cardChance = this.deckHas('UR') ? 0.05 : 0.025;
+    if (Math.random() < cardChance && CARDS.some(c => !this.deckHas(c.id))) {
+      this.powerUps.push(new PowerUp(x, y, 'CARD'));
+      return;
+    }
     const roll = Math.random() * 100;
     let type;
     if (roll < 25) type = 'WIDE';
@@ -10,8 +28,7 @@ export const Collect = {
     else if (roll < 60) type = 'LIFE';
     else if (roll < 68) type = 'SLOW';
     else if (roll < 80) type = 'MULTI';
-    else if (roll < 92) type = 'LASE';
-    else type = 'MULTI';
+    else type = 'WIDE';
     this.powerUps.push(new PowerUp(x, y, type));
   },
 
@@ -20,40 +37,40 @@ export const Collect = {
     this.particles.powerupCollect(powerUp.x + powerUp.width / 2, powerUp.y + powerUp.height / 2, powerUp.config.color);
   },
 
-  collectFragment(artifactId) {
-    if (!this.museum) return;
-    const art = CONFIG.ARTIFACTS.find(a => a.id === artifactId);
-    if (!art) return;
-    const completed = this.museum.addShard(artifactId);
-    this.audio.fragment();
-    if (completed) {
-      this.showBanner('\u{1F3FA} Артефакт собран: ' + art.name + '!');
-      this.effects.flash('#f0c96a', 0.3);
-      this.audio.artifact();
-    } else {
-      this.showBanner('\u{1F9E9} Черепок: ' + art.name + ' (' + this.museum.data[artifactId] + '/' + art.shards + ')');
-    }
-    const cnt = document.getElementById('museumCount');
-    if (cnt) cnt.textContent = this.museum.totalShards();
+  collectCard() {
+    const left = CARDS.filter(c => !this.deckHas(c.id));
+    if (!left.length) { this.score += 100; this.showBanner('🃏 Колода полна! +100'); return; }
+    const card = left[Math.floor(Math.random() * left.length)];
+    this.deck = this.deck || [];
+    this.deck.push(card.id);
+    try { localStorage.setItem('agur_deck', JSON.stringify(this.deck)); } catch (e) {}
+    this.setDeckMods();
+    this.score += 150;
+    this.effects.flash('#e8c98a', 0.2);
+    if (card.suit === 'ice') { this.applySlowEffect(); this.freezeDemons = 240; this.showBanner('❄ ' + card.name + '!'); }
+    else if (card.suit === 'fire') { this.castMeteor(); this.showBanner('🔥 ' + card.name + '!'); }
+    else this.showBanner('🃏 ' + card.name + '! +150');
   },
 
-  collectWord() {
-    if (!this.museum || !this.museum.hasWord) return;
-    if (!Array.isArray(CONFIG.WORDS) || CONFIG.WORDS.length === 0) return;
-    const uncollected = CONFIG.WORDS.filter(w => !this.museum.hasWord(w.word));
-    if (uncollected.length === 0) {
-      this.addLife();
-      this.showBanner('\u{1F4DC} Все слова собраны! +1 жизнь');
-      return;
+  castMeteor() {
+    const alive = this.bricks.filter(b => b.alive && !b.isBreaking && !b.isSteel);
+    if (!alive.length) return;
+    const center = alive[Math.floor(Math.random() * alive.length)];
+    let n = 0;
+    for (const b of this.bricks) {
+      if (n >= 6) break;
+      if (!b.alive || b.isSteel) continue;
+      if (Math.abs(b.row - center.row) <= 1 && Math.abs(b.col - center.col) <= 1) {
+        this.effects.bolt(center.x + center.width / 2, 0, b.x + b.width / 2, b.y + b.height / 2);
+        if (b.takeDamage()) this.destroyBrick(b);
+        n++;
+      }
     }
-    const w = uncollected[Math.floor(Math.random() * uncollected.length)];
-    this.museum.addWord(w.word);
-    this.audio.word();
-    this.showBanner('\u{1F4DC} Слово Шумера: ' + w.word + ' — ' + w.meaning);
+    this.effects.flash('#f97316', 0.2);
+    this.shakeIntensity = Math.max(this.shakeIntensity, 10);
   },
 
-  // === Трио: мультибол / лазер / кэтч ===
-spawnMultiBall() {
+  spawnMultiBall() {
     if (!this.balls || this.balls.length === 0) return;
     const source = this.balls[0];
     const baseAngle = Math.atan2(source.dy, source.dx);
@@ -69,29 +86,60 @@ spawnMultiBall() {
     this.showBanner('✶ ТРИ БОГА');
   },
 
-
-
-  fireLaser() {
-    this.lasers.push({ x: this.paddle.x + 6, y: this.paddle.y - 4, vy: 12 });
-    this.lasers.push({ x: this.paddle.x + this.paddle.width - 6, y: this.paddle.y - 4, vy: 12 });
-    this.audio.crack && this.audio.crack();
-  },
-
   releaseBall(b) {
     const off = b.caughtOffset - this.paddle.width / 2;
     const angle = -Math.PI / 2 + (off / (this.paddle.width / 2)) * 0.9;
     b.dx = Math.cos(angle) * b.speed;
     b.dy = Math.sin(angle) * b.speed;
     b.isLaunched = true;
-    this.audio.launch && this.audio.launch();
   },
 
   handlePaddleTap() {
     for (const b of this.balls) {
       if (b.caught) { this.releaseBall(b); b.caught = false; return; }
     }
-    if (this.laserTimer > 0) { this.fireLaser(); this.laserCooldown = 18; }
+  },
+
+  initWords() {
+    this.WORDS = [
+      { name: 'E2-GAL', meaning: 'дворец', signs: [{ c: '𒂍', t: 'E2' }, { c: '𒃲', t: 'GAL' }] },
+      { name: 'LU-GAL', meaning: 'царь', signs: [{ c: '𒇻', t: 'LU' }, { c: '𒃲', t: 'GAL' }] },
+      { name: 'AN-KI', meaning: 'вселенная', signs: [{ c: '𒀭', t: 'AN' }, { c: '𒆠', t: 'KI' }] },
+      { name: 'A-AB', meaning: 'море', signs: [{ c: '𒀀', t: 'A' }, { c: '𒀊', t: 'AB' }] },
+    ];
+    this.wordIdx = 0;
+    this.wordGot = [];
+  },
+
+  collectWord() {
+    if (!this.WORDS) this.initWords();
+    const w = this.WORDS[this.wordIdx % this.WORDS.length];
+    const need = w.signs.filter(s => !(this.wordGot || []).includes(s.t));
+    const pool = need.length && Math.random() < 0.7 ? need : this.WORDS.flatMap(x => x.signs);
+    const sign = pool[Math.floor(Math.random() * pool.length)];
+    this.powerUps.push(new PowerUp(60 + Math.random() * (CONFIG.WIDTH - 120), 40, 'SIGN', sign));
+  },
+
+  collectSign(sign) {
+    if (!this.WORDS) this.initWords();
+    const w = this.WORDS[this.wordIdx % this.WORDS.length];
+    const inWord = w.signs.some(s => s.t === sign.t);
+    if (inWord && !(this.wordGot || []).includes(sign.t)) {
+      this.wordGot = this.wordGot || [];
+      this.wordGot.push(sign.t);
+      this.score += 50;
+      this.showBanner(sign.c + ' ' + sign.t);
+      const left = w.signs.filter(s => !this.wordGot.includes(s.t));
+      if (left.length === 0) {
+        this.score += 500;
+        this.showBanner('𒁾 ' + w.name + ' — ' + w.meaning + '! +500');
+        this.effects.flash('#e8c98a', 0.25);
+        this.wordIdx++;
+        this.wordGot = [];
+      }
+    } else {
+      this.score += 25;
+      this.showBanner(sign.c + ' ' + sign.t + ' +25');
+    }
   },
 };
-
-

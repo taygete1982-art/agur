@@ -8,7 +8,7 @@ export class PowerUp {
     this.y = y - this.height / 2;
     this.type = type;
     this.artifactId = artifactId;
-    this.config = CONFIG.POWERUP_TYPES[type];
+    this.config = CONFIG.POWERUP_TYPES[type] || { emoji: '𒀭', color: '#e8c98a', duration: 0, desc: '' };
     this.speed = CONFIG.GAME.POWERUP_FALL_SPEED;
     this.alive = true;
     this.phase = Math.random() * Math.PI * 2;
@@ -35,7 +35,15 @@ export class PowerUp {
       case 'WIDE': game.paddle.activateWide(this.config.duration); break;
       case 'SLOW': game.applySlowEffect(); break;
       case 'LIFE': game.addLife(); break;
+      case 'CARD': game.collectCard(); break;
+      case 'CARD': game.collectCard(); break;
       case 'FRAGMENT': game.collectFragment(this.artifactId); break;
+      case 'MULTI': game.spawnMultiBall(); break;
+      case 'SIGN': game.collectSign(this.artifactId); break;
+      case 'LASE':
+        game.laserTimer = this.config.duration;
+        game.showBanner('⚡ Молния Адада! Пробел = залп');
+        break;
     }
     game.audio.powerUp();
   }
@@ -52,10 +60,15 @@ export class PowerUp {
     ctx.arc(cx, cy, 16 * pulse, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
-    ctx.font = '16px sans-serif';
+    ctx.font = this.type === 'SIGN' ? 'bold 18px sans-serif' : '16px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(this.config.emoji, cx, cy + 1);
+    ctx.fillText(this.type === 'CARD' ? '🃏' : (this.type === 'CARD' ? '🃏' : (this.type === 'SIGN' && this.artifactId ? this.artifactId.c : this.config.emoji)), cx, cy + 1);
     ctx.restore();
   }
 }
+
+
+
+
+
