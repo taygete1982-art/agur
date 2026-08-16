@@ -100,17 +100,17 @@ export const Combat = {
     const cx = brick.x + brick.width / 2;
     const cy = brick.y + brick.height / 2;
     const color = brick.getColors().base;
-    const count = plain ? 3 + Math.floor(Math.random() * 2) : 8 + Math.floor(Math.random() * 4);
+    const count = plain ? 6 + Math.floor(Math.random() * 4) : 10 + Math.floor(Math.random() * 5);
     for (let i = 0; i < count; i++) {
-      const face = Math.random() < 0.25 ? 1 : 0;
+      const face = Math.random() < 0.35 ? 1 : 0;
       this.zShards.push({
         ox: cx - CONFIG.WIDTH / 2 + (Math.random() - 0.5) * brick.width * 0.8,
         oy: cy - CONFIG.HEIGHT / 2 + (Math.random() - 0.5) * brick.height * 0.8,
         face: face,
         t: 0,
         z: 0,
-        vz: face ? 6 + Math.random() * 3 : 4 + Math.random() * 3,
-        size: 5 + Math.random() * 4,
+        vz: face ? 5 + Math.random() * 3 : 2.5 + Math.random() * 2,
+        size: 6 + Math.random() * 6,
         color: color,
         rot: (Math.random() - 0.5) * 0.6,
       });
@@ -154,6 +154,7 @@ export const Combat = {
     if (navigator.vibrate) navigator.vibrate(40);
   },
 };
+
 
 
 

@@ -111,6 +111,14 @@ function monument(g) {
   for (let r = 1; r < 16; r++) { g[r][0] = 'T'; g[r][COLS - 1] = 'T'; }
 }
 
+function throne(g) {
+  for (let x = 1; x < 11; x++) {
+    g[1][x] = 'a';
+    g[2][x] = (x % 4 === 0) ? 'S' : 'a';
+  }
+  for (let x = 0; x < COLS; x++) if (x % 2 === 0) g[5][x] = 'a';
+}
+
 function flavor(g, biome, seed) {
   const f = BIOMES[biome].flavor;
   if (!f) return;
@@ -132,7 +140,7 @@ function buildLevel(n) {
   else if (li <= 5) vault(g, d);
   else if (li <= 7) temple(g, d);
   else if (li <= 9) onion(g, d);
-  else monument(g);
+  else throne(g);
   flavor(g, biome, n);
   return g;
 }
@@ -185,4 +193,6 @@ export class LevelManager {
     return BIOMES[biome].name + ' — ' + li + '/11';
   }
 }
+
+
 

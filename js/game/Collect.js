@@ -11,7 +11,7 @@ export const Collect = {
     else if (roll < 68) type = 'SLOW';
     else if (roll < 80) type = 'MULTI';
     else if (roll < 92) type = 'LASE';
-    else type = 'CATCH';
+    else type = 'MULTI';
     this.powerUps.push(new PowerUp(x, y, type));
   },
 
@@ -93,4 +93,5 @@ spawnMultiBall() {
     if (this.laserTimer > 0) { this.fireLaser(); this.laserCooldown = 18; }
   },
 };
+
 

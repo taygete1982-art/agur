@@ -11,6 +11,7 @@ import { Background } from '../systems/Background.js';
 import { Flow } from './Flow.js';
 import { Combat } from './Combat.js';
 import { Collect } from './Collect.js';
+import { Enemies } from '../systems/Enemies.js';
 
 export class Game {
   constructor() {
@@ -261,13 +262,14 @@ export class Game {
     this.particles.update(scaledDt);
     this.effects.update(scaledDt);
     this.background.update(scaledDt);
+    this.updateEnemies(scaledDt);
 
     if (this.shakeIntensity > 0) {
       this.shakeIntensity *= 0.9;
       if (this.shakeIntensity < 0.1) this.shakeIntensity = 0;
     }
 
-    if (this.levelManager.isLevelComplete()) this.levelComplete();
+    if (this.levelManager.isLevelComplete() && !this.boss) this.levelComplete();
   }
 
   gameLoop(timestamp) {
@@ -283,7 +285,8 @@ export class Game {
   }
 }
 
-Object.assign(Game.prototype, Flow, Combat, Collect);
+Object.assign(Game.prototype, Flow, Combat, Collect, Enemies);
+
 
 
 

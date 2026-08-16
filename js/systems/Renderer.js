@@ -45,6 +45,59 @@ export class Renderer {
         brick.draw(ctx);
       }
     }
+    for (const d of (g.demons || [])) {
+      ctx.save();
+      ctx.translate(d.x, d.y);
+      ctx.fillStyle = '#3a2a4a';
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 16, 10, 0, 0, Math.PI * 2);
+      ctx.fill();
+      const w = Math.sin(d.phase * 3) * 6;
+      ctx.strokeStyle = 'rgba(138, 90, 156, 0.8)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(-14, -4); ctx.quadraticCurveTo(-26, -12 - w, -30, -2 - w);
+      ctx.moveTo(14, -4); ctx.quadraticCurveTo(26, -12 - w, 30, -2 - w);
+      ctx.stroke();
+      ctx.fillStyle = '#ff6030';
+      ctx.beginPath();
+      ctx.arc(-5, -2, 2.5, 0, Math.PI * 2);
+      ctx.arc(5, -2, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+    if (g.boss) {
+      const bs = g.boss;
+      ctx.save();
+      ctx.fillStyle = '#26262c';
+      ctx.beginPath();
+      ctx.roundRect(bs.x, bs.y, bs.w, bs.h, 8);
+      ctx.fill();
+      ctx.strokeStyle = '#c98a1a';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.fillStyle = '#c98a1a';
+      ctx.beginPath();
+      ctx.moveTo(bs.x + 12, bs.y); ctx.lineTo(bs.x + 2, bs.y - 16); ctx.lineTo(bs.x + 24, bs.y);
+      ctx.moveTo(bs.x + bs.w - 12, bs.y); ctx.lineTo(bs.x + bs.w - 2, bs.y - 16); ctx.lineTo(bs.x + bs.w - 24, bs.y);
+      ctx.fill();
+      ctx.fillStyle = '#ff4020';
+      ctx.beginPath();
+      ctx.arc(bs.x + bs.w * 0.35, bs.y + bs.h / 2, 4, 0, Math.PI * 2);
+      ctx.arc(bs.x + bs.w * 0.65, bs.y + bs.h / 2, 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = 'rgba(0,0,0,0.5)';
+      ctx.fillRect(bs.x, bs.y - 26, bs.w, 6);
+      ctx.fillStyle = '#ff4020';
+      ctx.fillRect(bs.x, bs.y - 26, bs.w * Math.max(0, bs.hp / bs.maxHp), 6);
+      ctx.restore();
+    }
+    for (const p of (g.bossBolts || [])) {
+      ctx.fillStyle = '#ff6030';
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+      ctx.fill();
+    }
     for (const powerUp of g.powerUps) powerUp.draw(ctx);
     g.paddle.draw(ctx);
     if (g.catchMode) {
@@ -288,6 +341,8 @@ export class Renderer {
     ctx.shadowBlur = 0;
   }
 }
+
+
 
 
 

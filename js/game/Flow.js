@@ -59,6 +59,9 @@ export const Flow = {
     }
     this.powerUps = [];
     this.zShards = [];
+    this.demons = [];
+    this.demonTimer = 600;
+    this.maybeSpawnBoss(levelNumber);
     this.slowMotion = false;
     this.wallCharge = { left: 0, right: 0 };
     this.showBanner(this.levelManager.getLevelName(levelNumber));
@@ -134,4 +137,5 @@ export const Flow = {
     this.shakeIntensity = 10;
   },
 };
+
 
