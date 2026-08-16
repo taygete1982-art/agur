@@ -9,6 +9,8 @@ export class Ball {
     this.dx = 0;
     this.dy = 0;
     this.isLaunched = false;
+    this.caught = false;
+    this.caughtOffset = 0;
     
     // Trail эффект
     this.trail = [];
@@ -32,6 +34,8 @@ export class Ball {
     this.dx = 0;
     this.dy = 0;
     this.isLaunched = false;
+    this.caught = false;
+    this.caughtOffset = 0;
     this.trail = [];
     this.lastWallHit = null;
   }
@@ -149,6 +153,7 @@ export class Ball {
     ctx.fill();
   }
 }
+
 
 
 

@@ -5,10 +5,13 @@ export const Collect = {
   spawnPowerUp(x, y) {
     const roll = Math.random() * 100;
     let type;
-    if (roll < 34) type = 'WIDE';
-    else if (roll < 68) type = 'FRAGMENT';
-    else if (roll < 88) type = 'LIFE';
-    else type = 'SLOW';
+    if (roll < 25) type = 'WIDE';
+    else if (roll < 50) type = 'FRAGMENT';
+    else if (roll < 60) type = 'LIFE';
+    else if (roll < 68) type = 'SLOW';
+    else if (roll < 80) type = 'MULTI';
+    else if (roll < 92) type = 'LASE';
+    else type = 'CATCH';
     this.powerUps.push(new PowerUp(x, y, type));
   },
 
@@ -47,6 +50,47 @@ export const Collect = {
     this.museum.addWord(w.word);
     this.audio.word();
     this.showBanner('\u{1F4DC} Слово Шумера: ' + w.word + ' — ' + w.meaning);
+  },
+
+  // === Трио: мультибол / лазер / кэтч ===
+spawnMultiBall() {
+    if (!this.balls || this.balls.length === 0) return;
+    const source = this.balls[0];
+    const baseAngle = Math.atan2(source.dy, source.dx);
+    for (let i = -1; i <= 1; i += 2) {
+      const a = baseAngle + i * 0.52;
+      const b = new Ball(source.x, source.y);
+      b.isLaunched = true;
+      b.speed = source.speed;
+      b.dx = Math.cos(a) * b.speed;
+      b.dy = Math.sin(a) * b.speed;
+      this.balls.push(b);
+    }
+    this.showBanner('✶ ТРИ БОГА');
+  },
+
+
+
+  fireLaser() {
+    this.lasers.push({ x: this.paddle.x + 6, y: this.paddle.y - 4, vy: 12 });
+    this.lasers.push({ x: this.paddle.x + this.paddle.width - 6, y: this.paddle.y - 4, vy: 12 });
+    this.audio.crack && this.audio.crack();
+  },
+
+  releaseBall(b) {
+    const off = b.caughtOffset - this.paddle.width / 2;
+    const angle = -Math.PI / 2 + (off / (this.paddle.width / 2)) * 0.9;
+    b.dx = Math.cos(angle) * b.speed;
+    b.dy = Math.sin(angle) * b.speed;
+    b.isLaunched = true;
+    this.audio.launch && this.audio.launch();
+  },
+
+  handlePaddleTap() {
+    for (const b of this.balls) {
+      if (b.caught) { this.releaseBall(b); b.caught = false; return; }
+    }
+    if (this.laserTimer > 0) { this.fireLaser(); this.laserCooldown = 18; }
   },
 };
 

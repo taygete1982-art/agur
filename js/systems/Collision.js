@@ -62,6 +62,7 @@ export class CollisionSystem {
   
   // Обработка столкновения мяча с платформой
   checkPaddleCollision(ball, paddle) {
+    if (ball.caught) return false;
     if (!paddle.checkCollision(ball)) {
       return false;
     }
@@ -137,3 +138,4 @@ export class Laser {
     ctx.shadowBlur = 0;
   }
 }
+

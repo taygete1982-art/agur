@@ -34,6 +34,7 @@ export class Game {
     this.effects = new Effects();
     this.background = new Background();
     this.renderer = new Renderer(this);
+    window.gameCatchMode = () => this.catchMode;
 
     this.museum = null;
     import('../systems/Museum.js').then(mod => {
@@ -65,9 +66,20 @@ export class Game {
     this.quakeCooldown = 0;
     this.aimCooldown = 0;
     this.lastTime = 0;
+    this.laserTimer = 0;
+    this.laserCooldown = 0;
+    this.catchTimer = 0;
+    this.catchMode = false;
+    this.lasers = [];
 
     this.input.setPaddle(this.paddle);
     this.setupCallbacks();
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'KeyN' && this.state === GAME_STATE.PLAYING) {
+        this.loadLevel(Math.min(this.level + 1, 88));
+        this.resetBall();
+      }
+    });
     this.loadLevel(1);
     this.resetBall();
     this.createHudButtons();
@@ -110,6 +122,7 @@ export class Game {
     this.input.onMuseum = () => this.toggleMuseum();
     this.input.onLeftBtn = () => this.earthquake();
     this.input.onRightBtn = () => this.aimShot();
+    this.input.onTap = () => this.handlePaddleTap();
     const mBtn = document.getElementById('museumBtn');
     if (mBtn) mBtn.addEventListener('click', (e) => { e.stopPropagation(); this.toggleMuseum(); });
     const mClose = document.getElementById('museumClose');
@@ -130,6 +143,46 @@ export class Game {
     }
     if (this.quakeCooldown > 0) this.quakeCooldown -= dt;
     if (this.aimCooldown > 0) this.aimCooldown -= dt;
+    if (this.laserTimer > 0) {
+      this.laserTimer -= dt * 16.67;
+      if (this.laserCooldown <= 0) {
+        this.fireLaser();
+        this.laserCooldown = 18;
+      }
+    } else if (this.laserTimer <= 0) {
+      this.laserCooldown = 0;
+    }
+    if (this.laserCooldown > 0) this.laserCooldown -= dt;
+    if (this.catchTimer > 0) {
+      this.catchTimer -= dt * 16.67;
+      if (this.catchTimer <= 0) {
+        this.catchMode = false;
+        for (const b of this.balls) if (b.caught) { b.caught = false; this.releaseBall(b); }
+      }
+    }
+    for (let i = this.lasers.length - 1; i >= 0; i--) {
+      const l = this.lasers[i];
+      l.y -= l.vy * scaledDt;
+      if (l.y < -20) { this.lasers.splice(i, 1); continue; }
+      let hit = false;
+      for (const brick of this.bricks) {
+        if (!brick.alive || brick.isBreaking || brick.isSteel) continue;
+        if (l.x > brick.x && l.x < brick.x + brick.width &&
+            l.y > brick.y && l.y < brick.y + brick.height) {
+          if (brick.takeDamage()) this.destroyBrick(brick);
+          this.particles.explodeBrick(l.x - 5, l.y, 10, 10, brick.getColors().glow);
+          hit = true;
+          break;
+        }
+      }
+      if (hit) this.lasers.splice(i, 1);
+    }
+    for (const b of this.balls) {
+      if (b.caught) {
+        b.x = this.paddle.x + b.caughtOffset;
+        b.y = this.paddle.y - b.radius - 1;
+      }
+    }
     if (this.banner) {
       this.banner.timer -= dt;
       if (this.banner.timer <= 0) this.banner = null;
@@ -231,6 +284,9 @@ export class Game {
 }
 
 Object.assign(Game.prototype, Flow, Combat, Collect);
+
+
+
 
 
 

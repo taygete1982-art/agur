@@ -47,6 +47,31 @@ export class Renderer {
     }
     for (const powerUp of g.powerUps) powerUp.draw(ctx);
     g.paddle.draw(ctx);
+    if (g.catchMode) {
+      ctx.save();
+      ctx.strokeStyle = 'rgba(240, 217, 168, 0.7)';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.roundRect(g.paddle.x - 2, g.paddle.y - 2, g.paddle.width + 4, g.paddle.height + 4, 8);
+      ctx.stroke();
+      ctx.restore();
+    }
+    if (g.laserTimer > 0) {
+      ctx.save();
+      ctx.fillStyle = 'rgba(255, 230, 120, 0.8)';
+      ctx.fillRect(g.paddle.x + 3, g.paddle.y - 6, 4, 4);
+      ctx.fillRect(g.paddle.x + g.paddle.width - 7, g.paddle.y - 6, 4, 4);
+      ctx.restore();
+    }
+    for (const l of g.lasers) {
+      ctx.save();
+      const g1 = ctx.createLinearGradient(l.x, l.y, l.x, l.y + 18);
+      g1.addColorStop(0, 'rgba(255, 240, 140, 1)');
+      g1.addColorStop(1, 'rgba(255, 180, 60, 0)');
+      ctx.fillStyle = g1;
+      ctx.fillRect(l.x - 2, l.y, 4, 18);
+      ctx.restore();
+    }
     for (const ball of g.balls) ball.draw(ctx);
     g.particles.draw(ctx);
     g.effects.draw(ctx);
@@ -189,6 +214,20 @@ export class Renderer {
       ctx.shadowBlur = 0;
       ctx.globalAlpha = 1;
     }
+    if (g.laserTimer > 0 || g.catchTimer > 0) {
+      ctx.font = 'bold 12px sans-serif';
+      ctx.textAlign = 'left';
+      let y = 18;
+      if (g.laserTimer > 0) {
+        ctx.fillStyle = '#fde047';
+        ctx.fillText('⚡ Молния ' + Math.ceil(g.laserTimer / 1000) + 'с', 12, y);
+        y += 18;
+      }
+      if (g.catchTimer > 0) {
+        ctx.fillStyle = '#f0d9a8';
+        ctx.fillText('✋ Рука ' + Math.ceil(g.catchTimer / 1000) + 'с', 12, y);
+      }
+    }
     if (g.combo >= 2 && g.state === GAME_STATE.PLAYING) {
       ctx.fillStyle = '#f0c96a';
       ctx.font = 'bold ' + Math.min(20 + g.combo, 40) + 'px "Segoe UI", sans-serif';
@@ -249,6 +288,8 @@ export class Renderer {
     ctx.shadowBlur = 0;
   }
 }
+
+
 
 
 

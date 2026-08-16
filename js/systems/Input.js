@@ -15,8 +15,10 @@ export class InputManager {
     this.onMuseum = null;
     this.onLeftBtn = null;
     this.onRightBtn = null;
+    this.onTap = null;
     this.onLeftBtn = null;
     this.onRightBtn = null;
+    this.onTap = null;
 
     this.bindEvents();
     this.updateHintText();
@@ -126,4 +128,5 @@ export class InputManager {
       : '\u{1F5B1}\u{FE0F} Мышь / \u{2190} \u{2192} \u{00B7} M = музей';
   }
 }
+
 

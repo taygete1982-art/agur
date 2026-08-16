@@ -43,7 +43,6 @@ export function getBrickSprite(colors, w, h, type) {
   c.fillRect(PAD + 2, PAD + 2, w - 4, 2);
 
   if (type === 'normal') {
-    // клинопись: клинья-треугольники с хвостиками
     c.fillStyle = 'rgba(40, 15, 5, 0.5)';
     for (let r = 0; r < 2; r++) {
       const y = PAD + 6 + r * 7;
@@ -57,7 +56,6 @@ export function getBrickSprite(colors, w, h, type) {
         c.fillRect(x + 3, y - 0.5, 2, 1);
       }
     }
-    // солома
     c.strokeStyle = 'rgba(220, 200, 120, 0.5)';
     c.lineWidth = 1;
     for (let i = 0; i < 3; i++) {
@@ -68,7 +66,6 @@ export function getBrickSprite(colors, w, h, type) {
       c.stroke();
     }
   } else if (type === 'clay') {
-    // эрозия: рытвины + волосяная трещина
     c.fillStyle = 'rgba(60, 35, 15, 0.35)';
     for (let i = 0; i < 4; i++) {
       c.beginPath();
@@ -83,7 +80,6 @@ export function getBrickSprite(colors, w, h, type) {
     c.lineTo(PAD + w - 4, PAD + h * 0.45);
     c.stroke();
   } else if (type === 'silver') {
-    // лазурит: золотая жила + крупинки
     c.strokeStyle = 'rgba(220, 170, 60, 0.9)';
     c.lineWidth = 1.2;
     c.beginPath();
@@ -104,7 +100,6 @@ export function getBrickSprite(colors, w, h, type) {
     c.ellipse(PAD + w * 0.35, PAD + h * 0.35, w * 0.25, h * 0.18, -0.4, 0, 7);
     c.fill();
   } else if (type === 'steel') {
-    // базальт: минеральная жилка + скол
     c.strokeStyle = 'rgba(220, 220, 225, 0.35)';
     c.lineWidth = 1;
     c.beginPath();

@@ -25,99 +25,125 @@ export class Background {
     this.cachedBiome = biome;
     const bg = BIOME_BACKGROUNDS[biome % BIOME_BACKGROUNDS.length];
 
-    // Небо с небесным телом
+    // Небо во всю высоту
     this.skyCanvas = document.createElement('canvas');
     this.skyCanvas.width = CONFIG.WIDTH;
-    this.skyCanvas.height = CONFIG.HEIGHT * 0.4;
-    const skyCtx = this.skyCanvas.getContext('2d');
-    const grad = skyCtx.createLinearGradient(0, 0, 0, this.skyCanvas.height);
+    this.skyCanvas.height = CONFIG.HEIGHT;
+    const sc = this.skyCanvas.getContext('2d');
+    const grad = sc.createLinearGradient(0, 0, 0, CONFIG.HEIGHT);
     grad.addColorStop(0, bg.sky);
-    grad.addColorStop(1, 'rgba(0,0,0,0.3)');
-    skyCtx.fillStyle = grad;
-    skyCtx.fillRect(0, 0, this.skyCanvas.width, this.skyCanvas.height);
+    grad.addColorStop(0.5, '#241a14');
+    grad.addColorStop(1, '#1a120c');
+    sc.fillStyle = grad;
+    sc.fillRect(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT);
 
     if (bg.landmark === 'moon') {
-      skyCtx.fillStyle = bg.sun;
-      skyCtx.beginPath();
-      skyCtx.arc(CONFIG.WIDTH * 0.8, this.skyCanvas.height * 0.3, 30, 0, Math.PI * 2);
-      skyCtx.fill();
-      skyCtx.globalCompositeOperation = 'destination-out';
-      skyCtx.beginPath();
-      skyCtx.arc(CONFIG.WIDTH * 0.8 - 10, this.skyCanvas.height * 0.3 - 5, 25, 0, Math.PI * 2);
-      skyCtx.fill();
-      skyCtx.globalCompositeOperation = 'source-over';
+      sc.fillStyle = bg.sun;
+      sc.beginPath();
+      sc.arc(CONFIG.WIDTH * 0.8, CONFIG.HEIGHT * 0.12, 26, 0, Math.PI * 2);
+      sc.fill();
+      sc.globalCompositeOperation = 'destination-out';
+      sc.beginPath();
+      sc.arc(CONFIG.WIDTH * 0.8 - 9, CONFIG.HEIGHT * 0.12 - 4, 22, 0, Math.PI * 2);
+      sc.fill();
+      sc.globalCompositeOperation = 'source-over';
+      sc.fillStyle = 'rgba(240, 240, 255, 0.8)';
+      for (let i = 0; i < 40; i++) {
+        sc.fillRect(Math.random() * CONFIG.WIDTH, Math.random() * CONFIG.HEIGHT * 0.3, 1.5, 1.5);
+      }
     } else if (bg.landmark !== 'gate') {
-      skyCtx.fillStyle = bg.sun;
-      skyCtx.beginPath();
-      skyCtx.arc(CONFIG.WIDTH * 0.7, this.skyCanvas.height * 0.35, 40, 0, Math.PI * 2);
-      skyCtx.fill();
+      sc.fillStyle = bg.sun;
+      sc.beginPath();
+      sc.arc(CONFIG.WIDTH * 0.72, CONFIG.HEIGHT * 0.1, 30, 0, Math.PI * 2);
+      sc.fill();
     }
 
-    // Ландмарка на горизонте
+    // Ландмарка: призрачный силуэт в свободной зоне под кирпичами
     this.landmarkCanvas = document.createElement('canvas');
     this.landmarkCanvas.width = CONFIG.WIDTH;
-    this.landmarkCanvas.height = CONFIG.HEIGHT * 0.3;
-    const lmCtx = this.landmarkCanvas.getContext('2d');
-    lmCtx.fillStyle = 'rgba(0,0,0,0.2)';
+    this.landmarkCanvas.height = CONFIG.HEIGHT * 0.25;
+    const lm = this.landmarkCanvas.getContext('2d');
+    lm.fillStyle = bg.sky;
+    lm.globalAlpha = 0.22;
+    const H = this.landmarkCanvas.height;
     if (bg.landmark === 'ziggurat') {
-      lmCtx.beginPath();
-      lmCtx.moveTo(CONFIG.WIDTH * 0.3, this.landmarkCanvas.height);
-      lmCtx.lineTo(CONFIG.WIDTH * 0.4, this.landmarkCanvas.height * 0.3);
-      lmCtx.lineTo(CONFIG.WIDTH * 0.6, this.landmarkCanvas.height * 0.3);
-      lmCtx.lineTo(CONFIG.WIDTH * 0.7, this.landmarkCanvas.height);
-      lmCtx.fill();
+      lm.beginPath();
+      lm.moveTo(CONFIG.WIDTH * 0.25, H);
+      lm.lineTo(CONFIG.WIDTH * 0.38, H * 0.25);
+      lm.lineTo(CONFIG.WIDTH * 0.62, H * 0.25);
+      lm.lineTo(CONFIG.WIDTH * 0.75, H);
+      lm.fill();
+      lm.fillRect(CONFIG.WIDTH * 0.42, H * 0.05, CONFIG.WIDTH * 0.16, H * 0.25);
     } else if (bg.landmark === 'palm') {
-      lmCtx.fillRect(CONFIG.WIDTH * 0.45, this.landmarkCanvas.height * 0.4, 8, this.landmarkCanvas.height * 0.6);
-      lmCtx.beginPath();
-      lmCtx.ellipse(CONFIG.WIDTH * 0.45, this.landmarkCanvas.height * 0.35, 40, 25, 0, 0, Math.PI * 2);
-      lmCtx.fill();
+      lm.fillRect(CONFIG.WIDTH * 0.48, H * 0.3, 10, H * 0.7);
+      lm.beginPath();
+      lm.ellipse(CONFIG.WIDTH * 0.49, H * 0.28, 60, 30, 0, 0, Math.PI * 2);
+      lm.fill();
     } else if (bg.landmark === 'boat') {
-      lmCtx.fillRect(CONFIG.WIDTH * 0.4, this.landmarkCanvas.height * 0.7, 60, 10);
-      lmCtx.fillRect(CONFIG.WIDTH * 0.48, this.landmarkCanvas.height * 0.4, 6, this.landmarkCanvas.height * 0.3);
+      lm.beginPath();
+      lm.moveTo(CONFIG.WIDTH * 0.3, H * 0.75);
+      lm.quadraticCurveTo(CONFIG.WIDTH * 0.5, H * 0.95, CONFIG.WIDTH * 0.7, H * 0.75);
+      lm.lineTo(CONFIG.WIDTH * 0.65, H * 0.7);
+      lm.lineTo(CONFIG.WIDTH * 0.35, H * 0.7);
+      lm.fill();
+      lm.fillRect(CONFIG.WIDTH * 0.49, H * 0.2, 6, H * 0.5);
     } else if (bg.landmark === 'peak') {
-      lmCtx.beginPath();
-      lmCtx.moveTo(CONFIG.WIDTH * 0.2, this.landmarkCanvas.height);
-      lmCtx.lineTo(CONFIG.WIDTH * 0.4, this.landmarkCanvas.height * 0.2);
-      lmCtx.lineTo(CONFIG.WIDTH * 0.6, this.landmarkCanvas.height);
-      lmCtx.fill();
+      lm.beginPath();
+      lm.moveTo(CONFIG.WIDTH * 0.15, H);
+      lm.lineTo(CONFIG.WIDTH * 0.4, H * 0.1);
+      lm.lineTo(CONFIG.WIDTH * 0.6, H);
+      lm.moveTo(CONFIG.WIDTH * 0.5, H);
+      lm.lineTo(CONFIG.WIDTH * 0.72, H * 0.25);
+      lm.lineTo(CONFIG.WIDTH * 0.9, H);
+      lm.fill();
     } else if (bg.landmark === 'crystal') {
-      for (let i = 0; i < 5; i++) {
-        lmCtx.fillRect(CONFIG.WIDTH * 0.2 + i * CONFIG.WIDTH * 0.12, this.landmarkCanvas.height * 0.6, 20, this.landmarkCanvas.height * 0.4);
+      for (let i = 0; i < 6; i++) {
+        lm.beginPath();
+        lm.moveTo(CONFIG.WIDTH * (0.15 + i * 0.13), H);
+        lm.lineTo(CONFIG.WIDTH * (0.18 + i * 0.13), H * (0.3 + (i % 3) * 0.15));
+        lm.lineTo(CONFIG.WIDTH * (0.21 + i * 0.13), H);
+        lm.fill();
       }
-    } else if (bg.landmark === 'moon') {
-      lmCtx.fillRect(CONFIG.WIDTH * 0.3, this.landmarkCanvas.height * 0.8, CONFIG.WIDTH * 0.4, this.landmarkCanvas.height * 0.2);
+    } else if (bg.landmark === 'hill') {
+      lm.beginPath();
+      lm.ellipse(CONFIG.WIDTH * 0.3, H, CONFIG.WIDTH * 0.4, H * 0.7, 0, Math.PI, 0);
+      lm.ellipse(CONFIG.WIDTH * 0.8, H, CONFIG.WIDTH * 0.35, H * 0.5, 0, Math.PI, 0);
+      lm.fill();
     } else if (bg.landmark === 'gate') {
-      lmCtx.fillRect(CONFIG.WIDTH * 0.35, this.landmarkCanvas.height * 0.3, 20, this.landmarkCanvas.height * 0.7);
-      lmCtx.fillRect(CONFIG.WIDTH * 0.65, this.landmarkCanvas.height * 0.3, 20, this.landmarkCanvas.height * 0.7);
-      lmCtx.fillRect(CONFIG.WIDTH * 0.35, this.landmarkCanvas.height * 0.3, CONFIG.WIDTH * 0.3, 20);
+      lm.fillRect(CONFIG.WIDTH * 0.32, H * 0.15, 24, H * 0.85);
+      lm.fillRect(CONFIG.WIDTH * 0.64, H * 0.15, 24, H * 0.85);
+      lm.fillRect(CONFIG.WIDTH * 0.32, H * 0.15, CONFIG.WIDTH * 0.36, 24);
     }
+    lm.globalAlpha = 1;
 
-    // Параллакс-слои (2-3 слоя силуэтов)
+    // Параллакс: силуэты ВНУТРИ своего канваса, тонированные небом
     this.parallaxLayers = [];
     for (let i = 0; i < 3; i++) {
       const layer = document.createElement('canvas');
       layer.width = CONFIG.WIDTH * 2;
-      layer.height = CONFIG.HEIGHT * 0.2;
-      const lCtx = layer.getContext('2d');
-      lCtx.fillStyle = `rgba(0,0,0,${0.1 + i * 0.08})`;
-      const yBase = this.landmarkCanvas.height - i * 30;
-      for (let x = 0; x < layer.width; x += 80 + Math.random() * 40) {
-        const h = 20 + Math.random() * 40;
-        lCtx.fillRect(x, yBase - h, 60, h);
+      layer.height = CONFIG.HEIGHT * 0.22;
+      const l = layer.getContext('2d');
+      l.fillStyle = bg.sky;
+      l.globalAlpha = 0.07 + i * 0.06;
+      const yBase = layer.height - 6 - i * 26;
+      for (let x = 0; x < layer.width; x += 70 + ((x * 7919) % 50)) {
+        const h = 18 + ((x * 104729) % 40);
+        l.fillRect(x, yBase - h, 54, h);
       }
-      this.parallaxLayers.push({ canvas: layer, speed: 0.2 + i * 0.15, offset: 0 });
+      l.globalAlpha = 1;
+      this.parallaxLayers.push({ canvas: layer, speed: 0.15 + i * 0.12, offset: 0 });
     }
 
-    // Амбиент-частицы
+    // Амбиент-частицы: больше и заметнее
     this.particles = [];
-    for (let i = 0; i < 15; i++) {
+    for (let i = 0; i < 24; i++) {
       this.particles.push({
         x: Math.random() * CONFIG.WIDTH,
         y: Math.random() * CONFIG.HEIGHT,
-        vx: (Math.random() - 0.5) * 0.3,
-        vy: (Math.random() - 0.5) * 0.2 - 0.1,
-        size: 1 + Math.random() * 2,
-        life: Math.random(),
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: bg.particles === 'ember' ? -0.3 - Math.random() * 0.3 : (Math.random() - 0.5) * 0.25,
+        size: 1 + Math.random() * 2.2,
+        life: Math.random() * 10,
         type: bg.particles,
       });
     }
@@ -127,7 +153,7 @@ export class Background {
     for (const p of this.particles) {
       p.x += p.vx * dt;
       p.y += p.vy * dt;
-      p.life += 0.01 * dt;
+      p.life += 0.02 * dt;
       if (p.x < 0) p.x = CONFIG.WIDTH;
       if (p.x > CONFIG.WIDTH) p.x = 0;
       if (p.y < 0) p.y = CONFIG.HEIGHT;
@@ -141,59 +167,42 @@ export class Background {
   draw(ctx, biome) {
     this.buildBiome(biome);
 
-    // Scrim-подложка для контраста
-    ctx.fillStyle = 'rgba(0,0,0,0.12)';
+    ctx.fillStyle = 'rgba(0,0,0,0.1)';
     ctx.fillRect(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT);
 
-    // Небо
     if (this.skyCanvas) {
-      ctx.globalAlpha = 0.85;
+      ctx.globalAlpha = 0.9;
       ctx.drawImage(this.skyCanvas, 0, 0);
       ctx.globalAlpha = 1;
     }
 
-    // Ландмарка
     if (this.landmarkCanvas) {
-      ctx.globalAlpha = 0.55;
-      ctx.drawImage(this.landmarkCanvas, 0, CONFIG.HEIGHT * 0.35);
-      ctx.globalAlpha = 1;
+      ctx.drawImage(this.landmarkCanvas, 0, CONFIG.HEIGHT * 0.5);
     }
 
-    // Параллакс-слои
     for (const layer of this.parallaxLayers) {
-      ctx.globalAlpha = 0.45;
-      ctx.drawImage(layer.canvas, -layer.offset, CONFIG.HEIGHT * 0.75);
-      ctx.drawImage(layer.canvas, layer.canvas.width - layer.offset, CONFIG.HEIGHT * 0.75);
-      ctx.globalAlpha = 1;
+      ctx.drawImage(layer.canvas, -layer.offset, CONFIG.HEIGHT * 0.78);
+      ctx.drawImage(layer.canvas, layer.canvas.width - layer.offset, CONFIG.HEIGHT * 0.78);
     }
 
-    // Амбиент-частицы
     for (const p of this.particles) {
-      const alpha = 0.3 + Math.sin(p.life * 2) * 0.2;
-      if (p.type === 'dust') {
-        ctx.fillStyle = `rgba(200, 180, 140, ${alpha})`;
-      } else if (p.type === 'fireflies') {
-        ctx.fillStyle = `rgba(240, 230, 100, ${alpha})`;
-      } else if (p.type === 'splash') {
-        ctx.fillStyle = `rgba(180, 220, 240, ${alpha})`;
-      } else if (p.type === 'stone') {
-        ctx.fillStyle = `rgba(120, 110, 100, ${alpha})`;
-      } else if (p.type === 'glint') {
-        ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
-      } else if (p.type === 'star') {
-        ctx.fillStyle = `rgba(240, 240, 255, ${alpha})`;
-      } else if (p.type === 'ember') {
-        ctx.fillStyle = `rgba(255, 80, 30, ${alpha})`;
-      }
+      const alpha = 0.35 + Math.sin(p.life * 2) * 0.25;
+      if (p.type === 'dust') ctx.fillStyle = 'rgba(220, 190, 140, ' + alpha + ')';
+      else if (p.type === 'fireflies') ctx.fillStyle = 'rgba(240, 230, 100, ' + alpha + ')';
+      else if (p.type === 'splash') ctx.fillStyle = 'rgba(180, 220, 240, ' + alpha + ')';
+      else if (p.type === 'stone') ctx.fillStyle = 'rgba(150, 140, 130, ' + alpha + ')';
+      else if (p.type === 'glint') ctx.fillStyle = 'rgba(255, 255, 255, ' + alpha + ')';
+      else if (p.type === 'star') ctx.fillStyle = 'rgba(240, 240, 255, ' + alpha + ')';
+      else ctx.fillStyle = 'rgba(255, 90, 40, ' + alpha + ')';
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
       ctx.fill();
     }
 
-    // Кур: дорогая психоделика — пульсирующие полутоновые кольца
+    // Кур: сдержанная психоделика — пульсирующие полутоновые кольца
     if (biome % 8 === 7) {
       const t = performance.now() / 2000;
-      ctx.globalAlpha = 0.05;
+      ctx.globalAlpha = 0.06;
       ctx.strokeStyle = '#ff6030';
       ctx.lineWidth = 2;
       for (let i = 0; i < 4; i++) {
@@ -205,4 +214,3 @@ export class Background {
     }
   }
 }
-
