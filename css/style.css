@@ -189,3 +189,7 @@ canvas {
 .slot.q-legendary.got { border-color: #f0c96a; box-shadow: 0 0 12px rgba(240,201,106,0.6); }
 .slot.relic.got { border-color: #ff4466; box-shadow: 0 0 12px rgba(255,68,102,0.5); }
 #museumContent { max-height: 70vh; overflow-y: auto; }
+
+/* agur-center-fix */
+.game-wrapper { width: auto !important; margin: 0 auto !important; display: flex !important; flex-direction: column !important; align-items: center !important; }
+#gameCanvas { display: block !important; margin: 0 auto !important; }
