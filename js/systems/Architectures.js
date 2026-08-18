@@ -66,7 +66,6 @@ export function initArchitectures(game) {
   const tick = () => {
     requestAnimationFrame(tick);
     const a = game.digArtifact;
-    if (game.ctx && a && !a.taken) drawArtifact(game.ctx, a, performance.now());
     if (!a || a.taken || game._digDone) return;
     if (game.paused || game.menuOpen || game.museumOpen || game.state !== 'playing') return;
     for (const b of (game.balls || [])) {
@@ -88,6 +87,7 @@ export function initArchitectures(game) {
 }
 
 function collect(game, a) {
+  console.log('[ARCH] collecting artifact kind=', a.kind);
   if (a.taken || game._digDone) return;
   a.taken = true;
   const all = game.levelManager && game.levelManager.aliveCount <= 0;
@@ -137,6 +137,7 @@ function drawArtifact(g, a, t) {
 
 function applyArch(game, n) {
   if (game._archApplied === n) return;
+  console.log('[ARCH] trying level', n, 'live bricks:', game.bricks ? game.bricks.filter(b=>b.alive).length : 0);
   const bricks = game.bricks;
   if (!bricks || !bricks.length) return;
   game._archApplied = n;
@@ -144,7 +145,8 @@ function applyArch(game, n) {
   const ys = [...new Set(live.map(b => Math.round(b.y)))].sort((a, b) => a - b);
   const xs = [...new Set(live.map(b => Math.round(b.x)))].sort((a, b) => a - b);
   const R = ys.length, C = xs.length;
-  if (R < 6 || C < 6) return;
+  console.log('[ARCH] R=', R, 'C=', C);
+  if (R < 4 || C < 4) return;
   const yI = new Map(ys.map((y, i) => [y, i]));
   const xI = new Map(xs.map((x, i) => [x, i]));
   const role = (n - 1) % 11;
@@ -161,8 +163,22 @@ function applyArch(game, n) {
     if (spec === 'G') coreCells.push(b);
   }
   const kept = plan.filter(p => p[1] === 'C' || p[1] === 'S').length;
-  if (kept < Math.floor(live.length * 0.3)) return;
+  if (kept < 8) return;
 
+  console.log('[ARCH] plan:', plan.length, 'cells, core:', coreCells.length, 'kept:', kept);
+  
+  // СНАЧАЛА позиция артефакта (пока кирпичи ещё на месте)
+  if (coreCells.length) {
+    const bw = coreCells[0].width, bh = coreCells[0].height;
+    const ax = coreCells.reduce((s, b) => s + b.x, 0) / coreCells.length + bw / 2;
+    const ay = coreCells.reduce((s, b) => s + b.y, 0) / coreCells.length + bh / 2;
+    console.log('[ARCH] artifact placed at', ax, ay, 'kind', (biome * 3 + role) % 12);
+    game.digArtifact = { x: ax, y: ay, taken: false, hidden: biome >= 6, kind: (biome * 3 + role) % 12 };
+  } else {
+    console.warn('[ARCH] no core cells for level', n, 'role', role);
+  }
+  
+  // ПОТОМ удаляем кирпичи
   for (const [b, spec] of plan) {
     if (spec === '.' || spec === 'G') {
       if (b._oy === undefined) b._oy = b.y;
@@ -172,15 +188,13 @@ function applyArch(game, n) {
       b.isSteel = true;
     }
   }
-
-  if (coreCells.length) {
-    const bw = coreCells[0].width, bh = coreCells[0].height;
-    const ax = coreCells.reduce((s, b) => s + b.x, 0) / coreCells.length + bw / 2;
-    const ay = coreCells.reduce((s, b) => s + b.y, 0) / coreCells.length + bh / 2;
-    game.digArtifact = { x: ax, y: ay, taken: false, hidden: biome >= 6, kind: (biome * 3 + role) % 12 };
-  }
   if (game.showBanner) game.showBanner('⛏ Раскопки №' + n + ' — ' + ROLE[role]);
+  console.log('[ARCH] level', n, 'applied successfully');
 }
+
+
+
+
 
 
 
