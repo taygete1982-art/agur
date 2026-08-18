@@ -27,424 +27,692 @@ const KINDS = [
   'Наконечник'
 ];
 
-const ARCH = [
+/*
+ * ARCHITECTURES
+ *
+ * ВАЖНО:
+ * Мы НЕ строим воображаемую прямоугольную сетку.
+ * Мы работаем только с реально существующими кирпичами уровня.
+ *
+ * Архитектура меняет уже созданный силуэт, а не пересоздаёт его.
+ */
 
-  // 0 — КУРГАН
-  (r, c, R, C) => {
-    const mid = (C - 1) / 2;
-    const half = (C / 2) * (1 - r / (R + 2));
-
-    if (
-      Math.abs(c - mid) <= half &&
-      Math.abs(r - R / 2) <= 1
-    ) return 'G';
-
-    return Math.abs(c - mid) <= half ? 'C' : '.';
-  },
-
-  // 1 — РИКОШЕТ
-  (r, c, R, C) => {
-    if (r === 1 && c === C - 2) return 'G';
-
-    if (
-      (r === 4 && c === 2) ||
-      (r === 4 && c === C - 3) ||
-      (r === 8 && c === Math.floor(C / 2)) ||
-      (r === 6 && c === Math.floor(C / 2) - 3)
-    ) return 'S';
-
-    if (r === 0 || c === C - 1) return 'C';
-
-    return '.';
-  },
-
-  // 2 — ШАХТА
-  (r, c, R, C) => {
-    const mid = Math.floor(C / 2);
-
-    if (r === R - 2 && c === mid) return 'G';
-
-    if (
-      (c === mid - 2 || c === mid + 2) &&
-      r >= 2
-    ) {
-      return r % 3 === 0 ? '.' : 'C';
-    }
-
-    if (r === 0) return 'C';
-
-    return '.';
-  },
-
-  // 3 — РАЗЛОМ
-  (r, c, R, C) => {
-    if (
-      Math.abs(r - R / 2) <= 1 &&
-      Math.abs(c - (C - 1) / 2) <= 1
-    ) return 'G';
-
-    if (r % 4 === 3) return '.';
-
-    const crack =
-      Math.floor(C / 2) +
-      Math.floor((r - R / 2) / 3);
-
-    return (
-      c === crack ||
-      c === crack + 1
-    ) ? '.' : 'C';
-  },
-
-  // 4 — СОКРОВИЩНИЦА
-  (r, c, R, C) => {
-    const wall =
-      r === 0 ||
-      r === R - 1 ||
-      c === 0 ||
-      c === C - 1;
-
-    const shell =
-      Math.min(
-        r,
-        c,
-        R - 1 - r,
-        C - 1 - c
-      ) === 2;
-
-    const core =
-      Math.abs(r - R / 2) <= 1 &&
-      Math.abs(c - (C - 1) / 2) <= 1;
-
-    if (core) return 'G';
-
-    if (wall) {
-      return (
-        r === 0 &&
-        c === Math.floor(C / 2)
-      ) ? '.' : 'C';
-    }
-
-    if (shell) {
-      return (
-        r === Math.floor(R / 2) &&
-        c === 2
-      ) ? '.' : 'C';
-    }
-
-    return '.';
-  },
-
-  // 5 — ГЛУБОКАЯ СОКРОВИЩНИЦА
-  (r, c, R, C) => {
-    const L = Math.min(
-      r,
-      c,
-      R - 1 - r,
-      C - 1 - c
-    );
-
-    const core =
-      Math.abs(r - R / 2) <= 1 &&
-      Math.abs(c - (C - 1) / 2) <= 1;
-
-    if (core) return 'G';
-
-    if (L === 0) {
-      return (
-        r === 0 &&
-        c === Math.floor(C / 2)
-      ) ? '.' : 'C';
-    }
-
-    if (L === 2) {
-      return (
-        r === R - 1 &&
-        c === Math.floor(C / 2)
-      ) ? '.' : 'C';
-    }
-
-    if (L === 4) {
-      return (
-        r === Math.floor(R / 2) &&
-        c === 4
-      ) ? '.' : 'C';
-    }
-
-    return '.';
-  },
-
-  // 6 — ЖИВОЙ ХРАМ
-  (r, c, R, C) => {
-    const L = Math.min(
-      r,
-      c,
-      R - 1 - r,
-      C - 1 - c
-    );
-
-    const core =
-      Math.abs(r - R / 2) <= 1 &&
-      Math.abs(c - (C - 1) / 2) <= 1;
-
-    if (core) return 'G';
-
-    if (L === 2) {
-      return (
-        r === 0 &&
-        c === Math.floor(C / 2)
-      ) ? '.' : 'R';
-    }
-
-    if (r === 0 || r === R - 1) return 'C';
-
-    return '.';
-  },
-
-  // 7 — СТАЛЬНОЙ УГОЛ
-  (r, c, R, C) => {
-    const L = Math.min(
-      r,
-      c,
-      R - 1 - r,
-      C - 1 - c
-    );
-
-    const core =
-      Math.abs(r - R / 2) <= 1 &&
-      Math.abs(c - (C - 1) / 2) <= 1;
-
-    if (core) return 'G';
-
-    if (L === 2) {
-      return (
-        r === 2 &&
-        c === Math.floor(C / 2)
-      ) ? '.' : 'S';
-    }
-
-    if (
-      r === 0 ||
-      r === R - 1 ||
-      c === 0 ||
-      c === C - 1
-    ) return 'C';
-
-    return '.';
-  },
-
-  // 8 — СПИРАЛЬ
-  (r, c, R, C) => {
-    const L = Math.min(
-      r,
-      c,
-      R - 1 - r,
-      C - 1 - c
-    );
-
-    const core =
-      Math.abs(r - R / 2) <= 1 &&
-      Math.abs(c - (C - 1) / 2) <= 1;
-
-    if (core) return 'G';
-
-    if (L % 2 === 1) return '.';
-
-    const gap = (L * 3) % C;
-
-    return (
-      r === L &&
-      c === gap
-    ) ? '.' : 'C';
-  },
-
-  // 9 — ЛОЖНАЯ ГРОБНИЦА
-  (r, c, R, C) => {
-    const wall =
-      r === 0 ||
-      r === R - 1 ||
-      c === 0 ||
-      c === C - 1;
-
-    if (wall) {
-      return (
-        r === 0 &&
-        c === Math.floor(C / 2)
-      ) ? '.' : 'C';
-    }
-
-    if (
-      Math.abs(r - R / 2) <= 1 &&
-      Math.abs(c - (C - 1) / 2) <= 1
-    ) return 'G';
-
-    if (
-      r === R - 2 &&
-      c === C - 2
-    ) return 'G';
-
-    return '.';
-  },
-
-  // 10 — ОХРАНЯЕМЫЙ ТРОН
-  (r, c, R, C) => {
-    if (r === 0) return 'C';
-
-    if (
-      (c === 3 || c === C - 4) &&
-      r > 2 &&
-      r < R - 3
-    ) return 'S';
-
-    if (
-      Math.abs(r - R / 2) <= 1 &&
-      Math.abs(c - (C - 1) / 2) <= 1
-    ) return 'G';
-
-    return '.';
-  }
+const MODES = [
+  { carve: 0.10, pattern: 'center' },
+  { carve: 0.12, pattern: 'checker' },
+  { carve: 0.14, pattern: 'pyramid' },
+  { carve: 0.12, pattern: 'diamond' },
+  { carve: 0.16, pattern: 'columns' },
+  { carve: 0.14, pattern: 'zigzag' },
+  { carve: 0.18, pattern: 'frame' },
+  { carve: 0.15, pattern: 'cross' },
+  { carve: 0.16, pattern: 'spiral' },
+  { carve: 0.13, pattern: 'crypt' },
+  { carve: 0.10, pattern: 'throne' }
 ];
 
 export function initArchitectures(game) {
   const lname =
-    game.loadLevel
-      ? 'loadLevel'
-      : game.startLevel
-        ? 'startLevel'
-        : null;
+    game.loadLevel ? 'loadLevel' :
+    game.startLevel ? 'startLevel' :
+    null;
 
   if (!lname) return;
 
-  const orig = game[lname].bind(game);
+  if (game.__architecturesInstalled) return;
+  game.__architecturesInstalled = true;
+
+  const originalLoadLevel = game[lname].bind(game);
 
   game[lname] = (n, ...rest) => {
     game._digDone = false;
     game._livesStart = game.lives;
     game.digArtifact = null;
     game._archApplied = null;
-    game._guardNext = false;
 
-    const result = orig(n, ...rest);
+    const result = originalLoadLevel(n, ...rest);
 
     try {
-      applyArch(game, n);
-    } catch (e) {
-      console.error('ARCH FAIL', e);
+      applyArchitecture(game, n);
+    } catch (err) {
+      console.error('[ARCHITECTURE]', err);
     }
 
     return result;
   };
 
-  const rd = game.renderer;
+  /*
+   * Артефакт рисуется поверх обычного Renderer.
+   */
+  const renderer = game.renderer;
 
   if (
-    rd &&
-    typeof rd.draw === 'function' &&
-    !rd.__archPatched
+    renderer &&
+    typeof renderer.draw === 'function' &&
+    !renderer.__architectureRendererPatched
   ) {
-    rd.__archPatched = true;
+    renderer.__architectureRendererPatched = true;
 
-    const od = rd.draw.bind(rd);
+    const originalDraw = renderer.draw.bind(renderer);
 
-    rd.draw = function () {
-      od();
+    renderer.draw = function () {
+      originalDraw();
 
-      const a = game.digArtifact;
+      const artifact = game.digArtifact;
 
       if (
-        a &&
-        !a.taken &&
+        artifact &&
+        !artifact.taken &&
         game.ctx
       ) {
-        drawArtifact(
-          game.ctx,
-          a,
-          performance.now()
-        );
+        drawArtifact(game.ctx, artifact, performance.now());
       }
     };
   }
 
-  setInterval(() => {
-    const a = game.digArtifact;
+  /*
+   * Проверяем столкновение мяча с артефактом.
+   */
+  if (!game.__architectureCollectorTimer) {
+    game.__architectureCollectorTimer = setInterval(() => {
+      const a = game.digArtifact;
 
-    if (
-      !a ||
-      a.taken ||
-      game._digDone
-    ) return;
-
-    if (
-      game.paused ||
-      game.menuOpen ||
-      game.museumOpen ||
-      game.state !== 'playing'
-    ) return;
-
-    for (const b of game.balls || []) {
-      if (!b.isLaunched) continue;
-
-      const dx = b.x - a.x;
-      const dy = b.y - a.y;
-
-      const rr =
-        16 + (b.radius || 8);
+      if (!a || a.taken || game._digDone) return;
 
       if (
-        dx * dx +
-        dy * dy <
-        rr * rr
+        game.paused ||
+        game.menuOpen ||
+        game.museumOpen ||
+        game.state !== 'playing'
       ) {
-        collect(game, a);
-        break;
+        return;
       }
-    }
+
+      for (const ball of game.balls || []) {
+        if (!ball || !ball.isLaunched) continue;
+
+        const dx = ball.x - a.x;
+        const dy = ball.y - a.y;
+
+        const radius =
+          18 + (ball.radius || 8);
+
+        if (
+          dx * dx + dy * dy <
+          radius * radius
+        ) {
+          collectArtifact(game, a);
+          return;
+        }
+      }
+
+      /*
+       * Если игрок разбил всё вокруг артефакта,
+       * считаем раскопку завершённой.
+       */
+      if (
+        game.levelManager &&
+        game.levelManager.aliveCount <= 0
+      ) {
+        collectArtifact(game, a);
+      }
+    }, 100);
+  }
+
+  /*
+   * Некоторые системы игры могут менять bricks после loadLevel.
+   * Поэтому даём архитектуре второй шанс.
+   */
+  if (!game.__architectureSafetyTimer) {
+    game.__architectureSafetyTimer = setInterval(() => {
+      if (!game || !game.bricks) return;
+
+      const n = game.level;
+
+      if (!n) return;
+
+      const alive = game.bricks.filter(b => b && b.alive);
+
+      if (
+        alive.length >= 8 &&
+        game._archApplied !== n
+      ) {
+        try {
+          applyArchitecture(game, n);
+        } catch (err) {
+          console.error('[ARCHITECTURE RETRY]', err);
+        }
+      }
+    }, 500);
+  }
+}
+
+
+/* =========================================================
+ * ГЛАВНАЯ ЛОГИКА
+ * ========================================================= */
+
+function applyArchitecture(game, level) {
+  if (game._archApplied === level) return;
+
+  const bricks = game.bricks;
+
+  if (!Array.isArray(bricks)) return;
+
+  const alive = bricks.filter(
+    b => b && b.alive
+  );
+
+  /*
+   * Слишком маленькие уровни вообще не трогаем.
+   */
+  if (alive.length < 8) {
+    game._archApplied = level;
+    return;
+  }
+
+  game._archApplied = level;
+
+  const modeIndex =
+    (level - 1) % MODES.length;
+
+  const mode = MODES[modeIndex];
+
+  /*
+   * Геометрический центр РЕАЛЬНОГО уровня.
+   */
+  const bounds = getBounds(alive);
+
+  const centerX =
+    (bounds.left + bounds.right) / 2;
+
+  const centerY =
+    (bounds.top + bounds.bottom) / 2;
+
+  /*
+   * Сначала определяем кирпичи,
+   * которые естественно образуют центральную камеру.
+   */
+  const candidates = alive
+    .map((brick, index) => {
+      const bx =
+        brick.x + brick.width / 2;
+
+      const by =
+        brick.y + brick.height / 2;
+
+      const dx = bx - centerX;
+      const dy = by - centerY;
+
+      const distance =
+        Math.sqrt(dx * dx + dy * dy);
+
+      return {
+        brick,
+        index,
+        bx,
+        by,
+        distance,
+        row: Math.round(by / Math.max(1, brick.height)),
+        col: Math.round(bx / Math.max(1, brick.width))
+      };
+    })
+    .sort((a, b) => a.distance - b.distance);
+
+  /*
+   * Нельзя вырезать слишком много.
+   *
+   * Это КЛЮЧЕВОЕ отличие от старой версии:
+   * архитектура никогда не превращает уровень
+   * в четыре случайных кирпича.
+   */
+  const maxCarve =
+    Math.max(
+      1,
+      Math.min(
+        5,
+        Math.floor(alive.length * mode.carve)
+      )
+    );
+
+  /*
+   * На маленьких уровнях достаточно одного-двух
+   * кирпичей в центре.
+   */
+  let carveCount = maxCarve;
+
+  if (alive.length < 14) {
+    carveCount = Math.min(2, maxCarve);
+  } else if (alive.length < 24) {
+    carveCount = Math.min(3, maxCarve);
+  }
+
+  /*
+   * Выбираем центральную камеру в зависимости
+   * от типа архитектуры.
+   */
+  let selected = selectCarveCells(
+    candidates,
+    mode.pattern,
+    carveCount,
+    bounds
+  );
+
+  /*
+   * Защита: если паттерн ничего не нашёл,
+   * берём ближайшие к центру кирпичи.
+   */
+  if (!selected.length) {
+    selected = candidates
+      .slice(0, carveCount)
+      .map(x => x.brick);
+  }
+
+  /*
+   * Ещё одна защита.
+   * Никогда не оставляем меньше 6 кирпичей.
+   */
+  const maximumAllowed =
+    Math.max(
+      1,
+      alive.length - 6
+    );
+
+  if (selected.length > maximumAllowed) {
+    selected =
+      selected.slice(0, maximumAllowed);
+  }
+
+  /*
+   * Координата артефакта:
+   * не на кирпиче, а в центре образовавшейся камеры.
+   */
+  const artifactPosition =
+    getArtifactPosition(
+      selected,
+      centerX,
+      centerY,
+      bounds
+    );
+
+  /*
+   * Создаём артефакт ДО удаления кирпичей.
+   */
+  game.digArtifact = {
+    x: artifactPosition.x,
+    y: artifactPosition.y,
+    taken: false,
+
+    /*
+     * После шестого биома артефакт становится
+     * менее заметным.
+     */
+    hidden:
+      Math.floor((level - 1) / 11) >= 6,
+
+    kind:
+      ((level - 1) * 3 + modeIndex) % KINDS.length,
+
+    role: modeIndex
+  };
+
+  /*
+   * Удаляем только выбранные кирпичи.
+   */
+  for (const brick of selected) {
+    if (!brick || !brick.alive) continue;
+
+    brick.alive = false;
+    brick.y = -9999;
+    brick.maxRegens = 0;
 
     if (
       game.levelManager &&
-      game.levelManager.aliveCount <= 0
+      typeof game.levelManager.aliveCount === 'number'
     ) {
-      collect(game, a);
+      game.levelManager.aliveCount =
+        Math.max(
+          0,
+          game.levelManager.aliveCount - 1
+        );
     }
-  }, 120);
+  }
 
-  setInterval(() => {
-    const n = game.level;
+  /*
+   * Особые свойства архитектур.
+   */
+  applySpecialWalls(
+    game,
+    alive,
+    modeIndex
+  );
 
-    if (
-      n &&
-      game._archApplied !== n &&
-      game.bricks &&
-      game.bricks.filter(b => b.alive).length > 10
-    ) {
-      try {
-        applyArch(game, n);
-      } catch (e) {
-        console.error('ARCH FAIL', e);
-      }
-    }
-  }, 700);
+  if (game.showBanner) {
+    game.showBanner(
+      '⛏ Раскопки №' +
+      level +
+      ' — ' +
+      ROLE[modeIndex]
+    );
+  }
 }
 
-function collect(game, a) {
-  if (
-    a.taken ||
-    game._digDone
-  ) return;
+
+/* =========================================================
+ * ВЫБОР КАМЕРЫ
+ * ========================================================= */
+
+function selectCarveCells(
+  candidates,
+  pattern,
+  count,
+  bounds
+) {
+  if (!candidates.length) return [];
+
+  const cx =
+    (bounds.left + bounds.right) / 2;
+
+  const cy =
+    (bounds.top + bounds.bottom) / 2;
+
+  let pool;
+
+  switch (pattern) {
+
+    case 'checker':
+      pool = candidates.filter(x =>
+        (x.row + x.col) % 2 === 0
+      );
+      break;
+
+    case 'pyramid':
+      pool = candidates.filter(x => {
+        const dx = Math.abs(x.bx - cx);
+        const dy = x.by - bounds.top;
+        const width =
+          (bounds.right - bounds.left) *
+          (1 - dy /
+            Math.max(1, bounds.bottom - bounds.top));
+
+        return dx < width / 3;
+      });
+      break;
+
+    case 'diamond':
+      pool = candidates.filter(x => {
+        const dx =
+          Math.abs(x.bx - cx) /
+          Math.max(1, bounds.right - bounds.left);
+
+        const dy =
+          Math.abs(x.by - cy) /
+          Math.max(1, bounds.bottom - bounds.top);
+
+        return dx + dy < 0.38;
+      });
+      break;
+
+    case 'columns':
+      pool = candidates.filter(x =>
+        Math.abs(x.col % 4) <= 1
+      );
+      break;
+
+    case 'zigzag':
+      pool = candidates.filter(x =>
+        ((x.row + x.col) % 3) !== 1
+      );
+      break;
+
+    case 'frame':
+      pool = candidates.filter(x => {
+        const edgeX =
+          Math.min(
+            Math.abs(x.bx - bounds.left),
+            Math.abs(x.bx - bounds.right)
+          );
+
+        const edgeY =
+          Math.min(
+            Math.abs(x.by - bounds.top),
+            Math.abs(x.by - bounds.bottom)
+          );
+
+        return edgeX < edgeY * 1.5;
+      });
+      break;
+
+    case 'cross':
+      pool = candidates.filter(x =>
+        Math.abs(x.bx - cx) <
+          (bounds.right - bounds.left) * 0.16 ||
+        Math.abs(x.by - cy) <
+          (bounds.bottom - bounds.top) * 0.16
+      );
+      break;
+
+    case 'spiral':
+      pool = candidates.filter(x => {
+        const angle =
+          Math.atan2(
+            x.by - cy,
+            x.bx - cx
+          );
+
+        return (
+          Math.floor(
+            ((angle + Math.PI) /
+              (Math.PI * 2)) * 8
+          ) % 2 === 0
+        );
+      });
+      break;
+
+    case 'crypt':
+      pool = candidates.filter(x =>
+        x.by > cy &&
+        x.bx > bounds.left &&
+        x.bx < bounds.right
+      );
+      break;
+
+    case 'throne':
+      pool = candidates.filter(x =>
+        x.by < cy
+      );
+      break;
+
+    case 'center':
+    default:
+      pool = candidates;
+      break;
+  }
+
+  /*
+   * Всегда сортируем по близости к центру.
+   * Поэтому даже сложные паттерны не вырывают
+   * случайные кирпичи с краёв уровня.
+   */
+  pool.sort(
+    (a, b) =>
+      a.distance - b.distance
+  );
+
+  return pool
+    .slice(0, count)
+    .map(x => x.brick);
+}
+
+
+/* =========================================================
+ * ПОЗИЦИЯ АРТЕФАКТА
+ * ========================================================= */
+
+function getArtifactPosition(
+  selected,
+  centerX,
+  centerY,
+  bounds
+) {
+  /*
+   * Если камера состоит из кирпичей,
+   * ставим артефакт в центр камеры.
+   */
+  if (selected.length) {
+    const x =
+      selected.reduce(
+        (sum, b) =>
+          sum + b.x + b.width / 2,
+        0
+      ) / selected.length;
+
+    const y =
+      selected.reduce(
+        (sum, b) =>
+          sum + b.y + b.height / 2,
+        0
+      ) / selected.length;
+
+    return {
+      x,
+      y
+    };
+  }
+
+  return {
+    x: centerX,
+    y: centerY
+  };
+}
+
+
+/* =========================================================
+ * СПЕЦИАЛЬНЫЕ СТЕНЫ
+ * ========================================================= */
+
+function applySpecialWalls(
+  game,
+  bricks,
+  role
+) {
+  if (!Array.isArray(bricks)) return;
+
+  /*
+   * Стальной угол.
+   */
+  if (role === 7) {
+    const alive =
+      bricks.filter(b => b && b.alive);
+
+    const steel =
+      alive
+        .sort((a, b) =>
+          (a.x + a.y) -
+          (b.x + b.y)
+        )
+        .slice(
+          0,
+          Math.min(4, alive.length)
+        );
+
+    for (const b of steel) {
+      b.isSteel = true;
+    }
+  }
+
+  /*
+   * Спираль / регенерация.
+   */
+  if (role === 8) {
+    const alive =
+      bricks.filter(b => b && b.alive);
+
+    const regen =
+      alive.filter((b, i) =>
+        i % 5 === 0
+      );
+
+    for (const b of regen) {
+      b.maxRegens =
+        Math.max(
+          b.maxRegens || 0,
+          2
+        );
+    }
+  }
+
+  /*
+   * Охраняемый трон.
+   */
+  if (role === 10) {
+    game._guardNext = true;
+  }
+}
+
+
+/* =========================================================
+ * BOUNDS
+ * ========================================================= */
+
+function getBounds(bricks) {
+  let left = Infinity;
+  let right = -Infinity;
+  let top = Infinity;
+  let bottom = -Infinity;
+
+  for (const b of bricks) {
+    left =
+      Math.min(left, b.x);
+
+    right =
+      Math.max(
+        right,
+        b.x + b.width
+      );
+
+    top =
+      Math.min(top, b.y);
+
+    bottom =
+      Math.max(
+        bottom,
+        b.y + b.height
+      );
+  }
+
+  return {
+    left,
+    right,
+    top,
+    bottom
+  };
+}
+
+
+/* =========================================================
+ * АРТЕФАКТ
+ * ========================================================= */
+
+function collectArtifact(game, a) {
+  if (!a || a.taken || game._digDone) {
+    return;
+  }
 
   a.taken = true;
 
-  const all =
+  const allDestroyed =
     game.levelManager &&
     game.levelManager.aliveCount <= 0;
 
-  const noLife =
+  const noLifeLost =
     game.lives >=
     (game._livesStart ?? game.lives);
 
   const stars =
     1 +
-    (all ? 1 : 0) +
-    (noLife ? 1 : 0);
+    (allDestroyed ? 1 : 0) +
+    (noLifeLost ? 1 : 0);
 
   game.score += 500;
 
@@ -462,7 +730,8 @@ function collect(game, a) {
     game.showBanner(
       '⚱ ' +
       KINDS[
-        (a.kind || 0) % KINDS.length
+        (a.kind || 0) %
+        KINDS.length
       ] +
       ' ' +
       '🏺'.repeat(stars)
@@ -477,29 +746,45 @@ function collect(game, a) {
   }
 
   try {
-    const m = JSON.parse(
-      localStorage.getItem('agur_dig') || '{}'
-    );
+    const saved =
+      JSON.parse(
+        localStorage.getItem(
+          'agur_dig'
+        ) || '{}'
+      );
 
-    m[game.level] = Math.max(
-      m[game.level] || 0,
-      stars
-    );
+    saved[game.level] =
+      Math.max(
+        saved[game.level] || 0,
+        stars
+      );
 
     localStorage.setItem(
       'agur_dig',
-      JSON.stringify(m)
+      JSON.stringify(saved)
     );
   } catch (e) {}
 
   game._digDone = true;
 
+  /*
+   * Не вызываем levelComplete мгновенно:
+   * даём эффекту раскопки закончиться.
+   */
   setTimeout(() => {
-    if (game.levelComplete) {
+    if (
+      typeof game.levelComplete ===
+      'function'
+    ) {
       game.levelComplete();
     }
   }, 700);
 }
+
+
+/* =========================================================
+ * RENDER
+ * ========================================================= */
 
 export function drawArtifact(g, a, t) {
   const pulse =
@@ -509,74 +794,145 @@ export function drawArtifact(g, a, t) {
 
   g.save();
 
-  g.translate(a.x, a.y);
+  g.translate(
+    a.x,
+    a.y
+  );
 
+  /*
+   * Свечение.
+   */
   g.globalAlpha =
-    (a.hidden ? 0.3 : 0.2) *
-    pulse +
-    0.15;
+    ((a.hidden ? 0.22 : 0.32) *
+      pulse) +
+    0.12;
 
-  g.fillStyle = '#f0c96a';
+  g.fillStyle =
+    '#f0c96a';
 
   g.beginPath();
+
   g.arc(
     0,
     0,
-    16,
+    19,
     0,
     Math.PI * 2
   );
+
   g.fill();
 
+  /*
+   * Сам артефакт.
+   */
   g.globalAlpha = 1;
 
-  g.fillStyle = '#d8a848';
+  g.fillStyle =
+    '#d8a848';
 
   const k =
-    (a.kind || 0) % KINDS.length;
+    (a.kind || 0) %
+    KINDS.length;
 
   if (k === 0) {
     // Амфора
     g.beginPath();
     g.moveTo(-6, -8);
-    g.quadraticCurveTo(-9, 0, -5, 8);
+    g.quadraticCurveTo(
+      -10,
+      0,
+      -5,
+      8
+    );
     g.lineTo(5, 8);
-    g.quadraticCurveTo(9, 0, 6, -8);
+    g.quadraticCurveTo(
+      10,
+      0,
+      6,
+      -8
+    );
     g.closePath();
     g.fill();
 
-    g.fillRect(-4, -11, 8, 3);
+    g.fillRect(
+      -4,
+      -12,
+      8,
+      4
+    );
+  }
 
-  } else if (k === 1) {
+  else if (k === 1) {
     // Цилиндрическая печать
-    g.fillRect(-4, -9, 8, 18);
-    g.fillStyle = '#7a5018';
-    g.fillRect(-1, -9, 2, 18);
+    g.fillRect(
+      -4,
+      -10,
+      8,
+      20
+    );
 
-  } else if (k === 2) {
-    // Золотая маска
+    g.fillStyle =
+      '#7a5018';
+
+    g.fillRect(
+      -1,
+      -9,
+      2,
+      18
+    );
+  }
+
+  else if (k === 2) {
+    // Маска
     g.beginPath();
-    g.arc(0, -1, 8, 0, Math.PI * 2);
+
+    g.arc(
+      0,
+      -1,
+      9,
+      0,
+      Math.PI * 2
+    );
+
     g.fill();
 
-    g.fillStyle = '#7a5018';
-    g.fillRect(-5, -3, 3, 2);
-    g.fillRect(2, -3, 3, 2);
+    g.fillStyle =
+      '#7a5018';
 
-  } else if (k === 3) {
+    g.fillRect(
+      -5,
+      -3,
+      3,
+      2
+    );
+
+    g.fillRect(
+      2,
+      -3,
+      3,
+      2
+    );
+  }
+
+  else if (k === 3) {
     // Амулет
     g.beginPath();
+
     g.moveTo(0, -9);
     g.lineTo(7, 0);
     g.lineTo(0, 9);
     g.lineTo(-7, 0);
     g.closePath();
+
     g.fill();
 
-    g.strokeStyle = '#d8a848';
+    g.strokeStyle =
+      '#d8a848';
+
     g.lineWidth = 2;
 
     g.beginPath();
+
     g.arc(
       0,
       -11,
@@ -584,46 +940,74 @@ export function drawArtifact(g, a, t) {
       0,
       Math.PI * 2
     );
+
     g.stroke();
+  }
 
-  } else if (k === 4) {
+  else if (k === 4) {
     // Табличка
-    g.fillRect(-7, -8, 14, 16);
+    g.fillRect(
+      -8,
+      -8,
+      16,
+      16
+    );
 
-    g.fillStyle = '#7a5018';
+    g.fillStyle =
+      '#7a5018';
 
-    g.fillRect(-4, -5, 8, 2);
-    g.fillRect(-4, -1, 6, 2);
-    g.fillRect(-4, 3, 8, 2);
+    g.fillRect(
+      -5,
+      -5,
+      10,
+      2
+    );
 
-  } else if (k === 5) {
+    g.fillRect(
+      -5,
+      -1,
+      7,
+      2
+    );
+
+    g.fillRect(
+      -5,
+      3,
+      10,
+      2
+    );
+  }
+
+  else if (k === 5) {
     // Корона
-    g.fillRect(-8, 2, 16, 5);
+    g.fillRect(
+      -9,
+      2,
+      18,
+      5
+    );
 
     g.beginPath();
-    g.moveTo(-6, 2);
-    g.lineTo(-4, -6);
-    g.lineTo(-2, 2);
-    g.closePath();
-    g.fill();
 
-    g.beginPath();
-    g.moveTo(-2, 2);
-    g.lineTo(0, -8);
+    g.moveTo(-7, 2);
+    g.lineTo(-4, -7);
+    g.lineTo(-1, 2);
+
+    g.lineTo(0, -9);
     g.lineTo(2, 2);
-    g.closePath();
-    g.fill();
 
-    g.beginPath();
-    g.moveTo(2, 2);
-    g.lineTo(4, -6);
-    g.lineTo(6, 2);
-    g.closePath();
-    g.fill();
+    g.lineTo(5, -7);
+    g.lineTo(7, 2);
 
-  } else if (k === 6) {
+    g.closePath();
+
+    g.fill();
+  }
+
+  else if (k === 6) {
     // Идол
     g.beginPath();
+
     g.arc(
       0,
       -6,
@@ -631,33 +1015,54 @@ export function drawArtifact(g, a, t) {
       0,
       Math.PI * 2
     );
+
     g.fill();
 
-    g.fillRect(-3, -3, 6, 11);
-    g.fillRect(-7, -1, 14, 3);
+    g.fillRect(
+      -3,
+      -3,
+      6,
+      11
+    );
 
-  } else if (k === 7) {
+    g.fillRect(
+      -7,
+      -1,
+      14,
+      3
+    );
+  }
+
+  else if (k === 7) {
     // Самоцвет
     g.beginPath();
+
     g.moveTo(0, -9);
     g.lineTo(7, -3);
     g.lineTo(5, 7);
     g.lineTo(-5, 7);
     g.lineTo(-7, -3);
+
     g.closePath();
     g.fill();
 
-    g.strokeStyle = '#7a5018';
+    g.strokeStyle =
+      '#7a5018';
+
     g.lineWidth = 1;
 
     g.beginPath();
+
     g.moveTo(0, -9);
     g.lineTo(0, 7);
-    g.stroke();
 
-  } else if (k === 8) {
+    g.stroke();
+  }
+
+  else if (k === 8) {
     // Статуэтка
     g.beginPath();
+
     g.ellipse(
       0,
       2,
@@ -667,9 +1072,11 @@ export function drawArtifact(g, a, t) {
       0,
       Math.PI * 2
     );
+
     g.fill();
 
     g.beginPath();
+
     g.arc(
       3,
       -6,
@@ -677,16 +1084,19 @@ export function drawArtifact(g, a, t) {
       0,
       Math.PI * 2
     );
+
     g.fill();
+  }
 
-    g.fillRect(5, -7, 4, 2);
-
-  } else if (k === 9) {
+  else if (k === 9) {
     // Перстень
-    g.strokeStyle = '#d8a848';
+    g.strokeStyle =
+      '#d8a848';
+
     g.lineWidth = 3;
 
     g.beginPath();
+
     g.arc(
       0,
       2,
@@ -694,13 +1104,21 @@ export function drawArtifact(g, a, t) {
       0,
       Math.PI * 2
     );
+
     g.stroke();
 
-    g.fillRect(-2, -9, 4, 4);
+    g.fillRect(
+      -2,
+      -10,
+      4,
+      4
+    );
+  }
 
-  } else if (k === 10) {
+  else if (k === 10) {
     // Чаша
     g.beginPath();
+
     g.arc(
       0,
       -2,
@@ -708,204 +1126,50 @@ export function drawArtifact(g, a, t) {
       0,
       Math.PI
     );
+
     g.fill();
 
-    g.fillRect(-9, -3, 18, 2);
+    g.fillRect(
+      -9,
+      -3,
+      18,
+      2
+    );
+  }
 
-  } else {
+  else {
     // Наконечник
     g.beginPath();
+
     g.moveTo(0, -10);
     g.lineTo(5, 2);
     g.lineTo(0, 0);
     g.lineTo(-5, 2);
+
     g.closePath();
+
     g.fill();
 
-    g.fillRect(-1, 0, 2, 10);
+    g.fillRect(
+      -1,
+      0,
+      2,
+      10
+    );
   }
 
+  /*
+   * Блик.
+   */
   g.fillStyle =
-    'rgba(255,240,200,0.8)';
+    'rgba(255,240,200,0.85)';
 
-  g.fillRect(-2, -6, 2, 6);
+  g.fillRect(
+    -2,
+    -7,
+    2,
+    6
+  );
 
   g.restore();
-}
-
-function applyArch(game, n) {
-  if (game._archApplied === n) return;
-
-  const bricks = game.bricks;
-
-  if (
-    !bricks ||
-    !bricks.length
-  ) return;
-
-  const live =
-    bricks.filter(b => b.alive);
-
-  if (live.length < 12) return;
-
-  const ys = [
-    ...new Set(
-      live.map(b => Math.round(b.y))
-    )
-  ].sort((a, b) => a - b);
-
-  const xs = [
-    ...new Set(
-      live.map(b => Math.round(b.x))
-    )
-  ].sort((a, b) => a - b);
-
-  const R = ys.length;
-  const C = xs.length;
-
-  if (
-    R < 4 ||
-    C < 4
-  ) return;
-
-  const yI = new Map(
-    ys.map((y, i) => [y, i])
-  );
-
-  const xI = new Map(
-    xs.map((x, i) => [x, i])
-  );
-
-  const role =
-    (n - 1) % ARCH.length;
-
-  const biome =
-    Math.min(
-      Math.floor((n - 1) / ARCH.length),
-      7
-    );
-
-  const fn = ARCH[role];
-
-  const plan = [];
-  const coreCells = [];
-
-  for (const b of live) {
-    const r =
-      yI.get(Math.round(b.y));
-
-    const c =
-      xI.get(Math.round(b.x));
-
-    if (
-      r === undefined ||
-      c === undefined
-    ) continue;
-
-    const spec =
-      fn(r, c, R, C);
-
-    plan.push([b, spec]);
-
-    if (spec === 'G') {
-      coreCells.push(b);
-    }
-  }
-
-  const kept =
-    plan.filter(
-      p =>
-        p[1] === 'C' ||
-        p[1] === 'S' ||
-        p[1] === 'R'
-    ).length;
-
-  if (
-    kept < Math.max(
-      8,
-      Math.floor(live.length * 0.12)
-    )
-  ) return;
-
-  if (coreCells.length) {
-    const bw =
-      coreCells[0].width || 32;
-
-    const bh =
-      coreCells[0].height || 16;
-
-    const ax =
-      coreCells.reduce(
-        (s, b) => s + b.x,
-        0
-      ) /
-        coreCells.length +
-      bw / 2;
-
-    const ay =
-      coreCells.reduce(
-        (s, b) => s + b.y,
-        0
-      ) /
-        coreCells.length +
-      bh / 2;
-
-    game.digArtifact = {
-      x: ax,
-      y: ay,
-      taken: false,
-      hidden: biome >= 6,
-      kind:
-        (biome * 3 + role) %
-        KINDS.length
-    };
-  }
-
-  let removed = 0;
-
-  for (const [b, spec] of plan) {
-    if (
-      spec === '.' ||
-      spec === 'G'
-    ) {
-      if (b.alive) {
-        b.alive = false;
-        b.y = -9999;
-        b.maxRegens = 0;
-        removed++;
-
-        if (
-          game.levelManager &&
-          typeof game.levelManager.aliveCount === 'number'
-        ) {
-          game.levelManager.aliveCount =
-            Math.max(
-              0,
-              game.levelManager.aliveCount - 1
-            );
-        }
-      }
-
-    } else if (spec === 'S') {
-
-      b.isSteel = true;
-
-    } else if (spec === 'R') {
-
-      b.maxRegens = 2;
-    }
-  }
-
-  if (role === 10) {
-    game._guardNext = true;
-  }
-
-  if (game.showBanner) {
-    game.showBanner(
-      '⛏ Раскопки №' +
-      n +
-      ' — ' +
-      ROLE[role]
-    );
-  }
 }
