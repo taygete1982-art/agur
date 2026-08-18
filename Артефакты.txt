@@ -1,0 +1,44 @@
+ice_word.png
+Слово Льда (кристалл-знак)
+ice_bull.png
+Ледяной Бык
+ice_seal.png
+Печать Зимы (снежинка-мандала)
+ice_temple.png
+Ледяной Храм (пещера)
+ice_harp.png
+Замёрзшая Арфа (вариант А)
+fire_word.png
+Слово Огня (горящий клин)
+fire_kiln.png
+Гончарная Печь
+fire_forge.png
+Кузня Загроса
+fire_hearth.png
+Очаг
+fire_star.png
+Падающая Звезда
+beast_udu.png
+Баран
+beast_ug.png
+Лев
+beast_mus.png
+Змей
+beast_ku6.png
+Рыба
+beast_girtab.png
+Скорпион
+beast_ab2.png
+Корова
+beast_tir.png
+Ласточка
+dead_puabi.png
+Венец Пуаби
+dead_cup.png
+Кубок подношений
+dead_namtar.png
+Табличка судеб
+dead_galla.png
+Печать галла (последняя, мрачная)
+dead_ur.png
+Царская игра Ура (последняя, с призраком)

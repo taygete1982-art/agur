@@ -12,7 +12,17 @@ import { Flow } from './Flow.js';
 import { Combat } from './Combat.js';
 import { Collect } from './Collect.js';
 import { initDeck } from '../systems/Cards.js';
-import { initDeck } from '../systems/Cards.js';
+import { initMuseum } from '../systems/Museum216.js';
+import { initProgression } from '../systems/Progression.js';
+import { initMenu } from '../systems/Menu.js';
+import { initBosses } from '../systems/Bosses.js';
+import { initPolish } from '../systems/Polish.js';
+import { initLayouts } from '../systems/Layouts.js';
+import { initAchievements } from '../systems/Achievements.js';
+import { initFun } from '../systems/Fun.js';
+import { initPower } from '../systems/Power.js';
+import { initDemons } from '../systems/Demons.js';
+import { initEvents } from '../systems/Events.js';
 import { Enemies } from '../systems/Enemies.js';
 
 export class Game {
@@ -80,14 +90,38 @@ export class Game {
     this.input.setPaddle(this.paddle);
     this.setupCallbacks();
     initDeck(this);
+    initMuseum(this);
+    initProgression(this);
+    initMenu(this);
+    initBosses(this);
+    initPolish(this);
+    initLayouts(this);
+    initAchievements(this);
+    initFun(this);
+    initPower(this);
+    initDemons(this);
+    initEvents(this);
     window.addEventListener('keydown', (e) => {
       if (e.code === 'KeyN' && this.state === GAME_STATE.PLAYING) { this.loadLevel(Math.min(this.level + 1, 88)); this.resetBall(); }
       if (e.code === 'KeyC') { window.toggleDeck && window.toggleDeck(this); }
+      if (e.code === 'KeyM') { window.toggleMuseum && window.toggleMuseum(this); }
     });
     initDeck(this);
+    initMuseum(this);
+    initProgression(this);
+    initMenu(this);
+    initBosses(this);
+    initPolish(this);
+    initLayouts(this);
+    initAchievements(this);
+    initFun(this);
+    initPower(this);
+    initDemons(this);
+    initEvents(this);
     window.addEventListener('keydown', (e) => {
       if (e.code === 'KeyN' && this.state === GAME_STATE.PLAYING) { this.loadLevel(Math.min(this.level + 1, 88)); this.resetBall(); }
       if (e.code === 'KeyC') { window.toggleDeck && window.toggleDeck(this); }
+      if (e.code === 'KeyM') { window.toggleMuseum && window.toggleMuseum(this); }
     });
     window.addEventListener('keydown', (e) => {
       if (e.code === 'KeyN' && this.state === GAME_STATE.PLAYING) {
@@ -300,6 +334,17 @@ export class Game {
 }
 
 Object.assign(Game.prototype, Flow, Combat, Collect, Enemies);
+
+
+
+
+
+
+
+
+
+
+
 
 
 

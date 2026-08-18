@@ -14,20 +14,25 @@ export const Collect = {
     this.deckScoreMul = mul;
   },
 
-  spawnPowerUp(x, y) {
+  spawnPowerUp(x, y, force) {
     this.noDrop = 0;
-    const cardChance = this.deckHas('UR') ? 0.05 : 0.025;
+    if (!force) {
+      if (this.powerUps.length >= 4) return;
+      const now = Date.now();
+      if (this.lastDrop && now - this.lastDrop < 1100) return;
+      this.lastDrop = now;
+    }
+    const luck = (this.buffs && this.buffs.luck) || 0;
+    const cardChance = (this.deckHas('UR') ? 0.06 : 0.035) + luck * 0.006;
     if (Math.random() < cardChance && CARDS.some(c => !this.deckHas(c.id))) {
       this.powerUps.push(new PowerUp(x, y, 'CARD'));
       return;
     }
     const roll = Math.random() * 100;
     let type;
-    if (roll < 25) type = 'WIDE';
-    else if (roll < 50) type = 'FRAGMENT';
-    else if (roll < 60) type = 'LIFE';
-    else if (roll < 68) type = 'SLOW';
-    else if (roll < 80) type = 'MULTI';
+    if (roll < 38 + luck * 2) type = 'FRAGMENT';
+    else if (roll < 62) type = 'WIDE';
+    else if (roll < 78) type = 'LIFE';
     else type = 'WIDE';
     this.powerUps.push(new PowerUp(x, y, type));
   },
@@ -49,6 +54,10 @@ export const Collect = {
     this.effects.flash('#e8c98a', 0.2);
     if (card.suit === 'ice') { this.applySlowEffect(); this.freezeDemons = 240; this.showBanner('❄ ' + card.name + '!'); }
     else if (card.suit === 'fire') { this.castMeteor(); this.showBanner('🔥 ' + card.name + '!'); }
+    else if (card.suit === 'water') { if (this.applyWideEffect) this.applyWideEffect(); this.score += 50; this.showBanner('💧 ' + card.name + '! +50'); }
+    else if (card.suit === 'storm') { this.castStorm(); this.showBanner('⚡ ' + card.name + '!'); }
+    else if (card.suit === 'star') { this.score += 500; this.effects.flash('#fde047', 0.25); this.showBanner('✦ ' + card.name + '! +500'); }
+    else if (card.suit === 'dark') { this.freezeDemons = 300; this.effects.flash('#14532d', 0.3); this.showBanner('🌑 ' + card.name + '!'); }
     else this.showBanner('🃏 ' + card.name + '! +150');
   },
 
@@ -71,6 +80,7 @@ export const Collect = {
   },
 
   spawnMultiBall() {
+    return; // мультибол отключён, один мяч
     if (!this.balls || this.balls.length === 0) return;
     const source = this.balls[0];
     const baseAngle = Math.atan2(source.dy, source.dx);
@@ -143,3 +153,10 @@ export const Collect = {
     }
   },
 };
+
+
+
+
+
+
+
