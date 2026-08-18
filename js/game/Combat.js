@@ -1,5 +1,5 @@
-﻿import { CONFIG } from '../config.js';
-import { PowerUp } from '../entities/PowerUp.js';
+﻿import { CONFIG } from '../config.js?v=2';
+import { PowerUp } from '../entities/PowerUp.js?v=2';
 
 export const Combat = {
   wallHit(side, ball) {
@@ -160,6 +160,7 @@ export const Combat = {
     if (navigator.vibrate) navigator.vibrate(40);
   },
 };
+
 
 
 

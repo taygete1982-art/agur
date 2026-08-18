@@ -1,5 +1,5 @@
-﻿import { CONFIG } from '../config.js';
-import { Brick, biomeColor } from '../entities/Brick.js';
+﻿import { CONFIG } from '../config.js?v=2';
+import { Brick, biomeColor } from '../entities/Brick.js?v=2';
 
 const COLS = 12;
 const ROWS = 18;
@@ -193,6 +193,7 @@ export class LevelManager {
     return BIOMES[biome].name + ' — ' + li + '/11';
   }
 }
+
 
 
 

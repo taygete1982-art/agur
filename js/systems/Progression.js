@@ -40,7 +40,7 @@ export function initProgression(game) {
     };
   }
 
-  setTimeout(() => { if (game.showBanner) game.showBanner('🏛 Рекорд: ' + game.progress.best + ' | Макс. уровень: ' + game.progress.max); }, 600);
+
 }
 
 function save(game) { try { localStorage.setItem('agur_progress', JSON.stringify(game.progress)); } catch (e) {} }
@@ -50,9 +50,11 @@ function scaleLevel(game, n) {
   if (game.balls) game.balls.forEach(b => { b.dx *= f; b.dy *= f; });
   if (n >= 5 && game.bricks) {
     game.bricks.forEach((b, i) => {
-      if (typeof b.hp === 'number' && !b.isSteel && i % 7 === 0) b.hp += 1;
+      if (typeof b.hp === 'number' && !b.isSteel && i % 7 === 0 && b.hp < 3) b.hp += 1;
     });
   }
 }
+
+
 
 

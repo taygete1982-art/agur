@@ -1,7 +1,7 @@
-﻿import { CONFIG } from '../config.js';
-import { PowerUp } from '../entities/PowerUp.js';
-import { Ball } from '../entities/Ball.js';
-import { CARDS } from '../systems/Cards.js';
+﻿import { CONFIG } from '../config.js?v=2';
+import { PowerUp } from '../entities/PowerUp.js?v=2';
+import { Ball } from '../entities/Ball.js?v=2';
+import { CARDS } from '../systems/Cards.js?v=2';
 
 export const Collect = {
   deckHas(id) { return Array.isArray(this.deck) && this.deck.includes(id); },
@@ -79,6 +79,19 @@ export const Collect = {
     this.shakeIntensity = Math.max(this.shakeIntensity, 10);
   },
 
+  castStorm() {
+    const alive = this.bricks.filter(b => b.alive && !b.isSteel);
+    let n = 0;
+    while (n < 8 && alive.length) {
+      const b = alive.splice(Math.floor(Math.random() * alive.length), 1)[0];
+      if (this.effects && this.effects.bolt) this.effects.bolt(b.x + b.width / 2, 0, b.x + b.width / 2, b.y + b.height / 2);
+      if (b.takeDamage()) this.destroyBrick(b);
+      n++;
+    }
+    if (this.effects && this.effects.flash) this.effects.flash('#a5f3fc', 0.2);
+    this.shakeIntensity = Math.max(this.shakeIntensity || 0, 12);
+  },
+
   spawnMultiBall() {
     return; // мультибол отключён, один мяч
     if (!this.balls || this.balls.length === 0) return;
@@ -153,6 +166,8 @@ export const Collect = {
     }
   },
 };
+
+
 
 
 

@@ -240,7 +240,7 @@ export function initMuseum(game) {
     this.museumCol.push(idx);
     try { localStorage.setItem('agur_museum', JSON.stringify(this.museumCol)); } catch (e) {}
     this.score += 100;
-    this.showBanner('🏺 ' + ARTIFACTS[idx][0] + '! +100');
+
     this.effects.flash('#e8c98a', 0.15);
   };
 }
@@ -263,3 +263,4 @@ export function renderMuseum(game) {
   html += '</div><p style="color:#6a5a44;text-align:center;font-family:Georgia,serif;margin:30px 0;font-size:14px;">Клик или M — закрыть музей</p>';
   ov.innerHTML = html;
 }
+

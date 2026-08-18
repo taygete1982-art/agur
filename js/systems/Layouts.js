@@ -19,7 +19,7 @@ export function initLayouts(game) {
     const r = orig(n, ...rest);
     try {
       applyLayout(game, n);
-      if (game.showBanner) game.showBanner('🧱 ' + NAMES[(n - 1) % NAMES.length]);
+
     } catch (e) {}
     return r;
   };
@@ -39,10 +39,18 @@ function applyLayout(game, n) {
   for (const b of bricks) {
     if (b.isSteel) { kept++; continue; }
     const r = yI.get(Math.round(b.y)), c = xI.get(Math.round(b.x));
+    if (r === undefined || c === undefined) { kept++; continue; }
     if (fn(r, c, R, C)) kept++;
-    else { b.alive = false; b.hp = 0; }
+    else {
+      if (b._oy === undefined) b._oy = b.y;
+      b.alive = false;
+      b.y = -9999;
+    }
   }
   if (kept < Math.floor(bricks.length * 0.35)) {
-    for (const b of bricks) b.alive = true;
+    for (const b of bricks) {
+      if (b._oy !== undefined) { b.alive = true; b.y = b._oy; }
+    }
   }
 }
+

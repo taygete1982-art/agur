@@ -1,4 +1,4 @@
-﻿import { CONFIG, clamp } from '../config.js';
+﻿import { CONFIG, clamp } from '../config.js?v=2';
 
 export class Paddle {
   constructor() {
@@ -95,5 +95,6 @@ export class Paddle {
     ctx.restore();
   }
 }
+
 
 

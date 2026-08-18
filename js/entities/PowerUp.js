@@ -1,4 +1,4 @@
-﻿import { CONFIG } from '../config.js';
+﻿import { CONFIG } from '../config.js?v=2';
 
 export class PowerUp {
   constructor(x, y, type, artifactId = null) {
@@ -67,6 +67,7 @@ export class PowerUp {
     ctx.restore();
   }
 }
+
 
 
 

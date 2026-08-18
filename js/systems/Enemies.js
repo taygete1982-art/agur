@@ -1,4 +1,4 @@
-﻿import { CONFIG } from '../config.js';
+﻿import { CONFIG } from '../config.js?v=2';
 
 export const Enemies = {
   spawnDemon() {
@@ -131,6 +131,7 @@ export const Enemies = {
     }
   },
 };
+
 
 
 

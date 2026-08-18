@@ -1,29 +1,30 @@
-﻿import { CONFIG, GAME_STATE } from '../config.js';
-import { Paddle } from '../entities/Paddle.js';
-import { ParticleSystem } from '../systems/Particles.js';
-import { InputManager } from '../systems/Input.js';
-import { CollisionSystem } from '../systems/Collision.js';
-import { AudioManager } from '../systems/Audio.js';
-import { LevelManager } from '../levels/LevelManager.js';
-import { Effects } from '../systems/Effects.js';
-import { Renderer } from '../systems/Renderer.js';
-import { Background } from '../systems/Background.js';
-import { Flow } from './Flow.js';
-import { Combat } from './Combat.js';
-import { Collect } from './Collect.js';
-import { initDeck } from '../systems/Cards.js';
-import { initMuseum } from '../systems/Museum216.js';
-import { initProgression } from '../systems/Progression.js';
-import { initMenu } from '../systems/Menu.js';
-import { initBosses } from '../systems/Bosses.js';
-import { initPolish } from '../systems/Polish.js';
-import { initLayouts } from '../systems/Layouts.js';
-import { initAchievements } from '../systems/Achievements.js';
-import { initFun } from '../systems/Fun.js';
-import { initPower } from '../systems/Power.js';
-import { initDemons } from '../systems/Demons.js';
-import { initEvents } from '../systems/Events.js';
-import { Enemies } from '../systems/Enemies.js';
+﻿import '../systems/Safe.js?v=2';
+import { CONFIG, GAME_STATE } from '../config.js?v=2';
+import { Paddle } from '../entities/Paddle.js?v=2';
+import { ParticleSystem } from '../systems/Particles.js?v=2';
+import { InputManager } from '../systems/Input.js?v=2';
+import { CollisionSystem } from '../systems/Collision.js?v=2';
+import { AudioManager } from '../systems/Audio.js?v=2';
+import { LevelManager } from '../levels/LevelManager.js?v=2';
+import { Effects } from '../systems/Effects.js?v=2';
+import { Renderer } from '../systems/Renderer.js?v=2';
+import { Background } from '../systems/Background.js?v=2';
+import { Flow } from './Flow.js?v=2';
+import { Combat } from './Combat.js?v=2';
+import { Collect } from './Collect.js?v=2';
+import { initDeck } from '../systems/Cards.js?v=2';
+import { initMuseum } from '../systems/Museum216.js?v=2';
+import { initProgression } from '../systems/Progression.js?v=2';
+import { initMenu } from '../systems/Menu.js?v=2';
+import { initBosses } from '../systems/Bosses.js?v=2';
+import { initPolish } from '../systems/Polish.js?v=2';
+import { initLayouts } from '../systems/Layouts.js?v=2';
+import { initAchievements } from '../systems/Achievements.js?v=2';
+import { initFun } from '../systems/Fun.js?v=2';
+import { initPower } from '../systems/Power.js?v=2';
+import { initDemons } from '../systems/Demons.js?v=2';
+import { initEvents } from '../systems/Events.js?v=2';
+import { Enemies } from '../systems/Enemies.js?v=2';
 
 export class Game {
   constructor() {
@@ -334,6 +335,8 @@ export class Game {
 }
 
 Object.assign(Game.prototype, Flow, Combat, Collect, Enemies);
+
+
 
 
 

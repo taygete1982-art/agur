@@ -2,7 +2,7 @@
 const cache = new Map();
 
 function shade(hex, f) {
-  const n = parseInt(hex.slice(1), 16);
+  const n = parseInt((hex||"#808080").slice(1), 16);
   const r = Math.min(255, Math.max(0, Math.round(((n >> 16) & 255) * f)));
   const g = Math.min(255, Math.max(0, Math.round(((n >> 8) & 255) * f)));
   const b = Math.min(255, Math.max(0, Math.round((n & 255) * f)));
@@ -139,3 +139,4 @@ export function getBrickSprite(colors, w, h, type) {
   cache.set(key, cv);
   return cv;
 }
+

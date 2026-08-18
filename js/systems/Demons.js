@@ -28,6 +28,7 @@ function hit(game, d) {
     game.spawnPowerUp(d.x || 0, 80, true);
     if (Math.random() < 0.35) game.spawnPowerUp((d.x || 0) + 20, 80);
   }
-  if (game.showBanner) game.showBanner('👹 Демон сражён мячом! +250');
+
 }
+
 
