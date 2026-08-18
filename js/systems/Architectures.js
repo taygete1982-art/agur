@@ -1,52 +1,18 @@
-﻿const ROLE = ['Зиккурат', 'Врата', 'Табличка', 'Разлом', 'Сокровищница', 'Глубокая сокровищница', 'Храм', 'Врата храма', 'Спираль', 'Ложная гробница', 'Великая гробница'];
+﻿const ROLE = ['Курган', 'Рикошет', 'Шахта', 'Разлом', 'Сокровищница', 'Глубокая сокровищница', 'Живой храм', 'Стальной угол', 'Спираль', 'Ложная гробница', 'Охраняемый трон'];
+const KINDS = ['Амфора', 'Цилиндрическая печать', 'Золотая маска', 'Амулет', 'Табличка', 'Корона', 'Идол', 'Самоцвет', 'Статуэтка', 'Перстень', 'Чаша', 'Наконечник'];
 
 const ARCH = [
   (r, c, R, C) => { const mid = (C - 1) / 2; const half = (C / 2) * (1 - r / (R + 2)); if (Math.abs(c - mid) <= half && Math.abs(r - R / 2) <= 1) return 'G'; return Math.abs(c - mid) <= half ? 'C' : '.'; },
-  (r, c, R, C) => { if (r < 2) return 'C'; if (c < 2 || c >= C - 2) return 'C'; if (r === Math.floor(R / 2) && c === Math.floor(C / 2)) return 'G'; return '.'; },
-  (r, c, R, C) => (Math.abs(r - R / 2) <= 1 && Math.abs(c - (C - 1) / 2) <= 1) ? 'G' : (r % 4 === 3) ? '.' : 'C',
+  (r, c, R, C) => { if (r === 1 && c === C - 2) return 'G'; if ((r === 4 && c === 2) || (r === 4 && c === C - 3) || (r === 8 && c === Math.floor(C / 2)) || (r === 6 && c === Math.floor(C / 2) - 3)) return 'S'; if (r === 0 || c === C - 1) return 'C'; return '.'; },
+  (r, c, R, C) => { const mid = Math.floor(C / 2); if (r === R - 2 && c === mid) return 'G'; if ((c === mid - 2 || c === mid + 2) && r >= 2) return (r % 3 === 0) ? '.' : 'C'; if (r === 0) return 'C'; return '.'; },
   (r, c, R, C) => { if (Math.abs(r - R / 2) <= 1 && Math.abs(c - (C - 1) / 2) <= 1) return 'G'; if (r % 4 === 3) return '.'; const crack = Math.floor(C / 2) + Math.floor((r - R / 2) / 3); return (c === crack || c === crack + 1) ? '.' : 'C'; },
-  (r, c, R, C) => {
-    const wall = r === 0 || r === R - 1 || c === 0 || c === C - 1;
-    const shell = Math.min(r, c, R - 1 - r, C - 1) === 2;
-    const core = Math.abs(r - R / 2) <= 1 && Math.abs(c - (C - 1) / 2) <= 1;
-    if (core) return 'G';
-    if (wall) return (r === 0 && c === Math.floor(C / 2)) ? '.' : 'C';
-    if (shell) return (r === Math.floor(R / 2) && c === 2) ? '.' : 'C';
-    return '.';
-  },
-  (r, c, R, C) => {
-    const L = Math.min(r, c, R - 1 - r, C - 1);
-    const core = Math.abs(r - R / 2) <= 1 && Math.abs(c - (C - 1) / 2) <= 1;
-    if (core) return 'G';
-    if (L === 0) return (r === 0 && c === Math.floor(C / 2)) ? '.' : 'C';
-    if (L === 2) return (r === R - 1 && c === Math.floor(C / 2)) ? '.' : 'C';
-    if (L === 4) return (r === Math.floor(R / 2) && c === 4) ? '.' : 'C';
-    return '.';
-  },
-  (r, c, R, C) => { if (r < 2 || r > R - 3) return 'C'; if (c % 4 === 1) return 'S'; if (Math.abs(r - R / 2) <= 1 && Math.abs(c - (C - 1) / 2) <= 1) return 'G'; return '.'; },
-  (r, c, R, C) => { if (r < 2 || r > R - 3) return 'C'; if (c % 4 === 1) return Math.abs(c - (C - 1) / 2) <= 1 ? '.' : 'S'; if (Math.abs(r - R / 2) <= 1 && Math.abs(c - (C - 1) / 2) <= 1) return 'G'; return '.'; },
-  (r, c, R, C) => {
-    const L = Math.min(r, c, R - 1 - r, C - 1);
-    const core = Math.abs(r - R / 2) <= 1 && Math.abs(c - (C - 1) / 2) <= 1;
-    if (core) return 'G';
-    if (L % 2 === 1) return '.';
-    const gap = (L * 3) % C;
-    return (r === L && c === gap) ? '.' : 'C';
-  },
-  (r, c, R, C) => {
-    const wall = r === 0 || r === R - 1 || c === 0 || c === C - 1;
-    if (wall) return (r === 0 && c === Math.floor(C / 2)) ? '.' : 'C';
-    if (Math.abs(r - R / 2) <= 1 && Math.abs(c - (C - 1) / 2) <= 1) return 'G';
-    if (r === R - 2 && c === C - 2) return 'G';
-    return '.';
-  },
-  (r, c, R, C) => {
-    if (r === 0 || r === R - 1 || c === 0 || c === C - 1) return (r === 0 && c === Math.floor(C / 2)) ? '.' : 'C';
-    if ((c === 2 || c === C - 3) && r > 2 && r < R - 3) return 'S';
-    if (Math.abs(r - R / 2) <= 1 && Math.abs(c - (C - 1) / 2) <= 1) return 'G';
-    if (r === 1 && c === Math.floor(C / 2)) return 'G';
-    return '.';
-  },
+  (r, c, R, C) => { const wall = r === 0 || r === R - 1 || c === 0 || c === C - 1; const shell = Math.min(r, c, R - 1 - r, C - 1) === 2; const core = Math.abs(r - R / 2) <= 1 && Math.abs(c - (C - 1) / 2) <= 1; if (core) return 'G'; if (wall) return (r === 0 && c === Math.floor(C / 2)) ? '.' : 'C'; if (shell) return (r === Math.floor(R / 2) && c === 2) ? '.' : 'C'; return '.'; },
+  (r, c, R, C) => { const L = Math.min(r, c, R - 1 - r, C - 1); const core = Math.abs(r - R / 2) <= 1 && Math.abs(c - (C - 1) / 2) <= 1; if (core) return 'G'; if (L === 0) return (r === 0 && c === Math.floor(C / 2)) ? '.' : 'C'; if (L === 2) return (r === R - 1 && c === Math.floor(C / 2)) ? '.' : 'C'; if (L === 4) return (r === Math.floor(R / 2) && c === 4) ? '.' : 'C'; return '.'; },
+  (r, c, R, C) => { const L = Math.min(r, c, R - 1 - r, C - 1); const core = Math.abs(r - R / 2) <= 1 && Math.abs(c - (C - 1) / 2) <= 1; if (core) return 'G'; if (L === 2) return (r === 0 && c === Math.floor(C / 2)) ? '.' : 'R'; if (r === 0 || r === R - 1) return 'C'; return '.'; },
+  (r, c, R, C) => { const L = Math.min(r, c, R - 1 - r, C - 1); const core = Math.abs(r - R / 2) <= 1 && Math.abs(c - (C - 1) / 2) <= 1; if (core) return 'G'; if (L === 2) return (r === 2 && c === Math.floor(C / 2)) ? '.' : 'S'; if (r === 0 || r === R - 1 || c === 0 || c === C - 1) return 'C'; return '.'; },
+  (r, c, R, C) => { const L = Math.min(r, c, R - 1 - r, C - 1); const core = Math.abs(r - R / 2) <= 1 && Math.abs(c - (C - 1) / 2) <= 1; if (core) return 'G'; if (L % 2 === 1) return '.'; const gap = (L * 3) % C; return (r === L && c === gap) ? '.' : 'C'; },
+  (r, c, R, C) => { const wall = r === 0 || r === R - 1 || c === 0 || c === C - 1; if (wall) return (r === 0 && c === Math.floor(C / 2)) ? '.' : 'C'; if (Math.abs(r - R / 2) <= 1 && Math.abs(c - (C - 1) / 2) <= 1) return 'G'; if (r === R - 2 && c === C - 2) return 'G'; return '.'; },
+  (r, c, R, C) => { if (r === 0) return 'C'; if ((c === 3 || c === C - 4) && r > 2 && r < R - 3) return 'S'; if (Math.abs(r - R / 2) <= 1 && Math.abs(c - (C - 1) / 2) <= 1) return 'G'; return '.'; },
 ];
 
 export function initArchitectures(game) {
@@ -59,12 +25,22 @@ export function initArchitectures(game) {
     game.digArtifact = null;
     game._archApplied = null;
     const r = orig(n, ...rest);
-    try { applyArch(game, n); } catch (e) { console.error('ARCH FAIL', e); if (game.showBanner) game.showBanner('ARCH FAIL: ' + e.message); }
+    try { applyArch(game, n); } catch (e) { console.error('ARCH FAIL', e); }
     return r;
   };
 
-  const tick = () => {
-    requestAnimationFrame(tick);
+  const rd = game.renderer;
+  if (rd && typeof rd.draw === 'function' && !rd.__archPatched) {
+    rd.__archPatched = true;
+    const od = rd.draw.bind(rd);
+    rd.draw = function () {
+      od();
+      const a = game.digArtifact;
+      if (a && !a.taken && game.ctx) drawArtifact(game.ctx, a, performance.now());
+    };
+  }
+
+  setInterval(() => {
     const a = game.digArtifact;
     if (!a || a.taken || game._digDone) return;
     if (game.paused || game.menuOpen || game.museumOpen || game.state !== 'playing') return;
@@ -75,8 +51,7 @@ export function initArchitectures(game) {
       if (dx * dx + dy * dy < rr2) { collect(game, a); break; }
     }
     if (game.levelManager && game.levelManager.aliveCount <= 0) collect(game, a);
-  };
-  requestAnimationFrame(tick);
+  }, 120);
 
   setInterval(() => {
     const n = game.level;
@@ -87,7 +62,6 @@ export function initArchitectures(game) {
 }
 
 function collect(game, a) {
-  console.log('[ARCH] collecting artifact kind=', a.kind);
   if (a.taken || game._digDone) return;
   a.taken = true;
   const all = game.levelManager && game.levelManager.aliveCount <= 0;
@@ -106,13 +80,11 @@ function collect(game, a) {
   setTimeout(() => { if (game.levelComplete) game.levelComplete(); }, 700);
 }
 
-const KINDS = ['Амфора', 'Цилиндрическая печать', 'Золотая маска', 'Амулет', 'Табличка', 'Корона', 'Идол', 'Самоцвет', 'Статуэтка', 'Перстень', 'Чаша', 'Наконечник'];
-
-function drawArtifact(g, a, t) {
+export function drawArtifact(g, a, t) {
   const pulse = 0.6 + 0.4 * Math.sin(t / 300);
   g.save();
   g.translate(a.x, a.y);
-  g.globalAlpha = (a.hidden ? 0.3 : 0.2) * pulse + 0.1;
+  g.globalAlpha = (a.hidden ? 0.3 : 0.2) * pulse + 0.15;
   g.fillStyle = '#f0c96a';
   g.beginPath(); g.arc(0, 0, 16, 0, 7); g.fill();
   g.globalAlpha = 1;
@@ -137,7 +109,6 @@ function drawArtifact(g, a, t) {
 
 function applyArch(game, n) {
   if (game._archApplied === n) return;
-  console.log('[ARCH] trying level', n, 'live bricks:', game.bricks ? game.bricks.filter(b=>b.alive).length : 0);
   const bricks = game.bricks;
   if (!bricks || !bricks.length) return;
   game._archApplied = n;
@@ -145,7 +116,6 @@ function applyArch(game, n) {
   const ys = [...new Set(live.map(b => Math.round(b.y)))].sort((a, b) => a - b);
   const xs = [...new Set(live.map(b => Math.round(b.x)))].sort((a, b) => a - b);
   const R = ys.length, C = xs.length;
-  console.log('[ARCH] R=', R, 'C=', C);
   if (R < 4 || C < 4) return;
   const yI = new Map(ys.map((y, i) => [y, i]));
   const xI = new Map(xs.map((x, i) => [x, i]));
@@ -162,41 +132,27 @@ function applyArch(game, n) {
     plan.push([b, spec]);
     if (spec === 'G') coreCells.push(b);
   }
-  const kept = plan.filter(p => p[1] === 'C' || p[1] === 'S').length;
+  const kept = plan.filter(p => p[1] === 'C' || p[1] === 'S' || p[1] === 'R').length;
   if (kept < 8) return;
 
-  console.log('[ARCH] plan:', plan.length, 'cells, core:', coreCells.length, 'kept:', kept);
-  
-  // СНАЧАЛА позиция артефакта (пока кирпичи ещё на месте)
   if (coreCells.length) {
     const bw = coreCells[0].width, bh = coreCells[0].height;
     const ax = coreCells.reduce((s, b) => s + b.x, 0) / coreCells.length + bw / 2;
     const ay = coreCells.reduce((s, b) => s + b.y, 0) / coreCells.length + bh / 2;
-    console.log('[ARCH] artifact placed at', ax, ay, 'kind', (biome * 3 + role) % 12);
     game.digArtifact = { x: ax, y: ay, taken: false, hidden: biome >= 6, kind: (biome * 3 + role) % 12 };
-  } else {
-    console.warn('[ARCH] no core cells for level', n, 'role', role);
   }
-  
-  // ПОТОМ удаляем кирпичи
+
   for (const [b, spec] of plan) {
     if (spec === '.' || spec === 'G') {
-      if (b._oy === undefined) b._oy = b.y;
       b.alive = false; b.y = -9999; b.maxRegens = 0;
       if (game.levelManager && typeof game.levelManager.aliveCount === 'number') game.levelManager.aliveCount--;
     } else if (spec === 'S') {
       b.isSteel = true;
+    } else if (spec === 'R') {
+      b.maxRegens = 2;
     }
   }
+
+  if (role === 10) game._guardNext = true;
   if (game.showBanner) game.showBanner('⛏ Раскопки №' + n + ' — ' + ROLE[role]);
-  console.log('[ARCH] level', n, 'applied successfully');
 }
-
-
-
-
-
-
-
-
-
