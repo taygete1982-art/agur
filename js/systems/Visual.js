@@ -14,6 +14,122 @@ const PAL = [
 const brickCache = new Map();
 const bgCache = new Map();
 
+// ===== СИЛУЭТЫ =====
+function ziggurat(g, cx, by, W, H, col) {
+  g.fillStyle = col;
+  for (let s = 0; s < 4; s++) {
+    const sw = W * (1 - s * 0.22), sh = H / 4, y = by - (s + 1) * sh;
+    g.beginPath();
+    g.moveTo(cx - sw / 2, y + sh); g.lineTo(cx - sw / 2 + sw * 0.07, y);
+    g.lineTo(cx + sw / 2 - sw * 0.07, y); g.lineTo(cx + sw / 2, y + sh);
+    g.closePath(); g.fill();
+  }
+  const tw = W * 0.16;
+  g.fillRect(cx - tw / 2, by - H - H * 0.2, tw, H * 0.2);
+  g.fillStyle = 'rgba(0,0,0,0.3)';
+  g.fillRect(cx - W * 0.03, by - H, W * 0.06, H);
+}
+function palm(g, x, by, s, col) {
+  g.strokeStyle = col; g.lineWidth = 3 * s;
+  g.beginPath(); g.moveTo(x, by); g.quadraticCurveTo(x + 4 * s, by - 20 * s, x + 2 * s, by - 38 * s); g.stroke();
+  const tx = x + 2 * s, ty = by - 38 * s; g.lineWidth = 2 * s;
+  for (let a = -2; a <= 2; a++) { g.beginPath(); g.moveTo(tx, ty); g.quadraticCurveTo(tx + a * 10 * s, ty - 10 * s, tx + a * 16 * s, ty + 2 * s); g.stroke(); }
+}
+function column(g, x, by, s, col) {
+  g.fillStyle = col;
+  g.fillRect(x - 4 * s, by - 30 * s, 8 * s, 30 * s);
+  g.beginPath(); g.moveTo(x - 4 * s, by - 30 * s); g.lineTo(x - 2 * s, by - 36 * s); g.lineTo(x + s, by - 31 * s); g.lineTo(x + 4 * s, by - 34 * s); g.lineTo(x + 4 * s, by - 30 * s); g.closePath(); g.fill();
+  g.fillRect(x - 6 * s, by - 3 * s, 12 * s, 3 * s);
+}
+function wall(g, x, by, w, h, col) {
+  g.fillStyle = col;
+  g.fillRect(x, by - h, w * 0.55, h);
+  g.fillRect(x + w * 0.7, by - h * 0.6, w * 0.3, h * 0.6);
+  for (let mx = x; mx < x + w * 0.55 - 6; mx += 12) g.fillRect(mx, by - h - 5, 7, 5);
+}
+function statue(g, x, by, s, col) {
+  g.fillStyle = col;
+  g.beginPath();
+  g.moveTo(x - 8 * s, by); g.quadraticCurveTo(x - 8 * s, by - 16 * s, x - 3 * s, by - 18 * s);
+  g.arc(x, by - 22 * s, 5 * s, Math.PI * 0.9, Math.PI * 2.1);
+  g.quadraticCurveTo(x + 8 * s, by - 14 * s, x + 8 * s, by);
+  g.closePath(); g.fill();
+}
+function reeds(g, x, by, s, col) {
+  g.strokeStyle = col; g.lineWidth = 1.5 * s;
+  for (let i = -2; i <= 2; i++) { g.beginPath(); g.moveTo(x + i * 3 * s, by); g.quadraticCurveTo(x + i * 5 * s, by - 14 * s, x + i * 7 * s, by - 22 * s); g.stroke(); }
+}
+function gate(g, cx, by, W, H, col) {
+  g.fillStyle = col;
+  g.fillRect(cx - W / 2, by - H, W * 0.22, H);
+  g.fillRect(cx + W / 2 - W * 0.22, by - H, W * 0.22, H);
+  g.fillRect(cx - W / 2, by - H, W, H * 0.18);
+  g.fillRect(cx - W * 0.16, by - H * 0.55, W * 0.32, H * 0.55);
+}
+
+function makeBg(w, h, biome) {
+  const pal = PAL[biome];
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const g = c.getContext('2d');
+  const r = rng(biome * 131 + 7);
+  g.fillStyle = pal.bg; g.fillRect(0, 0, w, h);
+  for (let i = 0; i < 500; i++) { g.fillStyle = r() > 0.5 ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.05)'; g.fillRect(r() * w, r() * h, 1 + r() * 2, 1); }
+  g.strokeStyle = 'rgba(0,0,0,0.15)'; g.lineWidth = 1;
+  for (let i = 0; i < 5; i++) { g.beginPath(); let x = r() * w, y = 0; g.moveTo(x, y); for (let s = 0; s < 6; s++) { x += (r() - 0.5) * 40; y += h / 6; g.lineTo(x, y); } g.stroke(); }
+
+  const by = h * 0.66, sil = pal.sil;
+  // дымка на горизонте
+  g.fillStyle = sil; g.globalAlpha = 0.25; g.fillRect(0, by - 2, w, 3); g.globalAlpha = 1;
+
+  if (biome === 0 || biome === 6) {
+    g.globalAlpha = 0.5; ziggurat(g, w * 0.7, by, w * 0.5, h * 0.14, sil); g.globalAlpha = 1;
+    g.globalAlpha = 0.85;
+    wall(g, w * 0.02, by, w * 0.34, h * 0.05, sil);
+    palm(g, w * 0.42, by, 1, sil);
+    column(g, w * 0.52, by, 1, sil);
+    statue(g, w * 0.88, by, 1, sil);
+    g.globalAlpha = 1;
+  } else if (biome === 1) {
+    g.globalAlpha = 0.85;
+    palm(g, w * 0.15, by, 1.2, sil); palm(g, w * 0.3, by, 0.9, sil); palm(g, w * 0.75, by, 1.1, sil);
+    reeds(g, w * 0.55, by, 1, sil);
+    g.globalAlpha = 0.3; g.fillStyle = pal.acc; g.fillRect(0, by, w, 8); g.globalAlpha = 1;
+  } else if (biome === 2) {
+    g.globalAlpha = 0.3; g.fillStyle = pal.acc; g.fillRect(0, by, w, 12); g.globalAlpha = 1;
+    g.globalAlpha = 0.85;
+    reeds(g, w * 0.1, by, 1.2, sil); reeds(g, w * 0.85, by, 1.2, sil);
+    g.beginPath(); g.moveTo(w * 0.4, by); g.quadraticCurveTo(w * 0.5, by + 8, w * 0.62, by); g.lineTo(w * 0.58, by - 4); g.lineTo(w * 0.44, by - 4); g.closePath(); g.fill();
+    g.fillRect(w * 0.5, by - 22, 2, 18);
+    g.globalAlpha = 1;
+  } else if (biome === 3) {
+    g.globalAlpha = 0.6;
+    g.beginPath(); g.arc(w * 0.2, by + 20, h * 0.08, Math.PI, 0); g.fill();
+    g.beginPath(); g.arc(w * 0.8, by + 24, h * 0.1, Math.PI, 0); g.fill();
+    g.globalAlpha = 0.85; wall(g, w * 0.4, by, w * 0.25, h * 0.03, sil); reeds(g, w * 0.1, by, 0.8, sil);
+    g.globalAlpha = 1;
+  } else if (biome === 4) {
+    g.globalAlpha = 0.7;
+    g.beginPath(); g.moveTo(0, by); g.lineTo(w * 0.25, by - h * 0.14); g.lineTo(w * 0.5, by); g.closePath(); g.fill();
+    g.beginPath(); g.moveTo(w * 0.4, by); g.lineTo(w * 0.7, by - h * 0.18); g.lineTo(w, by); g.closePath(); g.fill();
+    g.globalAlpha = 0.85; column(g, w * 0.15, by, 1, sil);
+    g.globalAlpha = 1;
+  } else if (biome === 5) {
+    g.globalAlpha = 0.4; g.fillStyle = pal.brick[0]; g.fillRect(0, by, w, h - by); g.globalAlpha = 1;
+    g.globalAlpha = 0.85;
+    for (let i = 0; i < 5; i++) { const x = r() * w; g.beginPath(); g.moveTo(x, by); g.lineTo(x + 5, by - 12 - r() * 8); g.lineTo(x + 10, by); g.closePath(); g.fill(); }
+    g.globalAlpha = 1;
+  } else if (biome === 7) {
+    g.globalAlpha = 0.85; gate(g, w * 0.5, by, w * 0.4, h * 0.16, sil);
+    g.globalAlpha = 0.25; g.fillStyle = pal.acc; g.fillRect(0, by - 2, w, 3); g.globalAlpha = 1;
+  }
+
+  if (pal.sun) { g.fillStyle = pal.acc; g.globalAlpha = 0.35; g.beginPath(); g.arc(w * 0.78, h * 0.1, 26, 0, 7); g.fill(); g.globalAlpha = 1; }
+  else { g.fillStyle = pal.acc; g.globalAlpha = 0.4; g.beginPath(); g.arc(w * 0.24, h * 0.1, 18, 0, 7); g.fill(); g.globalAlpha = 1; }
+  g.fillStyle = 'rgba(0,0,0,0.35)';
+  g.fillRect(0, 0, w, 3); g.fillRect(0, h - 3, w, 3); g.fillRect(0, 0, 3, h); g.fillRect(w - 3, 0, 3, h);
+  return c;
+}
+
 function makeBrick(w, h, pal, variant, mat) {
   const c = document.createElement('canvas'); c.width = w; c.height = h;
   const g = c.getContext('2d');
@@ -28,38 +144,15 @@ function makeBrick(w, h, pal, variant, mat) {
   g.fillStyle = mat === 'gold' ? 'rgba(255,240,200,0.5)' : 'rgba(255,255,255,0.18)';
   g.fillRect(0, 0, w, 1);
   g.fillStyle = 'rgba(0,0,0,0.22)'; g.fillRect(0, h - 3, w, 2);
+  // ФОРМА: 4 силуэта
+  g.globalCompositeOperation = 'destination-out';
+  if (variant % 4 === 2) { g.beginPath(); g.moveTo(w - 6, 0); g.lineTo(w, 0); g.lineTo(w, 6); g.closePath(); g.fill(); }
+  else if (variant % 4 === 3) { g.beginPath(); g.moveTo(0, 0); g.lineTo(6, 0); g.lineTo(0, 6); g.closePath(); g.fill(); }
+  else if (variant % 4 === 1) { g.fillRect(w * 0.3, 0, 4, 2); g.fillRect(w * 0.65, 0, 3, 2); }
+  g.globalCompositeOperation = 'source-over';
   if (variant % 2 === 1) { g.strokeStyle = 'rgba(0,0,0,0.3)'; g.lineWidth = 1; g.beginPath(); g.moveTo(w * 0.3, 0); g.lineTo(w * 0.4, h * 0.5); g.lineTo(w * 0.32, h); g.stroke(); }
-  if (variant % 4 === 2) { g.globalCompositeOperation = 'destination-out'; g.beginPath(); g.moveTo(w - 5, 0); g.lineTo(w, 0); g.lineTo(w, 5); g.closePath(); g.fill(); g.globalCompositeOperation = 'source-over'; }
   if (mat === 'gold') { g.fillStyle = 'rgba(255,255,255,0.7)'; g.fillRect(2, 1, Math.floor(w / 3), 1); }
   if (mat === 'steel') { g.fillStyle = 'rgba(255,255,255,0.15)'; g.fillRect(1, 1, w - 2, 1); }
-  return c;
-}
-
-function makeBg(w, h, biome) {
-  const pal = PAL[biome];
-  const c = document.createElement('canvas'); c.width = w; c.height = h;
-  const g = c.getContext('2d');
-  const r = rng(biome * 131 + 7);
-  g.fillStyle = pal.bg; g.fillRect(0, 0, w, h);
-  for (let i = 0; i < 500; i++) {
-    g.fillStyle = r() > 0.5 ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.05)';
-    g.fillRect(r() * w, r() * h, 1 + r() * 2, 1);
-  }
-  g.strokeStyle = 'rgba(0,0,0,0.15)'; g.lineWidth = 1;
-  for (let i = 0; i < 5; i++) {
-    g.beginPath(); let x = r() * w, y = 0; g.moveTo(x, y);
-    for (let s = 0; s < 6; s++) { x += (r() - 0.5) * 40; y += h / 6; g.lineTo(x, y); }
-    g.stroke();
-  }
-  const sil = pal.sil;
-  g.fillStyle = sil; g.globalAlpha = 0.5;
-  const bw = w * 0.5, bx = w * 0.25, by = h * 0.30;
-  for (let s = 0; s < 5; s++) { const sw = bw * (1 - s * 0.18); g.fillRect(w / 2 - sw / 2, by - s * 14, sw, 14); }
-  g.globalAlpha = 1;
-  if (pal.sun) { g.fillStyle = pal.acc; g.globalAlpha = 0.35; g.beginPath(); g.arc(w * 0.78, h * 0.10, 26, 0, 7); g.fill(); g.globalAlpha = 1; }
-  else { g.fillStyle = pal.acc; g.globalAlpha = 0.4; g.beginPath(); g.arc(w * 0.24, h * 0.10, 18, 0, 7); g.fill(); g.globalAlpha = 1; }
-  g.fillStyle = 'rgba(0,0,0,0.35)';
-  g.fillRect(0, 0, w, 3); g.fillRect(0, h - 3, w, 3); g.fillRect(0, 0, 3, h); g.fillRect(w - 3, 0, 3, h);
   return c;
 }
 
@@ -72,10 +165,9 @@ export function initVisual(game) {
       ctx = ctx || this.ctx;
       if (!ctx || !ctx.canvas) return;
       const w = ctx.canvas.width, h = ctx.canvas.height;
-      const biome = game.biome || 0;
-      const key = biome + '_' + w + 'x' + h;
+      const key = (game.biome || 0) + '_' + w + 'x' + h;
       let c = bgCache.get(key);
-      if (!c) { c = makeBg(w, h, biome); bgCache.set(key, c); }
+      if (!c) { c = makeBg(w, h, game.biome || 0); bgCache.set(key, c); }
       ctx.drawImage(c, 0, 0);
     };
   }
@@ -104,14 +196,19 @@ export function initVisual(game) {
           ctx = (ctx && ctx.canvas) ? ctx : this.ctx;
           if (!ctx) return;
           const x = this.x, y = this.y, w = this.width, h = this.height;
-          ctx.fillStyle = '#6a4a2a'; ctx.fillRect(x, y, w, h);
-          ctx.fillStyle = '#8a6a3a'; ctx.fillRect(x, y, w, 2);
+          // перспективная плита
+          ctx.fillStyle = '#6a4a2a';
+          ctx.beginPath();
+          ctx.moveTo(x + 3, y); ctx.lineTo(x + w - 3, y); ctx.lineTo(x + w, y + h); ctx.lineTo(x, y + h);
+          ctx.closePath(); ctx.fill();
+          ctx.fillStyle = '#8a6a3a'; ctx.fillRect(x + 3, y, w - 6, 2);
           ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fillRect(x, y + h - 2, w, 2);
+          // износ
+          ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(x + w * 0.2, y + 2, 6, 2); ctx.fillRect(x + w * 0.7, y + 3, 5, 2);
           ctx.fillStyle = '#d8a848';
           ctx.beginPath(); ctx.arc(x + 5, y + h / 2, 2, 0, 7); ctx.fill();
           ctx.beginPath(); ctx.arc(x + w - 5, y + h / 2, 2, 0, 7); ctx.fill();
-          ctx.fillStyle = 'rgba(216,168,72,0.7)';
-          wedge(ctx, x + w / 2 - 4, y + 3, 8);
+          ctx.fillStyle = 'rgba(216,168,72,0.7)'; wedge(ctx, x + w / 2 - 4, y + 3, 8);
           if (w > 130) { ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.fillRect(x + 24, y, 2, h); ctx.fillRect(x + w - 26, y, 2, h); }
         };
       }
@@ -128,12 +225,8 @@ export function initVisual(game) {
           ctx.beginPath(); ctx.arc(this.x - (this.dx || 0) * 2, this.y - (this.dy || 0) * 2, r * 0.7, 0, 7); ctx.fill();
           ctx.fillStyle = '#d8a848';
           ctx.beginPath(); ctx.arc(this.x, this.y, r, 0, 7); ctx.fill();
-          ctx.save();
-          ctx.translate(this.x, this.y);
-          ctx.rotate((performance.now() / 500) % 6.28);
-          ctx.fillStyle = '#7a5018';
-          wedge(ctx, -3, -3, 6);
-          ctx.restore();
+          ctx.save(); ctx.translate(this.x, this.y); ctx.rotate((performance.now() / 500) % 6.28);
+          ctx.fillStyle = '#7a5018'; wedge(ctx, -3, -3, 6); ctx.restore();
           ctx.fillStyle = 'rgba(255,240,200,0.8)';
           ctx.beginPath(); ctx.arc(this.x - r * 0.3, this.y - r * 0.35, r * 0.22, 0, 7); ctx.fill();
         };
@@ -148,9 +241,7 @@ export function initVisual(game) {
           if (!ctx) return;
           const t = performance.now() / 600;
           const sx = Math.abs(Math.cos(t + this.x * 0.01)) * 0.7 + 0.3;
-          ctx.save();
-          ctx.translate(this.x, this.y);
-          ctx.scale(sx, 1);
+          ctx.save(); ctx.translate(this.x, this.y); ctx.scale(sx, 1);
           ctx.fillStyle = '#241a10';
           ctx.beginPath(); ctx.arc(0, 0, 13, 0, 7); ctx.fill();
           ctx.strokeStyle = '#d8a848'; ctx.lineWidth = 1.5;

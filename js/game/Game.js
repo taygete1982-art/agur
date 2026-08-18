@@ -22,7 +22,7 @@ import { initLayouts } from '../systems/Layouts.js';
 import { initAchievements } from '../systems/Achievements.js';
 import { initFun } from '../systems/Fun.js';
 import { initPower } from '../systems/Power.js';
-import { initDemons } from '../systems/Demons.js';
+import { initUtukku } from '../systems/Utukku.js';
 import { initEvents } from '../systems/Events.js';
 import { initBiomes } from '../systems/Biomes.js';
 import { initMusic } from '../systems/Music.js';
@@ -101,7 +101,7 @@ export class Game {
     initAchievements(this);
     initFun(this);
     initPower(this);
-    initDemons(this);
+    initUtukku(this);
     initEvents(this);
     initBiomes(this);
     initMusic(this);
@@ -333,6 +333,7 @@ export class Game {
 }
 
 Object.assign(Game.prototype, Flow, Combat, Collect, Enemies);
+
 
 
 
