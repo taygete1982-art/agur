@@ -1,4 +1,4 @@
-﻿import { CONFIG } from '../config.js?v=2';
+﻿import { CONFIG } from '../config.js';
 
 export class PowerUp {
   constructor(x, y, type, artifactId = null) {
@@ -40,7 +40,7 @@ export class PowerUp {
       case 'FRAGMENT': game.collectFragment(this.artifactId); break;
       case 'MULTI': game.spawnMultiBall(); break;
       case 'SIGN': game.collectSign(this.artifactId); break;
-      case 'LASE':
+      case 'LASER':
         game.laserTimer = this.config.duration;
         game.showBanner('⚡ Молния Адада! Пробел = залп');
         break;
@@ -67,6 +67,8 @@ export class PowerUp {
     ctx.restore();
   }
 }
+
+
 
 
 

@@ -54,6 +54,7 @@ export function initAchievements(game) {
       fresh.forEach(a => have.push(a[0]));
       try { localStorage.setItem('agur_ach', JSON.stringify(have)); } catch (e) {}
       if (!silent && game.showBanner) game.showBanner('🏆 Достижения: ' + fresh.length);
+      if (!silent && game.audio && game.audio.powerupGet) game.audio.powerupGet();
     }
     return fresh.length;
   };
@@ -78,4 +79,5 @@ function renderAch(game, have) {
   html += '</div>';
   ov.innerHTML = html;
 }
+
 

@@ -21,6 +21,7 @@
 function hit(game, d) {
   if (d.hp && d.hp > 1) { d.hp -= 1; d.hitCd = 30; return; }
   d.dead = true; d.alive = false; d.y = -9999;
+  if (game.audio && game.audio.brickBreak) game.audio.brickBreak();
   game.score += 250;
   if (game.effects && game.effects.bolt) game.effects.bolt(d.x || 0, 0, d.x || 0, d.y || 100);
   if (game.effects && game.effects.flash) game.effects.flash('#fca5a5', 0.12);
@@ -30,5 +31,6 @@ function hit(game, d) {
   }
 
 }
+
 
 

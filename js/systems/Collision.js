@@ -1,4 +1,4 @@
-﻿import { CONFIG } from '../config.js?v=2';
+﻿import { CONFIG } from '../config.js';
 
 export class CollisionSystem {
   constructor() {
@@ -138,5 +138,6 @@ export class Laser {
     ctx.shadowBlur = 0;
   }
 }
+
 
 

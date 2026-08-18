@@ -20,7 +20,8 @@ export function initFun(game) {
   const od = game.destroyBrick ? game.destroyBrick.bind(game) : null;
   if (od) game.destroyBrick = (b, ...r) => {
     game.combo = (game.combo || 0) + 1;
-    const mult = game.combo >= 8 ? 5 : game.combo >= 5 ? 3 : game.combo >= 2 ? 2 : 1;
+    const mult = game.combo >= 20 ? 7 : game.combo >= 8 ? 5 : game.combo >= 5 ? 3 : game.combo >= 2 ? 2 : 1;
+    if (game.combo === 20 && game.showBanner) game.showBanner('🔥 FRENZY ×7!');
     const r0 = od(b, ...r);
     const sb = (game.buffs && game.buffs.score) || 0;
     game.score += 5 * (mult - 1) + sb * 2;
@@ -61,5 +62,7 @@ function showChoice(game, done) {
   ov.innerHTML = '<div style="text-align:center;"><h2 style="color:#f0c96a;font-family:Georgia,serif;margin-bottom:20px;">𒀭 Выбери дар богов</h2><div style="display:flex;gap:16px;justify-content:center;">' +
     picks.map((u, i) => '<div onclick="__upg.pick(' + i + ')" style="width:190px;border:2px solid #8a6a3a;border-radius:10px;background:radial-gradient(circle at 50% 30%,#3a2c14,#171008);padding:20px 12px;cursor:pointer;text-align:center;box-shadow:0 0 18px rgba(240,201,106,0.15);"><div style="font-size:36px;">' + u.icon + '</div><div style="color:#f0c96a;font-family:Georgia,serif;font-size:15px;margin-top:10px;">' + u.name + '</div><div style="color:#9a8a70;font-family:Georgia,serif;font-size:12px;margin-top:6px;">' + u.desc + '</div></div>').join('') +
     '</div></div>';
-  window.__upg = { pick: (i) => { apply(game, picks[i].id); ov.style.display = 'none'; if ('paused' in game) game.paused = false; done(); } };
+  window.__upg = { pick: (i) => { if (game.audio && game.audio.uiClick) game.audio.uiClick(); apply(game, picks[i].id); ov.style.display = 'none'; if ('paused' in game) game.paused = false; done(); } };
 }
+
+

@@ -1,5 +1,5 @@
-﻿import { CONFIG, GAME_STATE } from '../config.js?v=2';
-import { Ball } from '../entities/Ball.js?v=2';
+﻿import { CONFIG, GAME_STATE } from '../config.js';
+import { Ball } from '../entities/Ball.js';
 
 export const Flow = {
   handleStart() {
@@ -143,6 +143,7 @@ export const Flow = {
     this.shakeIntensity = 10;
   },
 };
+
 
 
 

@@ -1,6 +1,7 @@
-﻿import { Game } from './game/Game.js?v=2';
+﻿import { Game } from './game/Game.js';
 
 window.addEventListener('DOMContentLoaded', () => {
   new Game();
 });
+
 

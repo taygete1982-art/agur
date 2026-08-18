@@ -1,7 +1,7 @@
-﻿import { CONFIG } from '../config.js?v=2';
-import { PowerUp } from '../entities/PowerUp.js?v=2';
-import { Ball } from '../entities/Ball.js?v=2';
-import { CARDS } from '../systems/Cards.js?v=2';
+﻿import { CONFIG } from '../config.js';
+import { PowerUp } from '../entities/PowerUp.js';
+import { Ball } from '../entities/Ball.js';
+import { CARDS } from '../systems/Cards.js';
 
 export const Collect = {
   deckHas(id) { return Array.isArray(this.deck) && this.deck.includes(id); },
@@ -22,7 +22,7 @@ export const Collect = {
       if (this.lastDrop && now - this.lastDrop < 1100) return;
       this.lastDrop = now;
     }
-    const luck = (this.buffs && this.buffs.luck) || 0;
+    const luck = ((this.buffs && this.buffs.luck) || 0) + (this.biomeLuck || 0);
     const cardChance = (this.deckHas('UR') ? 0.06 : 0.035) + luck * 0.006;
     if (Math.random() < cardChance && CARDS.some(c => !this.deckHas(c.id))) {
       this.powerUps.push(new PowerUp(x, y, 'CARD'));
@@ -59,6 +59,7 @@ export const Collect = {
     else if (card.suit === 'star') { this.score += 500; this.effects.flash('#fde047', 0.25); this.showBanner('✦ ' + card.name + '! +500'); }
     else if (card.suit === 'dark') { this.freezeDemons = 300; this.effects.flash('#14532d', 0.3); this.showBanner('🌑 ' + card.name + '!'); }
     else this.showBanner('🃏 ' + card.name + '! +150');
+    if (this.audio && this.audio.powerupGet) this.audio.powerupGet();
   },
 
   castMeteor() {
@@ -166,6 +167,9 @@ export const Collect = {
     }
   },
 };
+
+
+
 
 
 

@@ -30,6 +30,7 @@ function updateBar(game) {
 }
 
 function fire(game) {
+  if (game.audio && game.audio.laser) game.audio.laser();
   game.charge = 0; updateBar(game);
   const alive = (game.bricks || []).filter(b => b.alive && !b.isSteel);
   const cols = {};
@@ -46,3 +47,4 @@ function fire(game) {
   game.shakeIntensity = Math.max(game.shakeIntensity || 0, 14);
   if (game.showBanner) game.showBanner('⚡ Удар Адада!');
 }
+

@@ -1,39 +1,40 @@
-﻿import '../systems/Safe.js?v=2';
-import { CONFIG, GAME_STATE } from '../config.js?v=2';
-import { Paddle } from '../entities/Paddle.js?v=2';
-import { ParticleSystem } from '../systems/Particles.js?v=2';
-import { InputManager } from '../systems/Input.js?v=2';
-import { CollisionSystem } from '../systems/Collision.js?v=2';
-import { AudioManager } from '../systems/Audio.js?v=2';
-import { LevelManager } from '../levels/LevelManager.js?v=2';
-import { Effects } from '../systems/Effects.js?v=2';
-import { Renderer } from '../systems/Renderer.js?v=2';
-import { Background } from '../systems/Background.js?v=2';
-import { Flow } from './Flow.js?v=2';
-import { Combat } from './Combat.js?v=2';
-import { Collect } from './Collect.js?v=2';
-import { initDeck } from '../systems/Cards.js?v=2';
-import { initMuseum } from '../systems/Museum216.js?v=2';
-import { initProgression } from '../systems/Progression.js?v=2';
-import { initMenu } from '../systems/Menu.js?v=2';
-import { initBosses } from '../systems/Bosses.js?v=2';
-import { initPolish } from '../systems/Polish.js?v=2';
-import { initLayouts } from '../systems/Layouts.js?v=2';
-import { initAchievements } from '../systems/Achievements.js?v=2';
-import { initFun } from '../systems/Fun.js?v=2';
-import { initPower } from '../systems/Power.js?v=2';
-import { initDemons } from '../systems/Demons.js?v=2';
-import { initEvents } from '../systems/Events.js?v=2';
-import { Enemies } from '../systems/Enemies.js?v=2';
+﻿import '../systems/Safe.js';
+import { CONFIG, GAME_STATE } from '../config.js';
+import { Paddle } from '../entities/Paddle.js';
+import { ParticleSystem } from '../systems/Particles.js';
+import { InputManager } from '../systems/Input.js';
+import { CollisionSystem } from '../systems/Collision.js';
+import { AudioManager } from '../systems/Audio.js';
+import { LevelManager } from '../levels/LevelManager.js';
+import { Effects } from '../systems/Effects.js';
+import { Renderer } from '../systems/Renderer.js';
+import { Background } from '../systems/Background.js';
+import { Flow } from './Flow.js';
+import { Combat } from './Combat.js';
+import { Collect } from './Collect.js';
+import { initDeck } from '../systems/Cards.js';
+import { initMuseum } from '../systems/Museum216.js';
+import { initProgression } from '../systems/Progression.js';
+import { initMenu } from '../systems/Menu.js';
+import { initBosses } from '../systems/Bosses.js';
+import { initPolish } from '../systems/Polish.js';
+import { initLayouts } from '../systems/Layouts.js';
+import { initAchievements } from '../systems/Achievements.js';
+import { initFun } from '../systems/Fun.js';
+import { initPower } from '../systems/Power.js';
+import { initDemons } from '../systems/Demons.js';
+import { initEvents } from '../systems/Events.js';
+import { initBiomes } from '../systems/Biomes.js';
+import { initMusic } from '../systems/Music.js';
+import { initRestore } from '../systems/Restore.js';
+import { initVisual } from '../systems/Visual.js';
+import { Enemies } from '../systems/Enemies.js';
 
 export class Game {
   constructor() {
     this.canvas = document.getElementById('gameCanvas');
     this.ctx = this.canvas.getContext('2d');
 
-    CONFIG.WIDTH = 540;
-    CONFIG.HEIGHT = 860;
-    CONFIG.PADDLE.WIDTH = 110;
     this.canvas.width = CONFIG.WIDTH;
     this.canvas.height = CONFIG.HEIGHT;
     this.canvas.style.aspectRatio = CONFIG.WIDTH + ' / ' + CONFIG.HEIGHT;
@@ -44,6 +45,7 @@ export class Game {
     this.particles = new ParticleSystem();
     this.collision = new CollisionSystem();
     this.audio = new AudioManager();
+    try { if (localStorage.getItem('agur_mute') === '1') this.audio.enabled = false; } catch (e) {}
     this.levelManager = new LevelManager();
     this.effects = new Effects();
     this.background = new Background();
@@ -62,7 +64,6 @@ export class Game {
     this.bricks = [];
     this.powerUps = [];
     this.zShards = [];
-    this.deck = [];
     this.deck = [];
 
     this.state = GAME_STATE.MENU;
@@ -102,34 +103,19 @@ export class Game {
     initPower(this);
     initDemons(this);
     initEvents(this);
+    initBiomes(this);
+    initMusic(this);
+    initRestore(this);
+    initVisual(this);
     window.addEventListener('keydown', (e) => {
       if (e.code === 'KeyN' && this.state === GAME_STATE.PLAYING) { this.loadLevel(Math.min(this.level + 1, 88)); this.resetBall(); }
       if (e.code === 'KeyC') { window.toggleDeck && window.toggleDeck(this); }
       if (e.code === 'KeyM') { window.toggleMuseum && window.toggleMuseum(this); }
-    });
-    initDeck(this);
-    initMuseum(this);
-    initProgression(this);
-    initMenu(this);
-    initBosses(this);
-    initPolish(this);
-    initLayouts(this);
-    initAchievements(this);
-    initFun(this);
-    initPower(this);
-    initDemons(this);
-    initEvents(this);
-    window.addEventListener('keydown', (e) => {
-      if (e.code === 'KeyN' && this.state === GAME_STATE.PLAYING) { this.loadLevel(Math.min(this.level + 1, 88)); this.resetBall(); }
-      if (e.code === 'KeyC') { window.toggleDeck && window.toggleDeck(this); }
-      if (e.code === 'KeyM') { window.toggleMuseum && window.toggleMuseum(this); }
-    });
-    window.addEventListener('keydown', (e) => {
-      if (e.code === 'KeyN' && this.state === GAME_STATE.PLAYING) {
-        this.loadLevel(Math.min(this.level + 1, 88));
-        this.resetBall();
-      }
-    });
+    });
+
+
+
+
     this.loadLevel(1);
     this.resetBall();
     this.createHudButtons();
@@ -142,11 +128,11 @@ export class Game {
       window.__pauseBtn = 1;
       const pauseBtn = document.createElement('button');
       pauseBtn.className = 'hud-item museum-btn';
-      pauseBtn.innerHTML = '<span class="hud-label">Пауза</span><span class="hud-value" id="pauseIcon">\u{23F8}</span>';
+      pauseBtn.innerHTML = '<span class="hud-label">Пауза</span><span class="hud-value" id="pauseIcon">⏸</span>';
       pauseBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         this.togglePause();
-        document.getElementById('pauseIcon').textContent = this.state === GAME_STATE.PAUSED ? '\u{25B6}' : '\u{23F8}';
+        document.getElementById('pauseIcon').textContent = this.state === GAME_STATE.PAUSED ? '▶' : '⏸';
       });
       document.querySelector('.hud').appendChild(pauseBtn);
     }
@@ -154,14 +140,26 @@ export class Game {
       window.__sndBtn = 1;
       const sndBtn = document.createElement('button');
       sndBtn.className = 'hud-item museum-btn';
-      sndBtn.innerHTML = '<span class="hud-label">Звук</span><span class="hud-value" id="sndIcon">' + (this.audio.enabled ? '\u{1F50A}' : '\u{1F507}') + '</span>';
+      sndBtn.innerHTML = '<span class="hud-label">Звук</span><span class="hud-value" id="sndIcon">' + (this.audio.enabled ? '🔊' : '🔇') + '</span>';
       sndBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         const on = this.audio.toggle();
         try { localStorage.setItem('agur_mute', on ? '0' : '1'); } catch (err) {}
-        document.getElementById('sndIcon').textContent = on ? '\u{1F50A}' : '\u{1F507}';
+        document.getElementById('sndIcon').textContent = on ? '🔊' : '🔇';
       });
       document.querySelector('.hud').appendChild(sndBtn);
+    }
+    if (!window.__fsBtn) {
+      window.__fsBtn = 1;
+      const fsBtn = document.createElement('button');
+      fsBtn.className = 'hud-item museum-btn';
+      fsBtn.innerHTML = '<span class="hud-label">Экран</span><span class="hud-value">⛶</span>';
+      fsBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (document.fullscreenElement) document.exitFullscreen();
+        else document.documentElement.requestFullscreen();
+      });
+      document.querySelector('.hud').appendChild(fsBtn);
     }
   }
 
@@ -169,14 +167,14 @@ export class Game {
     this.input.onStart = () => this.handleStart();
     this.input.onPause = () => this.togglePause();
     this.input.onRestart = () => this.restartGame();
-    this.input.onMuseum = () => this.toggleMuseum();
+    this.input.onMuseum = () => window.toggleMuseum && window.toggleMuseum(this);
     this.input.onLeftBtn = () => this.earthquake();
     this.input.onRightBtn = () => this.aimShot();
     this.input.onTap = () => this.handlePaddleTap();
     const mBtn = document.getElementById('museumBtn');
-    if (mBtn) mBtn.addEventListener('click', (e) => { e.stopPropagation(); this.toggleMuseum(); });
+    if (mBtn) mBtn.addEventListener('click', (e) => { e.stopPropagation(); window.toggleMuseum && window.toggleMuseum(this); });
     const mClose = document.getElementById('museumClose');
-    if (mClose) mClose.addEventListener('click', () => this.toggleMuseum());
+    if (mClose) mClose.addEventListener('click', () => window.toggleMuseum && window.toggleMuseum(this));
   }
 
   update(dt) {
@@ -335,28 +333,6 @@ export class Game {
 }
 
 Object.assign(Game.prototype, Flow, Combat, Collect, Enemies);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

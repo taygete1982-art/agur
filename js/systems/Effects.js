@@ -1,4 +1,4 @@
-﻿import { CONFIG } from '../config.js?v=2';
+﻿import { CONFIG } from '../config.js';
 
 export class Effects {
   constructor() { this.bolts = []; this.waves = []; this.flashes = []; }
@@ -58,4 +58,5 @@ export class Effects {
     ctx.globalAlpha = 1;
   }
 }
+
 

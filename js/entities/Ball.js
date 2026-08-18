@@ -1,4 +1,4 @@
-﻿import { CONFIG, clamp } from '../config.js?v=2';
+﻿import { CONFIG, clamp } from '../config.js';
 
 export class Ball {
   constructor(x, y) {
@@ -153,6 +153,7 @@ export class Ball {
     ctx.fill();
   }
 }
+
 
 
 

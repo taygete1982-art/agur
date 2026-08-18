@@ -219,6 +219,8 @@
 
 export function initMuseum(game) {
   try { game.museumCol = JSON.parse(localStorage.getItem('agur_museum') || '[]'); } catch (e) { game.museumCol = []; }
+  const cnt0 = document.getElementById('museumCount');
+  if (cnt0) cnt0.textContent = game.museumCol.length;
   let ov = document.getElementById('museumOverlay');
   if (!ov) {
     ov = document.createElement('div');
@@ -239,15 +241,32 @@ export function initMuseum(game) {
     const idx = left[Math.floor(Math.random() * left.length)];
     this.museumCol.push(idx);
     try { localStorage.setItem('agur_museum', JSON.stringify(this.museumCol)); } catch (e) {}
+    const cnt = document.getElementById('museumCount');
+    if (cnt) cnt.textContent = this.museumCol.length;
     this.score += 100;
 
     this.effects.flash('#e8c98a', 0.15);
+  };
+
+  const olc = game.levelComplete ? game.levelComplete.bind(game) : null;
+  if (olc) game.levelComplete = (...a) => {
+    if (game.effects && game.effects.flash) game.effects.flash('#f0c96a', 0.3);
+    if (game.showBanner) game.showBanner('🏺 АРТЕФАКТ ОБНАРУЖЕН');
+    game.score += 250;
+    const r = olc(...a);
+    setTimeout(() => { game.collectFragment && game.collectFragment(); }, 700);
+    return r;
   };
 }
 
 export function renderMuseum(game) {
   const ov = document.getElementById('museumOverlay');
   let html = '<h2 style="color:#f0c96a;text-align:center;font-family:Georgia,serif;margin:20px 0;">🏺 Музей Месопотамии (' + game.museumCol.length + '/' + ARTIFACTS.length + ')</h2>';
+  try {
+    const st = JSON.parse(localStorage.getItem('agur_restore') || '{"i":0,"p":0}');
+    const GREAT2 = [['Глиняный кувшин',5,'🏺'],['Цилиндрическая печать',4,'🧿'],['Табличка с письменами',5,'📜'],['Штандарт Ура',6,'🚩'],['Баран в зарослях',7,'🐏'],['Лира Ура',7,'🎼']];
+    html += '<div style="text-align:center;color:#9a8a70;font-family:Georgia,serif;font-size:13px;margin-bottom:16px;">Реставрация: ' + (st.i < GREAT2.length ? GREAT2[st.i][2] + ' ' + GREAT2[st.i][0] + ' — ' + st.p + '/' + GREAT2[st.i][1] : 'все великие артефакты восстановлены ✨') + '</div>';
+  } catch (e) {}
   html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;max-width:1100px;margin:0 auto;">';
   for (let i = 0; i < ARTIFACTS.length; i++) {
     const has = game.museumCol.includes(i);
@@ -263,4 +282,7 @@ export function renderMuseum(game) {
   html += '</div><p style="color:#6a5a44;text-align:center;font-family:Georgia,serif;margin:30px 0;font-size:14px;">Клик или M — закрыть музей</p>';
   ov.innerHTML = html;
 }
+
+
+
 

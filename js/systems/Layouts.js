@@ -17,10 +17,7 @@ export function initLayouts(game) {
   const orig = game[lname].bind(game);
   game[lname] = (n, ...rest) => {
     const r = orig(n, ...rest);
-    try {
-      applyLayout(game, n);
-
-    } catch (e) {}
+    try { applyLayout(game, n); } catch (e) {}
     return r;
   };
 }
@@ -35,22 +32,21 @@ function applyLayout(game, n) {
   const yI = new Map(ys.map((y, i) => [y, i]));
   const xI = new Map(xs.map((x, i) => [x, i]));
   const fn = PATTERNS[(n - 1) % PATTERNS.length];
-  let kept = 0;
+
+  const toRemove = [];
   for (const b of bricks) {
-    if (b.isSteel) { kept++; continue; }
+    if (b.isSteel) continue;
     const r = yI.get(Math.round(b.y)), c = xI.get(Math.round(b.x));
-    if (r === undefined || c === undefined) { kept++; continue; }
-    if (fn(r, c, R, C)) kept++;
-    else {
-      if (b._oy === undefined) b._oy = b.y;
-      b.alive = false;
-      b.y = -9999;
-    }
+    if (r === undefined || c === undefined) continue;
+    if (!fn(r, c, R, C)) toRemove.push(b);
   }
-  if (kept < Math.floor(bricks.length * 0.35)) {
-    for (const b of bricks) {
-      if (b._oy !== undefined) { b.alive = true; b.y = b._oy; }
-    }
+  if (toRemove.length > Math.floor(bricks.length * 0.65)) return;
+
+  for (const b of toRemove) {
+    if (b._oy === undefined) b._oy = b.y;
+    b.alive = false;
+    b.y = -9999;
+    b.maxRegens = 0;
+    if (game.levelManager && typeof game.levelManager.aliveCount === 'number') game.levelManager.aliveCount--;
   }
 }
-
