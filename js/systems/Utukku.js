@@ -86,10 +86,10 @@ function spawnForBiome(game) {
   for (let i = 0; i < count; i++) {
     const u = {
       x: 0, y: 0,
-      cx: 80 + Math.random() * (w - 160),
-      cy: 120 + Math.random() * (h * 0.4),
-      rx: 40 + Math.random() * 60,
-      ry: 20 + Math.random() * 30,
+      cx: (game.digArtifact && biome >= 6) ? Math.max(50, Math.min(w - 50, game.digArtifact.x + (Math.random() * 90 - 45))) : 80 + Math.random() * (w - 160),
+      cy: (game.digArtifact && biome >= 6) ? Math.max(70, Math.min(h * 0.7, game.digArtifact.y - 70)) : 120 + Math.random() * (h * 0.4),
+      rx: (game.digArtifact && biome >= 6) ? 34 : 40 + Math.random() * 60,
+      ry: (game.digArtifact && biome >= 6) ? 22 : 20 + Math.random() * 30,
       ph: Math.random() * 6.28,
       hp: 2,
       t: 0,
@@ -147,4 +147,5 @@ export function drawUtukkus(game, ctx) {
     if (!u.dead && u.draw) u.draw(ctx);
   }
 }
+
 

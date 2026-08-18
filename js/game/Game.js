@@ -1,34 +1,34 @@
 ﻿import '../systems/Safe.js';
-import { CONFIG, GAME_STATE } from '../config.js';
-import { Paddle } from '../entities/Paddle.js';
-import { ParticleSystem } from '../systems/Particles.js';
-import { InputManager } from '../systems/Input.js';
-import { CollisionSystem } from '../systems/Collision.js';
-import { AudioManager } from '../systems/Audio.js';
-import { LevelManager } from '../levels/LevelManager.js';
-import { Effects } from '../systems/Effects.js';
-import { Renderer } from '../systems/Renderer.js';
-import { Background } from '../systems/Background.js';
-import { Flow } from './Flow.js';
-import { Combat } from './Combat.js';
-import { Collect } from './Collect.js';
-import { initDeck } from '../systems/Cards.js';
-import { initMuseum } from '../systems/Museum216.js';
-import { initProgression } from '../systems/Progression.js';
-import { initMenu } from '../systems/Menu.js';
-import { initBosses } from '../systems/Bosses.js';
-import { initPolish } from '../systems/Polish.js';
-import { initLayouts } from '../systems/Layouts.js';
-import { initAchievements } from '../systems/Achievements.js';
-import { initFun } from '../systems/Fun.js';
-import { initPower } from '../systems/Power.js';
-import { initUtukku } from '../systems/Utukku.js';
-import { initEvents } from '../systems/Events.js';
-import { initBiomes } from '../systems/Biomes.js';
-import { initMusic } from '../systems/Music.js';
-import { initRestore } from '../systems/Restore.js';
-import { initVisual } from '../systems/Visual.js';
-import { Enemies } from '../systems/Enemies.js';
+import { CONFIG, GAME_STATE } from '../config.js?v=202608182307';
+import { Paddle } from '../entities/Paddle.js?v=202608182307';
+import { ParticleSystem } from '../systems/Particles.js?v=202608182307';
+import { InputManager } from '../systems/Input.js?v=202608182307';
+import { CollisionSystem } from '../systems/Collision.js?v=202608182307';
+import { AudioManager } from '../systems/Audio.js?v=202608182307';
+import { LevelManager } from '../levels/LevelManager.js?v=202608182307';
+import { Effects } from '../systems/Effects.js?v=202608182307';
+import { Renderer } from '../systems/Renderer.js?v=202608182307';
+import { Background } from '../systems/Background.js?v=202608182307';
+import { Flow } from './Flow.js?v=202608182307';
+import { Combat } from './Combat.js?v=202608182307';
+import { Collect } from './Collect.js?v=202608182307';
+import { initDeck } from '../systems/Cards.js?v=202608182307';
+import { initMuseum } from '../systems/Museum216.js?v=202608182307';
+import { initProgression } from '../systems/Progression.js?v=202608182307';
+import { initMenu } from '../systems/Menu.js?v=202608182307';
+import { initBosses } from '../systems/Bosses.js?v=202608182307';
+import { initPolish } from '../systems/Polish.js?v=202608182307';
+import { initArchitectures } from '../systems/Architectures.js?v=202608182307';
+import { initAchievements } from '../systems/Achievements.js?v=202608182307';
+import { initFun } from '../systems/Fun.js?v=202608182307';
+import { initPower } from '../systems/Power.js?v=202608182307';
+import { initUtukku } from '../systems/Utukku.js?v=202608182307';
+import { initEvents } from '../systems/Events.js?v=202608182307';
+import { initBiomes } from '../systems/Biomes.js?v=202608182307';
+import { initMusic } from '../systems/Music.js?v=202608182307';
+import { initRestore } from '../systems/Restore.js?v=202608182307';
+import { initVisual } from '../systems/Visual.js?v=202608182307';
+import { Enemies } from '../systems/Enemies.js?v=202608182307';
 
 export class Game {
   constructor() {
@@ -97,7 +97,7 @@ export class Game {
     initMenu(this);
     initBosses(this);
     initPolish(this);
-    initLayouts(this);
+    initArchitectures(this);
     initAchievements(this);
     initFun(this);
     initPower(this);
@@ -333,6 +333,10 @@ export class Game {
 }
 
 Object.assign(Game.prototype, Flow, Combat, Collect, Enemies);
+
+
+
+
 
 
 
