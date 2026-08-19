@@ -1,9 +1,5 @@
-﻿export const LEVEL_NAMES = [
-  'Окраины Ура', 'Камыши Эриду', 'Стены Урука', 'Храм Ниппура',
-  'Каналы Лагаша', 'Аккад, город царя', 'Вавилон, врата богов',
-  'Ашшур, логово льва', 'Мари, архив царей', 'Сузы, горка Элама',
-  'Киш, первый трон', 'Эриду, начало',
-];
+import { LEVELS as LEVELS88 } from '../levels/Layouts88.js?v=202608192106';
+export const LEVEL_NAMES = LEVELS88.map(l => l.name.trim());
 
 export function initProgression(game) {
   try { game.progress = JSON.parse(localStorage.getItem('agur_progress') || '{"max":1,"best":0}'); } catch (e) { game.progress = { max: 1, best: 0 }; }
