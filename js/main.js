@@ -1,13 +1,7 @@
-import { Game } from './game/Game.js?v=202608200041';
+﻿import { Game } from './game/Game.js?v=202608202350';
 
 window.addEventListener('DOMContentLoaded', () => {
-  new Game();
+    const canvas = document.getElementById('gameCanvas');
+    const game = new Game(canvas);
+    window.AGUR = game;
 });
-
-
-
-
-
-
-
-

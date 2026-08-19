@@ -1,74 +1,28 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
-  <meta name="description" content="АГУР — археологический арканоид по мотивам древней Месопотамии. 88 уровней, музей на 216 артефактов, колода судеб.">
-  <meta name="theme-color" content="#1a1410">
-  <meta property="og:title" content="АГУР">
-  <meta property="og:description" content="Археологический арканоид по мотивам древней Месопотамии">
-  <meta property="og:type" content="website">
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>АГУР</title>
-  <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <link rel="stylesheet" href="css/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>АГУР</title>
+<style>
+html,body{margin:0;background:#120e0a;color:#ead7b0;font-family:system-ui,sans-serif;height:100%;overflow:hidden}
+body{display:flex;align-items:center;justify-content:center}
+#wrap{width:min(96vw,900px);position:relative}
+canvas{display:block;width:100%;height:auto;background:#17120d;border:1px solid #57432b;box-shadow:0 0 40px #000}
+#hud{display:flex;justify-content:space-between;padding:8px 4px;font-size:14px}
+#hint{text-align:center;font-size:12px;opacity:.65;margin-top:5px}
+</style>
 </head>
 <body>
-  <div class="game-wrapper">
-    <canvas id="gameCanvas" width="800" height="500"></canvas>
-    
-    <div class="hud">
-      <div class="hud-item">
-        <span class="hud-label">&#129689; Счёт</span>
-        <span class="hud-value" id="scoreDisplay">0</span>
-      </div>
-      <div class="hud-item">
-        <span class="hud-label">&#128332; Уровень</span>
-        <span class="hud-value" id="levelDisplay">1</span>
-      </div>
-      <div class="hud-item">
-        <span class="hud-label">&#128167; Жизни</span>
-        <span class="hud-value" id="livesDisplay">3</span>
-      </div>
-      <button class="hud-item museum-btn" id="museumBtn">
-        <span class="hud-label">&#127994; Музей</span>
-        <span class="hud-value" id="museumCount">0</span>
-      </button>
-    </div>
-    
-    <div class="hint" id="hintText">&#128433; Мышь / &#8592; &#8594; &#183; M = музей &#183; Клик для старта</div>
-  </div>
-
-  <div class="museum-overlay" id="museumOverlay">
-    <div class="museum-panel">
-      <div class="museum-header">
-        <span>&#127994; Музей AGUR</span>
-        <button id="museumClose" class="museum-close">&#10005;</button>
-      </div>
-      <div class="museum-sub">Редкие черепки выпадают из кирпичей. Собери все артефакты Шумера!</div>
-      <div class="museum-grid" id="museumContent"></div>
-    </div>
-  </div>
-
-  <div class="rotate-overlay">
-    <div class="rotate-icon">&#128241;</div>
-    <div>Поверните телефон вертикально</div>
-  </div>
-
-  <script type="module" src="js/main.js?v=202608200041"></script>
+<div id="wrap">
+<canvas id="gameCanvas" width="800" height="500"></canvas>
+<div id="hud">
+<span id="score">Счёт: 0</span>
+<span id="level">Уровень: 1 / 88</span>
+<span id="lives">Жизни: 3</span>
+</div>
+<div id="hint">Мышь / ← → · Клик — старт · P — пауза</div>
+</div>
+<script type="module" src="./js/main.js?v=202608202350"></script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
