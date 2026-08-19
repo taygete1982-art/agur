@@ -1,7 +1,7 @@
-import { CONFIG } from '../config.js?v=202608192036';
-import { Brick, biomeColor } from '../entities/Brick.js?v=202608192036';
-import { LEVELS } from './Layouts88.js?v=202608192036';
-import { CUSTOM } from './CustomLevels.js?v=202608192036';
+import { CONFIG } from '../config.js?v=202608192038';
+import { Brick, biomeColor } from '../entities/Brick.js?v=202608192038';
+import { LEVELS } from './Layouts88.js?v=202608192038';
+import { CUSTOM } from './CustomLevels.js?v=202608192038';
 
 const COLS = 12;
 const ROWS = 18;
