@@ -1,4 +1,4 @@
-﻿import { CONFIG } from '../config.js?v=202608182348';
+﻿import { CONFIG } from '../config.js?v=202608192003';
 
 export class Museum {
   constructor() {
@@ -68,6 +68,7 @@ export class Museum {
       '<div class="museum-sub">Коллекция артефактов:</div><div class="museum-grid">' + grid + '</div>';
   }
 }
+
 
 
 

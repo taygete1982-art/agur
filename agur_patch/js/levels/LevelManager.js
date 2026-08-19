@@ -1,6 +1,6 @@
-import { CONFIG } from '../config.js?v=202608182348';
-import { Brick, biomeColor } from '../entities/Brick.js?v=202608182348';
-import { LEVELS } from './Layouts88.js?v=202608182348';
+﻿import { CONFIG } from '../config.js?v=202608192003';
+import { Brick, biomeColor } from '../entities/Brick.js?v=202608192003';
+import { LEVELS } from './Layouts88.js?v=202608192003';
 
 const COLS = 12;
 const ROWS = 18;
@@ -110,3 +110,4 @@ export class LevelManager {
     return BIOMES[biome].name + ' ' + li + '/11 — ' + (L ? L.name : '');
   }
 }
+

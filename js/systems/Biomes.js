@@ -51,7 +51,7 @@ function applyBiome(game, n) {
   }
   if (biome === 4) {
     bricks.forEach((b, i) => {
-      if (!b.isSteel && i % 9 === 0) b.isSteel = true;
+      if (!b.isSteel && !b.isVault && i % 9 === 0) b.isSteel = true;
     });
   }
   if (biome === 5) game.biomeLuck = 1;
@@ -62,3 +62,4 @@ function applyBiome(game, n) {
     if (cv) cv.style.filter = 'brightness(0.85) saturate(1.25)';
   }
 }
+

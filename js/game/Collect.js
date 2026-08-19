@@ -1,7 +1,7 @@
-﻿import { CONFIG } from '../config.js?v=202608182348';
-import { PowerUp } from '../entities/PowerUp.js?v=202608182348';
-import { Ball } from '../entities/Ball.js?v=202608182348';
-import { CARDS } from '../systems/Cards.js?v=202608182348';
+﻿import { CONFIG } from '../config.js?v=202608192003';
+import { PowerUp } from '../entities/PowerUp.js?v=202608192003';
+import { Ball } from '../entities/Ball.js?v=202608192003';
+import { CARDS } from '../systems/Cards.js?v=202608192003';
 
 export const Collect = {
   deckHas(id) { return Array.isArray(this.deck) && this.deck.includes(id); },
@@ -167,6 +167,7 @@ export const Collect = {
     }
   },
 };
+
 
 
 

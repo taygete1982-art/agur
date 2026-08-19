@@ -1,4 +1,4 @@
-﻿import { LEVEL_NAMES } from './Progression.js?v=202608182348';
+﻿import { LEVEL_NAMES } from './Progression.js?v=202608192003';
 
 export function initMenu(game) {
   const mk = (id, css) => {
@@ -119,6 +119,7 @@ function renderLegend(game, ov, first) {
   html += '<div style="text-align:center;margin:24px 0;"><button onclick="__menu.closeLegend()" style="background:linear-gradient(#f0c96a,#c9a24a);border:none;padding:12px 40px;font-family:Georgia,serif;font-size:16px;color:#1a1410;cursor:pointer;border-radius:6px;">Понятно</button></div>';
   ov.innerHTML = html;
 }
+
 
 
 

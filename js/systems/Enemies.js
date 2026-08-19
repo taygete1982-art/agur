@@ -1,4 +1,4 @@
-﻿import { CONFIG } from '../config.js?v=202608182348';
+﻿import { CONFIG } from '../config.js?v=202608192003';
 
 export const Enemies = {
   spawnDemon() {
@@ -107,7 +107,7 @@ export const Enemies = {
     this.score += 1000;
     this.effects.flash('#f0c96a', 0.3);
     this.shakeIntensity = 14;
-    this.showBanner('𒀭 Хранитель пал +1000');
+    // this.showBanner('𒀭 Хранитель пал +1000');
     for (const br of this.bricks) if (br.alive && !br.isSteel) br.alive = false;
     this.levelManager.aliveCount = 0;
   },
@@ -123,14 +123,16 @@ export const Enemies = {
         cd: 120, biome,
       };
       this.bossBolts = [];
-      this.showBanner('𒀭 Хранитель! Бей его мячом!');
+      // this.showBanner('𒀭 Хранитель! Бей его мячом!');
     } else {
       this.boss = null;
       this.bossBolts = [];
-      this.showBanner('𒀭 Хранитель! Бей его мячом!');
+      // this.showBanner('𒀭 Хранитель! Бей его мячом!');
     }
   },
 };
+
+
 
 
 
