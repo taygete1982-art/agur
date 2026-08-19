@@ -1,5 +1,5 @@
-import { CONFIG, GAME_STATE } from '../config.js?v=202608200024';
-import { Ball } from '../entities/Ball.js?v=202608200024';
+import { CONFIG, GAME_STATE } from '../config.js?v=202608200041';
+import { Ball } from '../entities/Ball.js?v=202608200041';
 
 export const Flow = {
   handleStart() {
