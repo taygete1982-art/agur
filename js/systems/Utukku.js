@@ -1,4 +1,4 @@
-﻿const SPAWN = [0, 0, 0.15, 0.3, 0.6, 0.7, 0.85, 1];
+const SPAWN = [0, 0, 0.15, 0.3, 0.6, 0.7, 0.85, 1];
 
 export function initUtukku(game) {
   game.utukkus = game.utukkus || [];
@@ -55,6 +55,7 @@ export function initUtukku(game) {
 }
 
 function spawnForBiome(game) {
+  if ((game.level || 1) % 11 !== 0) { game.utukkus = []; return; }
   const biome = game.biome || 0;
   const force = !!game._guardNext;
   game._guardNext = false;

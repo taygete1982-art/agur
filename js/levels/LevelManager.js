@@ -1,7 +1,6 @@
-import { CONFIG } from '../config.js?v=202608192155';
-import { Brick, biomeColor } from '../entities/Brick.js?v=202608192155';
-import { LEVELS } from './Layouts88.js?v=202608192155';
-import { CUSTOM } from './CustomLevels.js?v=202608192155';
+import { CONFIG } from '../config.js?v=202608192335';
+import { Brick, biomeColor } from '../entities/Brick.js?v=202608192335';
+import { LEVELS } from './Layouts88.js?v=202608192335';
 
 const COLS = 12;
 const ROWS = 18;
@@ -25,7 +24,7 @@ export class LevelManager {
   loadLevel(n) {
     this.level = n;
     const biome = Math.min(Math.floor((n - 1) / PER_BIOME), BIOMES.length - 1);
-    const L = CUSTOM[n] || LEVELS[(n - 1) % LEVELS.length] || LEVELS[0];
+    const L = LEVELS[(n - 1) % LEVELS.length] || LEVELS[0];
     const g = L.grid;
     this.levelTitle = L.name;
     const step = CONFIG.BRICK.WIDTH + 4;
@@ -87,7 +86,7 @@ export class LevelManager {
   getLevelName(n) {
     const biome = Math.min(Math.floor((n - 1) / PER_BIOME), BIOMES.length - 1);
     const li = ((n - 1) % PER_BIOME) + 1;
-    const L = CUSTOM[n] || LEVELS[(n - 1) % LEVELS.length];
+    const L = LEVELS[(n - 1) % LEVELS.length];
     return BIOMES[biome].name + ' ' + li + '/11 — ' + (L ? L.name : '');
   }
 }
