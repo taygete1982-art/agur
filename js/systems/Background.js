@@ -1,4 +1,4 @@
-﻿import { CONFIG } from '../config.js?v=202608192003';
+﻿import { CONFIG } from '../config.js?v=202608192032';
 
 const BIOME_BACKGROUNDS = [
   { name: 'Пески', sky: '#d9a441', sun: '#ffffff', landmark: 'ziggurat', particles: 'dust' },
@@ -214,6 +214,7 @@ export class Background {
     }
   }
 }
+
 
 
 

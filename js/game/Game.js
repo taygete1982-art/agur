@@ -1,34 +1,34 @@
 ﻿import '../systems/Safe.js';
-import { CONFIG, GAME_STATE } from '../config.js?v=202608192003';
-import { Paddle } from '../entities/Paddle.js?v=202608192003';
-import { ParticleSystem } from '../systems/Particles.js?v=202608192003';
-import { InputManager } from '../systems/Input.js?v=202608192003';
-import { CollisionSystem } from '../systems/Collision.js?v=202608192003';
-import { AudioManager } from '../systems/Audio.js?v=202608192003';
-import { LevelManager } from '../levels/LevelManager.js?v=202608192003';
-import { Effects } from '../systems/Effects.js?v=202608192003';
-import { Renderer } from '../systems/Renderer.js?v=202608192003';
-import { Background } from '../systems/Background.js?v=202608192003';
-import { Flow } from './Flow.js?v=202608192003';
-import { Combat } from './Combat.js?v=202608192003';
-import { Collect } from './Collect.js?v=202608192003';
-import { initDeck } from '../systems/Cards.js?v=202608192003';
-import { initMuseum } from '../systems/Museum216.js?v=202608192003';
-import { initProgression } from '../systems/Progression.js?v=202608192003';
-import { initMenu } from '../systems/Menu.js?v=202608192003';
-import { initBosses } from '../systems/Bosses.js?v=202608192003';
-import { initPolish } from '../systems/Polish.js?v=202608192003';
-import { initArchitectures } from '../systems/Architectures.js?v=202608192003';
-import { initAchievements } from '../systems/Achievements.js?v=202608192003';
-import { initFun } from '../systems/Fun.js?v=202608192003';
-import { initPower } from '../systems/Power.js?v=202608192003';
-import { initUtukku } from '../systems/Utukku.js?v=202608192003';
-import { initEvents } from '../systems/Events.js?v=202608192003';
-import { initBiomes } from '../systems/Biomes.js?v=202608192003';
-import { initMusic } from '../systems/Music.js?v=202608192003';
-import { initRestore } from '../systems/Restore.js?v=202608192003';
-import { initVisual } from '../systems/Visual.js?v=202608192003';
-import { Enemies } from '../systems/Enemies.js?v=202608192003';
+import { CONFIG, GAME_STATE } from '../config.js?v=202608192032';
+import { Paddle } from '../entities/Paddle.js?v=202608192032';
+import { ParticleSystem } from '../systems/Particles.js?v=202608192032';
+import { InputManager } from '../systems/Input.js?v=202608192032';
+import { CollisionSystem } from '../systems/Collision.js?v=202608192032';
+import { AudioManager } from '../systems/Audio.js?v=202608192032';
+import { LevelManager } from '../levels/LevelManager.js?v=202608192032';
+import { Effects } from '../systems/Effects.js?v=202608192032';
+import { Renderer } from '../systems/Renderer.js?v=202608192032';
+import { Background } from '../systems/Background.js?v=202608192032';
+import { Flow } from './Flow.js?v=202608192032';
+import { Combat } from './Combat.js?v=202608192032';
+import { Collect } from './Collect.js?v=202608192032';
+import { initDeck } from '../systems/Cards.js?v=202608192032';
+import { initMuseum } from '../systems/Museum216.js?v=202608192032';
+import { initProgression } from '../systems/Progression.js?v=202608192032';
+import { initMenu } from '../systems/Menu.js?v=202608192032';
+import { initBosses } from '../systems/Bosses.js?v=202608192032';
+import { initPolish } from '../systems/Polish.js?v=202608192032';
+import { initArchitectures } from '../systems/Architectures.js?v=202608192032';
+import { initAchievements } from '../systems/Achievements.js?v=202608192032';
+import { initFun } from '../systems/Fun.js?v=202608192032';
+import { initPower } from '../systems/Power.js?v=202608192032';
+import { initUtukku } from '../systems/Utukku.js?v=202608192032';
+import { initEvents } from '../systems/Events.js?v=202608192032';
+import { initBiomes } from '../systems/Biomes.js?v=202608192032';
+import { initMusic } from '../systems/Music.js?v=202608192032';
+import { initRestore } from '../systems/Restore.js?v=202608192032';
+import { initVisual } from '../systems/Visual.js?v=202608192032';
+import { Enemies } from '../systems/Enemies.js?v=202608192032';
 
 export class Game {
   constructor() {
@@ -333,6 +333,7 @@ export class Game {
 }
 
 Object.assign(Game.prototype, Flow, Combat, Collect, Enemies);
+
 
 
 

@@ -1,4 +1,4 @@
-﻿import { CONFIG, GAME_STATE } from '../config.js?v=202608192003';
+﻿import { CONFIG, GAME_STATE } from '../config.js?v=202608192032';
 
 export class Renderer {
   constructor(game) {
@@ -341,6 +341,7 @@ export class Renderer {
     ctx.shadowBlur = 0;
   }
 }
+
 
 
 

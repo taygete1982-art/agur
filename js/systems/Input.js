@@ -1,4 +1,4 @@
-﻿﻿import { CONFIG, clamp } from '../config.js?v=202608192003';
+﻿﻿import { CONFIG, clamp } from '../config.js?v=202608192032';
 
 export class InputManager {
   constructor(canvas) {
@@ -128,6 +128,7 @@ export class InputManager {
       : '\u{1F5B1}\u{FE0F} Мышь / \u{2190} \u{2192} \u{00B7} M = музей';
   }
 }
+
 
 
 
