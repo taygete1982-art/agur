@@ -1,4 +1,4 @@
-﻿function rng(seed) { let t = seed >>> 0; return () => { t += 0x6D2B79F5; let r = Math.imul(t ^ t >>> 15, 1 | t); r ^= r + Math.imul(r ^ r >>> 7, 61 | r); return ((r ^ r >>> 14) >>> 0) / 4294967296; }; }
+function rng(seed) { let t = seed >>> 0; return () => { t += 0x6D2B79F5; let r = Math.imul(t ^ t >>> 15, 1 | t); r ^= r + Math.imul(r ^ r >>> 7, 61 | r); return ((r ^ r >>> 14) >>> 0) / 4294967296; }; }
 
 const PAL = [
   { brick: ['#b0764a', '#a06a42', '#c08454'], acc: '#e8b06a', bg: '#171008', sil: '#2a1c10', sun: 1 },
@@ -185,6 +185,21 @@ export function initVisual(game) {
           let s = brickCache.get(key);
           if (!s) { s = makeBrick(this.width, this.height, PAL[game.biome || 0], this._v, mat); brickCache.set(key, s); }
           ctx.drawImage(s, this.x, this.y);
+          if (!this.isSteel && typeof this.hp === 'number') {
+            if (this._hpMax === undefined) this._hpMax = this.hp;
+            if (this.hp < this._hpMax) {
+              const d = (this._hpMax - this.hp) / this._hpMax;
+              const x = this.x, y = this.y, w = this.width, h = this.height;
+              ctx.strokeStyle = 'rgba(20,10,5,' + (0.4 + 0.4 * d) + ')';
+              ctx.lineWidth = 1;
+              ctx.beginPath();
+              ctx.moveTo(x + w * 0.3, y);
+              ctx.lineTo(x + w * 0.42, y + h * 0.5);
+              ctx.lineTo(x + w * 0.28, y + h);
+              if (d > 0.4) { ctx.moveTo(x + w * 0.72, y); ctx.lineTo(x + w * 0.6, y + h * 0.55); ctx.lineTo(x + w * 0.78, y + h); }
+              ctx.stroke();
+            }
+          }
         };
       }
       tryPatch.done = true;
