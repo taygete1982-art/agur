@@ -1,8 +1,9 @@
-import { CONFIG } from '../config.js?v=202608192335';
-import { PowerUp } from '../entities/PowerUp.js?v=202608192335';
+import { CONFIG } from '../config.js?v=202608200024';
+import { PowerUp } from '../entities/PowerUp.js?v=202608200024';
 
 export const Combat = {
   wallHit(side, ball) {
+  /* wallHit disabled */ return;
     this.wallCharge[side]++;
     this.audio.wallHit();
     this.effects.wave(side === 'left' ? 4 : CONFIG.WIDTH - 4, ball.y, '#f0c96a');

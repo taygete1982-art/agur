@@ -1,7 +1,8 @@
-import { CONFIG } from '../config.js?v=202608192335';
+import { CONFIG } from '../config.js?v=202608200024';
 
 export const Enemies = {
   spawnDemon() {
+        if (this.level % 11 !== 0) return; // демоны только на аренах
     if (!this.demons) this.demons = [];
     if (this.demons.length >= 2) return;
     const fromLeft = Math.random() < 0.5;

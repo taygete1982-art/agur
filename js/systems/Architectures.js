@@ -1,4 +1,4 @@
-﻿const KINDS = ['Амфора', 'Цилиндрическая печать', 'Золотая маска', 'Амулет', 'Табличка', 'Корона', 'Идол', 'Самоцвет', 'Статуэтка', 'Перстень', 'Чаша', 'Наконечник'];
+const KINDS = ['Амфора', 'Цилиндрическая печать', 'Золотая маска', 'Амулет', 'Табличка', 'Корона', 'Идол', 'Самоцвет', 'Статуэтка', 'Перстень', 'Чаша', 'Наконечник'];
 const ROLE = ['Курган', 'Рикошет', 'Шахта', 'Разлом', 'Сокровищница', 'Глубокая сокровищница', 'Живой храм', 'Стальной угол', 'Спираль', 'Ложная гробница', 'Охраняемый трон'];
 const COLS = 12;
 const ROWS = 18;
@@ -24,6 +24,17 @@ export function initArchitectures(game) {
 }
 
 function applyArchitecture(game, level) {
+  /* layoutV2 short-circuit */
+  if (game.levelManager && game.levelManager.layoutV2) {
+    game._archApplied = level;
+    const ap = game.levelManager.artifactCell;
+    if (!ap) { game.digArtifact = null;
+      if (typeof game.showBanner === 'function' && level % 11 === 0) game.showBanner('👹 Арена — ' + (game.levelManager.levelTitle || ''));
+      return; }
+    game.digArtifact = { x: ap.x, y: ap.y, taken: false, hidden: level >= 67, kind: ((level - 1) * 3) % 12, radius: 16 };
+    if (typeof game.showBanner === 'function') game.showBanner('⛏ ' + (game.levelManager.levelTitle || ('Раскопки №' + level)));
+    return;
+  }
   if (game._archApplied === level) return;
   const lmV2 = game.levelManager;
   if (lmV2 && lmV2.layoutV2) {

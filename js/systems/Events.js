@@ -1,4 +1,4 @@
-﻿export function initEvents(game) {
+export function initEvents(game) {
   const od = game.destroyBrick ? game.destroyBrick.bind(game) : null;
   if (od) game.destroyBrick = (b, ...r) => {
     game.bricksBroken = (game.bricksBroken || 0) + 1;
@@ -54,7 +54,7 @@ const EVENTS = [
     const w = (document.querySelector('canvas') || { width: 800 }).width;
     try {
       for (let i = 0; i < 3; i++) game.spawnDemon(60 + Math.random() * (w - 120), 40 + i * 30);
-      if (game.showBanner) game.showBanner('👹 Волна демонов!');
+      // if (game.showBanner) game.showBanner('👹 Волна демонов!');
     } catch (e) {}
   },
 
