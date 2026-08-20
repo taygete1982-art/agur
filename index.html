@@ -30,6 +30,16 @@
     <div class="rotate-icon">&#128241;</div>
     <div>Поверни телефон вертикально</div>
   </div>
-  <script type="module" src="js/main.js?v=202608202348"></script>
+  <script type="module" src="js/main.js?v=202608210004"></script>
+<script id="score-watcher">
+setInterval(function(){
+  var lv=document.getElementById('levelDisplay');
+  var items=document.querySelectorAll('.hud-item');
+  var n=lv?parseInt(lv.textContent,10):1;
+  for(var i=0;i<items.length;i++){
+    if(items[i].textContent.indexOf('Счёт')>-1){ items[i].style.display=(n>12)?'':'none'; }
+  }
+},300);
+</script>
 </body>
 </html>

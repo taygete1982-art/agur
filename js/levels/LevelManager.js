@@ -1,8 +1,8 @@
-import { CONFIG } from '../config.js?v=202608202348';
-import { Brick, biomeColor } from '../entities/Brick.js?v=202608202348';
-import { LEVELS } from './Layouts88.js?v=202608202348';
-import { Wall } from '../entities/Wall.js?v=202608202348';
-import { V2, initV2Loader } from './LevelLoaderV2.js?v=202608202348';
+import { CONFIG } from '../config.js?v=202608210004';
+import { Brick, biomeColor } from '../entities/Brick.js?v=202608210004';
+import { LEVELS } from './Layouts88.js?v=202608210004';
+import { Wall } from '../entities/Wall.js?v=202608210004';
+import { V2, initV2Loader } from './LevelLoaderV2.js?v=202608210004';
 const COLS = 12; const ROWS = 18;
 export const BIOMES = [ { name: 'Пески' } ];
 export class LevelManager {
@@ -15,7 +15,6 @@ export class LevelManager {
     const step = CONFIG.BRICK.WIDTH + 4;
     const offX = (CONFIG.WIDTH - COLS * step + 4) / 2; const offY = 60;
     const bricks = []; this.walls = [];
-    const v2 = V2.levels[n]; if (v2 && Array.isArray(v2.walls)) for (const w of v2.walls) this.walls.push(new Wall(w.x, w.y, w.w, w.h)); this.artifactCell = null;
     for (let r = 0; r < ROWS; r++) for (let x = 0; x < COLS; x++) {
       const ch = (L.grid[r] && L.grid[r][x]) || '.';
       if (ch === '.') continue;
