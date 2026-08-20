@@ -1,4 +1,4 @@
-import { CONFIG } from '../config.js?v=202608210043';
+import { CONFIG } from '../config.js?v=202608210046';
 
 export class PowerUp {
   constructor(x, y, type, artifactId = null) {

@@ -1,32 +1,32 @@
 import '../systems/Safe.js';
-import { CONFIG, GAME_STATE } from '../config.js?v=202608210043';
-import { Paddle } from '../entities/Paddle.js?v=202608210043';
-import { ParticleSystem } from '../systems/Particles.js?v=202608210043';
-import { InputManager } from '../systems/Input.js?v=202608210043';
-import { CollisionSystem } from '../systems/Collision.js?v=202608210043';
-import { AudioManager } from '../systems/Audio.js?v=202608210043';
-import { LevelManager } from '../levels/LevelManager.js?v=202608210043';
-import { Effects } from '../systems/Effects.js?v=202608210043';
-import { Renderer } from '../systems/Renderer.js?v=202608210043';
-import { Background } from '../systems/Background.js?v=202608210043';
-import { Flow } from './Flow.js?v=202608210043';
-import { Combat } from './Combat.js?v=202608210043';
-import { Collect } from './Collect.js?v=202608210043';
-import { initMenu } from '../systems/Menu.js?v=202608210043';
-import { initBosses } from '../systems/Bosses.js?v=202608210043';
-import { initPolish } from '../systems/Polish.js?v=202608210043';
-import { initArchitectures } from '../systems/Architectures.js?v=202608210043';
-import { initWalls } from '../systems/Walls.js?v=202608210043';
-import { initAchievements } from '../systems/Achievements.js?v=202608210043';
-import { initFun } from '../systems/Fun.js?v=202608210043';
-import { initPower } from '../systems/Power.js?v=202608210043';
-import { initUtukku } from '../systems/Utukku.js?v=202608210043';
-import { initEvents } from '../systems/Events.js?v=202608210043';
-import { initBiomes } from '../systems/Biomes.js?v=202608210043';
-import { initMusic } from '../systems/Music.js?v=202608210043';
-import { initRestore } from '../systems/Restore.js?v=202608210043';
-import { initVisual } from '../systems/Visual.js?v=202608210043';
-import { Enemies } from '../systems/Enemies.js?v=202608210043';
+import { CONFIG, GAME_STATE } from '../config.js?v=202608210046';
+import { Paddle } from '../entities/Paddle.js?v=202608210046';
+import { ParticleSystem } from '../systems/Particles.js?v=202608210046';
+import { InputManager } from '../systems/Input.js?v=202608210046';
+import { CollisionSystem } from '../systems/Collision.js?v=202608210046';
+import { AudioManager } from '../systems/Audio.js?v=202608210046';
+import { LevelManager } from '../levels/LevelManager.js?v=202608210046';
+import { Effects } from '../systems/Effects.js?v=202608210046';
+import { Renderer } from '../systems/Renderer.js?v=202608210046';
+import { Background } from '../systems/Background.js?v=202608210046';
+import { Flow } from './Flow.js?v=202608210046';
+import { Combat } from './Combat.js?v=202608210046';
+import { Collect } from './Collect.js?v=202608210046';
+import { initMenu } from '../systems/Menu.js?v=202608210046';
+import { initBosses } from '../systems/Bosses.js?v=202608210046';
+import { initPolish } from '../systems/Polish.js?v=202608210046';
+import { initArchitectures } from '../systems/Architectures.js?v=202608210046';
+import { initWalls } from '../systems/Walls.js?v=202608210046';
+import { initAchievements } from '../systems/Achievements.js?v=202608210046';
+import { initFun } from '../systems/Fun.js?v=202608210046';
+import { initPower } from '../systems/Power.js?v=202608210046';
+import { initUtukku } from '../systems/Utukku.js?v=202608210046';
+import { initEvents } from '../systems/Events.js?v=202608210046';
+import { initBiomes } from '../systems/Biomes.js?v=202608210046';
+import { initMusic } from '../systems/Music.js?v=202608210046';
+import { initRestore } from '../systems/Restore.js?v=202608210046';
+import { initVisual } from '../systems/Visual.js?v=202608210046';
+import { Enemies } from '../systems/Enemies.js?v=202608210046';
 
 export class Game {
   constructor() {
@@ -253,7 +253,7 @@ export class Game {
     for (const brick of this.bricks) {
       brick.update(scaledDt);
       if (brick.tickTimed) brick.tickTimed(scaledDt);
-      if (brick.tickTimed) brick.tickTimed(scaledDt);
+
       if (brick.justRegenerated) {
         brick.justRegenerated = false;
         this.levelManager.aliveCount++;

@@ -1,9 +1,9 @@
-import { CONFIG } from '../config.js?v=202608210043';
-import { Brick, biomeColor } from '../entities/Brick.js?v=202608210043';
-import { LEVELS } from './Layouts88.js?v=202608210043';
-import { V2LEVELS } from '../levels_v2/v2levels.js?v=202608210043';
-import { Wall } from '../entities/Wall.js?v=202608210043';
-import { V2, initV2Loader } from './LevelLoaderV2.js?v=202608210043';
+import { CONFIG } from '../config.js?v=202608210046';
+import { Brick, biomeColor } from '../entities/Brick.js?v=202608210046';
+import { LEVELS } from './Layouts88.js?v=202608210046';
+import { V2LEVELS } from '../levels_v2/v2levels.js?v=202608210046';
+import { Wall } from '../entities/Wall.js?v=202608210046';
+import { V2, initV2Loader } from './LevelLoaderV2.js?v=202608210046';
 const COLS = 12; const ROWS = 18;
 export const BIOMES = [ { name: 'Пески' } ];
 export class LevelManager {
@@ -11,7 +11,7 @@ export class LevelManager {
     this.layoutV2 = true; this.artifactCell = null; this.levelTitle = ''; this.current = null; }
   loadLevel(n) {
     this.level = n;
-    const L = (n <= LEVELS.length) ? (V2LEVELS[n-1] || LEVELS[n-1]) : { name: 'Раскопка ' + (n - LEVELS.length) + ' ', boss: false, grid: this.proc(n) };
+    const L = (n <= LEVELS.length) ? (V2LEVELS[n-1] || LEVELS[n-1]) : null; if (!L) return [];
     this.current = L; this.levelTitle = L.name;
     const step = CONFIG.BRICK.WIDTH + 4;
     const offX = (CONFIG.WIDTH - COLS * step + 4) / 2; const offY = 60;
@@ -57,32 +57,7 @@ export class LevelManager {
     this.totalCount = this.aliveCount;
     return bricks;
   }
-  proc(n) {
-    const d = n - LEVELS.length;
-    let s = (n * 2654435761) >>> 0;
-    const rnd = () => { s ^= s << 13; s >>>= 0; s ^= s >> 17; s ^= s << 5; s >>>= 0; return s / 4294967296; };
-    const g = []; for (let r = 0; r < ROWS; r++) g.push(Array(COLS).fill('.'));
-    const set = (r, c, ch) => { if (r >= 0 && r < ROWS && c >= 0 && c < COLS) g[r][c] = ch; };
-    const cx = 3 + Math.floor(rnd() * 3);
-    const ty = 3 + Math.floor(rnd() * 4);
-    for (let c = cx; c < cx + 6; c++) { set(ty, c, '#'); set(ty + 4, c, '#'); }
-    for (let r = ty; r <= ty + 4; r++) { set(r, cx, '#'); set(r, cx + 5, '#'); }
-    set(ty + 2, cx + 2, 'A'); set(ty + 2, cx + 3, 'G');
-    const side = Math.floor(rnd() * 4);
-    if (side === 0) { set(ty, cx + 2, 'C'); set(ty, cx + 3, 'C'); }
-    if (side === 1) { set(ty + 4, cx + 2, 'C'); set(ty + 4, cx + 3, 'C'); }
-    if (side === 2) { set(ty + 2, cx, 'C'); set(ty + 3, cx, 'C'); }
-    if (side === 3) { set(ty + 2, cx + 5, 'C'); set(ty + 3, cx + 5, 'C'); }
-    const rows = [ty - 2, ty + 6, ty + 8];
-    for (const rr of rows) if (rr > 0 && rr < 15) for (let c = 1; c < 11; c++) if (rnd() < 0.8) set(rr, c, rnd() < 0.7 ? 'a' : 'C');
-    const traps = Math.min(2 + d, 8);
-    for (let i = 0; i < traps; i++) {
-      const rr = 1 + Math.floor(rnd() * 14), cc = 1 + Math.floor(rnd() * 10);
-      if (g[rr][cc] === '.') set(rr, cc, rnd() < 0.5 ? 'E' : (rnd() < 0.5 ? 'F' : 'R'));
-    }
-    return g;
-  }
-  isBoss(n) { const L = LEVELS[n - 1]; return !!(L && L.boss); }
+    isBoss(n) { const L = LEVELS[n - 1]; return !!(L && L.boss); }
   brickDestroyed() { this.aliveCount--; }
   isLevelComplete() { return this.aliveCount <= 0; }
   nextLevel() { return this.level + 1; }
