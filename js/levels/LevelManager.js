@@ -1,9 +1,9 @@
-import { CONFIG } from '../config.js?v=202608210021';
-import { Brick, biomeColor } from '../entities/Brick.js?v=202608210021';
-import { LEVELS } from './Layouts88.js?v=202608210021';
-import { V2LEVELS } from '../levels_v2/v2levels.js?v=202608210021';
-import { Wall } from '../entities/Wall.js?v=202608210021';
-import { V2, initV2Loader } from './LevelLoaderV2.js?v=202608210021';
+import { CONFIG } from '../config.js?v=202608210025';
+import { Brick, biomeColor } from '../entities/Brick.js?v=202608210025';
+import { LEVELS } from './Layouts88.js?v=202608210025';
+import { V2LEVELS } from '../levels_v2/v2levels.js?v=202608210025';
+import { Wall } from '../entities/Wall.js?v=202608210025';
+import { V2, initV2Loader } from './LevelLoaderV2.js?v=202608210025';
 const COLS = 12; const ROWS = 18;
 export const BIOMES = [ { name: 'Пески' } ];
 export class LevelManager {
