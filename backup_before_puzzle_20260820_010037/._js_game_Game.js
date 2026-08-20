@@ -1,7 +1,7 @@
 // js/game/Game.js — упрощённая версия с поддержкой стен и артефактов
-import { Ball } from '../entities/Ball.js?v=202608201612';
-import { Paddle } from '../entities/Paddle.js?v=202608201612';
-import { Brick } from '../entities/Brick.js?v=202608201612';
+import { Ball } from '../entities/Ball.js?v=202608201616';
+import { Paddle } from '../entities/Paddle.js?v=202608201616';
+import { Brick } from '../entities/Brick.js?v=202608201616';
 
 export class Game {
     constructor(canvas, levelData) {
