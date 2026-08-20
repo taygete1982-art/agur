@@ -1,8 +1,9 @@
-import { CONFIG } from '../config.js?v=202608210004';
-import { Brick, biomeColor } from '../entities/Brick.js?v=202608210004';
-import { LEVELS } from './Layouts88.js?v=202608210004';
-import { Wall } from '../entities/Wall.js?v=202608210004';
-import { V2, initV2Loader } from './LevelLoaderV2.js?v=202608210004';
+import { CONFIG } from '../config.js?v=202608210014';
+import { Brick, biomeColor } from '../entities/Brick.js?v=202608210014';
+import { LEVELS } from './Layouts88.js?v=202608210014';
+import { V2LEVELS } from '../levels_v2/v2levels.js?v=202608210014';
+import { Wall } from '../entities/Wall.js?v=202608210014';
+import { V2, initV2Loader } from './LevelLoaderV2.js?v=202608210014';
 const COLS = 12; const ROWS = 18;
 export const BIOMES = [ { name: 'Пески' } ];
 export class LevelManager {
@@ -10,7 +11,7 @@ export class LevelManager {
     this.layoutV2 = true; this.artifactCell = null; this.levelTitle = ''; this.current = null; }
   loadLevel(n) {
     this.level = n;
-    const L = (n <= LEVELS.length) ? LEVELS[n - 1] : { name: 'Раскопка ' + (n - LEVELS.length) + ' ', boss: false, grid: this.proc(n) };
+    const L = (n <= LEVELS.length) ? (V2LEVELS[n-1] || LEVELS[n-1]) : { name: 'Раскопка ' + (n - LEVELS.length) + ' ', boss: false, grid: this.proc(n) };
     this.current = L; this.levelTitle = L.name;
     const step = CONFIG.BRICK.WIDTH + 4;
     const offX = (CONFIG.WIDTH - COLS * step + 4) / 2; const offY = 60;
@@ -86,6 +87,6 @@ export class LevelManager {
   isLevelComplete() { return this.aliveCount <= 0; }
   nextLevel() { return this.level + 1; }
   getBallSpeed(n) { var base = 7, max = 13, boss = 12; var k = Math.min(n, boss); return base + (k - 1) * (max - base) / (boss - 1); }
-  getLevelName(n) { const L = (n <= LEVELS.length) ? LEVELS[n - 1] : null;
+  getLevelName(n) { const L = (n <= LEVELS.length) ? (V2LEVELS[n-1] || LEVELS[n-1]) : null;
     return n <= LEVELS.length ? 'Пески ' + n + '/12 — ' + (L ? L.name : '') : '∞ Раскопка ' + (n - LEVELS.length); }
 }

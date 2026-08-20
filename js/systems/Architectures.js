@@ -354,7 +354,7 @@ function installCollector(game) {
 
 function collectArtifact(game, artifact) {
   if (artifact.taken || game._digDone) return;
-  artifact.taken = true;
+  artifact.taken = true; if (game.levelComplete) game.levelComplete();
   game._digDone = true;
   const noLifeLost = game.lives >= (game._livesStart == null ? game.lives : game._livesStart);
   const allDestroyed = game.levelManager && typeof game.levelManager.aliveCount === 'number' && game.levelManager.aliveCount <= 0;
