@@ -1,4 +1,4 @@
-import { CONFIG, clamp } from '../config.js?v=202608201644';
+import { CONFIG, clamp } from '../config.js?v=202608201646';
 
 export class InputManager {
   constructor(canvas) {

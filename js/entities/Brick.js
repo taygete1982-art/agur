@@ -1,5 +1,5 @@
-import { CONFIG, randomRange } from '../config.js?v=202608201644';
-import { getBrickSprite } from './brickSprites.js?v=202608201644';
+import { CONFIG, randomRange } from '../config.js?v=202608201646';
+import { getBrickSprite } from './brickSprites.js?v=202608201646';
 
 const BIOME_PALETTES = [
   [{ base: '#c9a05a', glow: '#dcb878' }, { base: '#b4593a', glow: '#c97a52' }, { base: '#6a5a4a', glow: '#8a7a5c' }, { base: '#9c4a34', glow: '#b86a4a' }],
@@ -168,6 +168,8 @@ export class Brick {
 
   getEmoji() {
     const map = { moving:'M', bumper:'B', gate:'W', switch:'X', teleport:'⌬', oneway:'►', timed:'t' };
+    return map[this.type] || (CONFIG.BRICK_TYPES[this.type.toUpperCase()] && CONFIG.BRICK_TYPES[this.type.toUpperCase()].emoji) || null;
+  };
     return map[this.type] || (CONFIG.BRICK_TYPES[this.type.toUpperCase()] && CONFIG.BRICK_TYPES[this.type.toUpperCase()].emoji) || null;
   }
 
