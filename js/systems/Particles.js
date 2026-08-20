@@ -1,4 +1,4 @@
-import { randomRange } from '../config.js?v=202608210103';
+import { randomRange } from '../config.js?v=202608210106';
 
 export class Particle {
   constructor(x, y, color, options = {}) {

@@ -1,4 +1,4 @@
-import { CONFIG } from '../config.js?v=202608210103';
+import { CONFIG } from '../config.js?v=202608210106';
 
 export const Enemies = {
   spawnDemon() {

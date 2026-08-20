@@ -1,16 +1,20 @@
-import { CONFIG } from '../config.js?v=202608210103';
-import { Brick, biomeColor } from '../entities/Brick.js?v=202608210103';
-import { LEVELS } from './levels.js?v=202608210103';
-import { Wall } from '../entities/Wall.js?v=202608210103';
+import { CONFIG } from '../config.js?v=202608210106';
+import { Brick, biomeColor } from '../entities/Brick.js?v=202608210106';
+import { LEVELS } from './levels.js?v=202608210106';
+import { Wall } from '../entities/Wall.js?v=202608210106';
+
 const COLS = 12; const ROWS = 18;
-export const BIOMES = [ { name: 'Пески' } ];
+
 export class LevelManager {
-  constructor() { this.level = 1; this.aliveCount = 0; this.totalCount = 0;
-    this.layoutV2 = true; this.artifactCell = null; this.levelTitle = ''; this.current = null; }
+  constructor() {
+    this.level = 1; this.aliveCount = 0; this.totalCount = 0;
+    this.layoutV2 = true; this.artifactCell = null; this.levelTitle = ''; this.current = null;
+    this.bricks = []; this.walls = [];
+  }
   loadLevel(n) {
     this.level = n;
-    const L = (n <= LEVELS.length) ? LEVELS[n-1] : null; if (!L) return [];
-    this.current = L; this.levelTitle = L.name;
+    const L = LEVELS[Math.min(n, LEVELS.length) - 1];
+    this.current = L; this.levelTitle = L.name; this.artifactCell = null;
     const step = CONFIG.BRICK.WIDTH + 4;
     const offX = (CONFIG.WIDTH - COLS * step + 4) / 2; const offY = 60;
     const bricks = []; this.walls = [];
@@ -43,7 +47,6 @@ export class LevelManager {
       }
       bricks.push(b);
     }
-    // Связать переключатели с воротами (один раз)
     const switches = bricks.filter(b => b.type === 'switch');
     const gates = bricks.filter(b => b.type === 'gate');
     switches.forEach((sw, i) => { sw.switchId = i; });
@@ -51,15 +54,14 @@ export class LevelManager {
     if (this.artifactCell) { const { r: ar, c: ac } = this.artifactCell;
       for (const b of bricks) if (Math.max(Math.abs(b.row-ar), Math.abs(b.col-ac)) <= 3) b.isVault = true; }
     this.bricks = bricks;
-    this.aliveCount = bricks.filter(b => b.alive && !b.isSteel).length;
+    this.aliveCount = bricks.filter(b => b.alive && !b.isSteel && b.hp !== Infinity).length;
     this.totalCount = this.aliveCount;
     return bricks;
   }
-    isBoss(n) { const L = LEVELS[n - 1]; return !!(L && L.boss); }
+  isBoss(n) { const L = LEVELS[n - 1]; return !!(L && L.boss); }
   brickDestroyed() { this.aliveCount--; }
   isLevelComplete() { return this.aliveCount <= 0; }
   nextLevel() { return this.level + 1; }
   getBallSpeed(n) { var base = 7, max = 13, boss = 12; var k = Math.min(n, boss); return base + (k - 1) * (max - base) / (boss - 1); }
-  getLevelName(n) { const L = (n <= LEVELS.length) ? LEVELS[n-1] : null;
-    return n <= LEVELS.length ? 'Пески ' + n + '/12 — ' + (L ? L.name : '') : '∞ Раскопка ' + (n - LEVELS.length); }
+  getLevelName(n) { const L = LEVELS[n - 1]; return 'Пески ' + n + '/12 — ' + (L ? L.name : ''); }
 }
