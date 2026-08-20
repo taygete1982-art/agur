@@ -1,5 +1,5 @@
-import { CONFIG, randomRange } from '../config.js?v=202608210027';
-import { getBrickSprite } from './brickSprites.js?v=202608210027';
+import { CONFIG, randomRange } from '../config.js?v=202608210031';
+import { getBrickSprite } from './brickSprites.js?v=202608210031';
 
 const BIOME_PALETTES = [
   [{ base: '#c9a05a', glow: '#dcb878' }, { base: '#b4593a', glow: '#c97a52' }, { base: '#6a5a4a', glow: '#8a7a5c' }, { base: '#9c4a34', glow: '#b86a4a' }],
