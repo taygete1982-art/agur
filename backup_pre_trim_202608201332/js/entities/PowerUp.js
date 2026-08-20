@@ -1,4 +1,4 @@
-import { CONFIG } from '../config.js?v=202608201452';
+import { CONFIG } from '../config.js?v=202608201545';
 
 export class PowerUp {
   constructor(x, y, type, artifactId = null) {
@@ -37,7 +37,7 @@ export class PowerUp {
       case 'LIFE': game.addLife(); break;
       case 'CARD': game.collectCard(); break;
       case 'CARD': game.collectCard(); break;
-      case 'FRAGMENT': game.collectFragment(this.artifactId); break;
+      case 'FRAGMENT': (game.collectFragment||function(){})(this.artifactId); break;
       case 'MULTI': game.spawnMultiBall(); break;
       case 'SIGN': game.collectSign(this.artifactId); break;
       case 'LASER':
