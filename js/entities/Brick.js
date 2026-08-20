@@ -1,5 +1,5 @@
-import { CONFIG, randomRange } from '../config.js?v=202608210149';
-import { getBrickSprite } from './brickSprites.js?v=202608210149';
+import { CONFIG, randomRange } from '../config.js?v=202608210155';
+import { getBrickSprite } from './brickSprites.js?v=202608210155';
 
 const BIOME_PALETTES = [
   [{ base: '#c9a05a', glow: '#dcb878' }, { base: '#b4593a', glow: '#c97a52' }, { base: '#6a5a4a', glow: '#8a7a5c' }, { base: '#9c4a34', glow: '#b86a4a' }],
@@ -150,27 +150,7 @@ export class Brick {
     }
 
     // МЕХАНИКИ: рисуем БЕЗ спрайта, цветным прямоугольником с большой буквой
-    if (this.isMechanical()) {
-      const c = this.getColors();
-      const alpha = ((this.type === 'timed' && !this.timedSolid) || (this.type === 'gate' && this.gateOpen)) ? 0.3 : 1;
-      ctx.save();
-      ctx.globalAlpha = alpha;
-      ctx.fillStyle = c.base;
-      if (this.type === 'bumper') { const cx = this.x + this.width/2, cy = this.y + this.height/2; ctx.beginPath(); ctx.arc(cx, cy, this.width/2, 0, 7); ctx.fill(); ctx.strokeStyle = c.glow; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, cy, this.width/2 - 1, 0, 7); ctx.stroke(); }
-      else { ctx.beginPath(); ctx.roundRect(this.x, this.y, this.width, this.height, 4); ctx.fill(); ctx.strokeStyle = c.glow; ctx.lineWidth = 2; ctx.beginPath(); ctx.roundRect(this.x + 1, this.y + 1, this.width - 2, this.height - 2, 3); ctx.stroke(); }
-      const e = this.getEmoji();
-      if (e) {
-        ctx.fillStyle = '#f5e6c8';
-        ctx.font = 'bold 16px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.shadowColor = 'rgba(0,0,0,0.8)';
-        ctx.shadowBlur = 4;
-        ctx.fillText(e, this.x + this.width / 2, this.y + this.height / 2);
-      }
-      ctx.restore();
-      return;
-    }
+    if (this.isMechanical()) { ctx.restore(); return; }
 
     // Обычные кирпичи: через спрайт
     ctx.save();
