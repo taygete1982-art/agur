@@ -1,5 +1,5 @@
-import { CONFIG } from '../config.js?v=202608201443';
-import { PowerUp } from '../entities/PowerUp.js?v=202608201443';
+import { CONFIG } from '../config.js?v=202608201452';
+import { PowerUp } from '../entities/PowerUp.js?v=202608201452';
 
 export const Combat = {
   wallHit(side, ball) {

@@ -1,4 +1,4 @@
-import { CONFIG, clamp } from '../config.js?v=202608201443';
+import { CONFIG, clamp } from '../config.js?v=202608201452';
 
 export class InputManager {
   constructor(canvas) {
@@ -124,8 +124,8 @@ export class InputManager {
     const el = document.getElementById('hintText');
     if (!el) return;
     el.textContent = this.isTouchDevice
-      ? '\u{1F446} Свайп \u{00B7} M = музей'
-      : '\u{1F5B1}\u{FE0F} Мышь / \u{2190} \u{2192} \u{00B7} M = музей';
+      ? '\u{1F446} Свайп \u{00B7}'
+      : '\u{1F5B1}\u{FE0F} Мышь / \u{2190} \u{2192} \u{00B7}';
   }
 }
 
