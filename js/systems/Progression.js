@@ -1,4 +1,4 @@
-import { LEVELS as LEVELS88 } from '../levels/Layouts88.js?v=202608201646';
+import { LEVELS as LEVELS88 } from '../levels/Layouts88.js?v=202608201648';
 export const LEVEL_NAMES = LEVELS88.map(l => l.name.trim());
 
 export function initProgression(game) {
