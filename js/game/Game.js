@@ -1,32 +1,32 @@
 import '../systems/Safe.js';
-import { CONFIG, GAME_STATE } from '../config.js?v=202608210017';
-import { Paddle } from '../entities/Paddle.js?v=202608210017';
-import { ParticleSystem } from '../systems/Particles.js?v=202608210017';
-import { InputManager } from '../systems/Input.js?v=202608210017';
-import { CollisionSystem } from '../systems/Collision.js?v=202608210017';
-import { AudioManager } from '../systems/Audio.js?v=202608210017';
-import { LevelManager } from '../levels/LevelManager.js?v=202608210017';
-import { Effects } from '../systems/Effects.js?v=202608210017';
-import { Renderer } from '../systems/Renderer.js?v=202608210017';
-import { Background } from '../systems/Background.js?v=202608210017';
-import { Flow } from './Flow.js?v=202608210017';
-import { Combat } from './Combat.js?v=202608210017';
-import { Collect } from './Collect.js?v=202608210017';
-import { initMenu } from '../systems/Menu.js?v=202608210017';
-import { initBosses } from '../systems/Bosses.js?v=202608210017';
-import { initPolish } from '../systems/Polish.js?v=202608210017';
-import { initArchitectures } from '../systems/Architectures.js?v=202608210017';
-import { initWalls } from '../systems/Walls.js?v=202608210017';
-import { initAchievements } from '../systems/Achievements.js?v=202608210017';
-import { initFun } from '../systems/Fun.js?v=202608210017';
-import { initPower } from '../systems/Power.js?v=202608210017';
-import { initUtukku } from '../systems/Utukku.js?v=202608210017';
-import { initEvents } from '../systems/Events.js?v=202608210017';
-import { initBiomes } from '../systems/Biomes.js?v=202608210017';
-import { initMusic } from '../systems/Music.js?v=202608210017';
-import { initRestore } from '../systems/Restore.js?v=202608210017';
-import { initVisual } from '../systems/Visual.js?v=202608210017';
-import { Enemies } from '../systems/Enemies.js?v=202608210017';
+import { CONFIG, GAME_STATE } from '../config.js?v=202608210021';
+import { Paddle } from '../entities/Paddle.js?v=202608210021';
+import { ParticleSystem } from '../systems/Particles.js?v=202608210021';
+import { InputManager } from '../systems/Input.js?v=202608210021';
+import { CollisionSystem } from '../systems/Collision.js?v=202608210021';
+import { AudioManager } from '../systems/Audio.js?v=202608210021';
+import { LevelManager } from '../levels/LevelManager.js?v=202608210021';
+import { Effects } from '../systems/Effects.js?v=202608210021';
+import { Renderer } from '../systems/Renderer.js?v=202608210021';
+import { Background } from '../systems/Background.js?v=202608210021';
+import { Flow } from './Flow.js?v=202608210021';
+import { Combat } from './Combat.js?v=202608210021';
+import { Collect } from './Collect.js?v=202608210021';
+import { initMenu } from '../systems/Menu.js?v=202608210021';
+import { initBosses } from '../systems/Bosses.js?v=202608210021';
+import { initPolish } from '../systems/Polish.js?v=202608210021';
+import { initArchitectures } from '../systems/Architectures.js?v=202608210021';
+import { initWalls } from '../systems/Walls.js?v=202608210021';
+import { initAchievements } from '../systems/Achievements.js?v=202608210021';
+import { initFun } from '../systems/Fun.js?v=202608210021';
+import { initPower } from '../systems/Power.js?v=202608210021';
+import { initUtukku } from '../systems/Utukku.js?v=202608210021';
+import { initEvents } from '../systems/Events.js?v=202608210021';
+import { initBiomes } from '../systems/Biomes.js?v=202608210021';
+import { initMusic } from '../systems/Music.js?v=202608210021';
+import { initRestore } from '../systems/Restore.js?v=202608210021';
+import { initVisual } from '../systems/Visual.js?v=202608210021';
+import { Enemies } from '../systems/Enemies.js?v=202608210021';
 
 export class Game {
   constructor() {
@@ -401,7 +401,7 @@ export class Game {
       if (this.shakeIntensity < 0.1) this.shakeIntensity = 0;
     }
 
-    if (this.levelManager.isLevelComplete() && !this.boss) this.levelComplete();
+    if (this.boss && this.levelManager.isLevelComplete()) this.levelComplete(); // кампания - только артефакт
   }
 
   gameLoop(timestamp) {

@@ -31,7 +31,7 @@ function applyArchitecture(game, level) {
     if (!ap) { game.digArtifact = null;
       if (typeof game.showBanner === 'function' && level % 11 === 0) game.showBanner('👹 Арена — ' + (game.levelManager.levelTitle || ''));
       return; }
-    game.digArtifact = { x: ap.x, y: ap.y, taken: false, hp: 3, maxHp: 3, hidden: level >= 67, kind: ((level - 1) * 3) % 12, radius: 16 };
+    game.digArtifact = { x: ap.x, y: ap.y, taken: false, hp: 1, maxHp: 1, hidden: level >= 67, kind: ((level - 1) * 3) % 12, radius: 16 };
     if (typeof game.showBanner === 'function') game.showBanner('⛏ ' + (game.levelManager.levelTitle || ('Раскопки №' + level)));
     return;
   }
@@ -45,7 +45,7 @@ function applyArchitecture(game, level) {
       if (typeof game.showBanner === 'function' && level % 11 === 0) game.showBanner('👹 Арена — ' + (lmV2.levelTitle || ''));
       return;
     }
-    game.digArtifact = { x: ap.x, y: ap.y, taken: false, hp: 3, maxHp: 3, hidden: level >= 67, kind: ((level - 1) * 3) % KINDS.length, role: (level - 1) % ROLE.length, radius: 16 };
+    game.digArtifact = { x: ap.x, y: ap.y, taken: false, hp: 1, maxHp: 1, hidden: level >= 67, kind: ((level - 1) * 3) % KINDS.length, role: (level - 1) % ROLE.length, radius: 16 };
     if (typeof game.showBanner === 'function') game.showBanner('⛏ ' + (lmV2.levelTitle || ('Раскопки №' + level)));
     return;
   }
@@ -101,7 +101,7 @@ function applyArchitecture(game, level) {
   }
   recountAlive(game);
   const center = findArtifactCenter(plan, rows, cols);
-  game.digArtifact = { x: center.x, y: center.y, taken: false, hp: 3, maxHp: 3, hidden: level >= 67, kind: ((level - 1) * 3) % KINDS.length, role: (level - 1) % ROLE.length, radius: 16 };
+  game.digArtifact = { x: center.x, y: center.y, taken: false, hp: 1, maxHp: 1, hidden: level >= 67, kind: ((level - 1) * 3) % KINDS.length, role: (level - 1) % ROLE.length, radius: 16 };
   game._archApplied = level;
   if (typeof game.showBanner === 'function') game.showBanner('⛏ Раскопки №' + level + ' — ' + ROLE[(level - 1) % ROLE.length]);
 }
