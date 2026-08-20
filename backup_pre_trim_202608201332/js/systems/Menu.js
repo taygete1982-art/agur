@@ -1,4 +1,4 @@
-import { LEVEL_NAMES } from './Progression.js?v=202608201618';
+import { LEVEL_NAMES } from './Progression.js?v=202608201625';
 
 export function initMenu(game) {
   const mk = (id, css) => {
