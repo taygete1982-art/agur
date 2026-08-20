@@ -27,6 +27,84 @@ function applyArchitecture(game, level) {
   /* layoutV2 short-circuit */
   if (game.levelManager && game.levelManager.layoutV2) {
     game._archApplied = level;
+    const ap = game.levelManager.artifactCell;
+    if (!ap) { game.digArtifact = null;
+      if (typeof game.showBanner === 'function' && level % 11 === 0) game.showBanner('👹 Арена — ' + (game.levelManager.levelTitle || ''));
+      return; }
+    game.digArtifact = { x: ap.x, y: ap.y, taken: false, hidden: level >= 67, kind: ((level - 1) * 3) % 12, radius: 16 };
+    if (typeof game.showBanner === 'function') game.showBanner('⛏ ' + (game.levelManager.levelTitle || ('Раскопки №' + level)));
+    return;
+  }
+  if (game._archApplied === level) return;
+  const lmV2 = game.levelManager;
+  if (lmV2 && lmV2.layoutV2) {
+    game._archApplied = level;
+    const ap = lmV2.artifactCell;
+    if (!ap) {
+      game.digArtifact = null;
+      if (typeof game.showBanner === 'function' && level % 11 === 0) game.showBanner('👹 Арена — ' + (lmV2.levelTitle || ''));
+      return;
+    }
+    game.digArtifact = { x: ap.x, y: ap.y, taken: false, hidden: level >= 67, kind: ((level - 1) * 3) % KINDS.length, role: (level - 1) % ROLE.length, radius: 16 };
+    if (typeof game.showBanner === 'function') game.showBanner('⛏ ' + (lmV2.levelTitle || ('Раскопки №' + level)));
+    return;
+  }
+  const bricks = Array.isArray(game.bricks) ? game.bricks.filter(b => b && b.alive) : [];
+  if (bricks.length < 24) { console.warn('[ARCH] Too few bricks:', bricks.length); return; }
+  const rows = groupPositions(bricks, b => b.y);
+  const cols = groupPositions(bricks, b => b.x);
+  if (rows.length < 4 || cols.length < 4) { console.warn('[ARCH] Grid too small'); return; }
+  const R = Math.min(ROWS, rows.length);
+  const C = Math.min(COLS, cols.length);
+  const byCell = new Map();
+  for (const brick of bricks) {
+    const r = nearestIndex(rows, brick.y);
+    const c = nearestIndex(cols, brick.x);
+    if (r < R && c < C) byCell.set(r + ':' + c, brick);
+  }
+  if (game.levelManager && game.levelManager.layoutV2) return; // no-legacy-redraw
+  const plan = buildPlan(level, R, C);
+  const used = new Set();
+  const assignments = [];
+  const wanted = [];
+  for (let r = 0; r < R; r++) for (let c = 0; c < C; c++) {
+    const cell = plan[r][c];
+    if (cell === '.' || cell === 'A') continue;
+    wanted.push({ r, c, type: cell });
+  }
+  for (const w of wanted) {
+    const b = byCell.get(w.r + ':' + w.c);
+    if (b && !used.has(b)) { used.add(b); assignments.push([b, w]); }
+  }
+  const free = bricks.filter(b => !used.has(b));
+  for (const w of wanted) {
+    if (assignments.some(a => a[1] === w)) continue;
+    const b = free.shift();
+    if (!b) break;
+    used.add(b);
+    assignments.push([b, w]);
+  }
+  if (assignments.length < 20) { console.warn('[ARCH] Architecture too small:', assignments.length); return; }
+  for (const b of bricks) {
+    if (used.has(b)) continue;
+    b.alive = false; b.y = -9999; b.maxRegens = 0;
+    decrementAlive(game, b);
+  }
+  for (const [brick, cell] of assignments) {
+    brick.x = cols[cell.c];
+    brick.y = rows[cell.r];
+    brick.maxRegens = 0;
+    if (cell.type === '#') makeSteel(brick);
+    else if (cell.type === 'R') makeRegen(brick);
+    else if (cell.type === 'S') makeSilver(brick);
+    else if (cell.type === 'G') makeGold(brick);
+    else brick.isSteel = false;
+  }
+  recountAlive(game);
+  const center = findArtifactCenter(plan, rows, cols);
+  game.digArtifact = { x: center.x, y: center.y, taken: false, hidden: level >= 67, kind: ((level - 1) * 3) % KINDS.length, role: (level - 1) % ROLE.length, radius: 16 };
+  game._archApplied = level;
+  if (typeof game.showBanner === 'function') game.showBanner('⛏ Раскопки №' + level + ' — ' + ROLE[(level - 1) % ROLE.length]);
 }
 
 function buildPlan(level, R, C) {
