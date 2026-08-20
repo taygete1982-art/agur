@@ -1,5 +1,5 @@
-import { CONFIG, randomRange } from '../config.js?v=202608210031';
-import { getBrickSprite } from './brickSprites.js?v=202608210031';
+import { CONFIG, randomRange } from '../config.js?v=202608210038';
+import { getBrickSprite } from './brickSprites.js?v=202608210038';
 
 const BIOME_PALETTES = [
   [{ base: '#c9a05a', glow: '#dcb878' }, { base: '#b4593a', glow: '#c97a52' }, { base: '#6a5a4a', glow: '#8a7a5c' }, { base: '#9c4a34', glow: '#b86a4a' }],
@@ -75,9 +75,7 @@ export class Brick {
     this.timedPhase += dt * 0.015;
     if (this.timedPhase >= 1) { this.timedPhase -= 1; this.timedSolid = !this.timedSolid; }
   }
-  isMechanical() { return ['bumper','gate','switch','teleport','oneway','timed'].includes(this.type); }
   toggleGate(open) { if (this.type === 'gate') this.gateOpen = !!open; }
-  tickTimed(dt) {
     if (this.type !== 'timed') return;
     this.timedPhase += dt * 0.015; // цикл ~6.5с
     if (this.timedPhase >= 1) { this.timedPhase -= 1; this.timedSolid = !this.timedSolid; }
@@ -143,12 +141,6 @@ export class Brick {
       case 'fire':      return { base: '#b3541e', glow: '#d98a3a' };
       case 'regen':     return { base: '#6a7a4a', glow: '#8a9a5a' };
       case 'moving':    return { base: '#3a4a5a', glow: '#5a6a7a' };
-      case 'bumper':    return { base: '#1a7ac9', glow: '#4aa2f1' };
-      case 'gate':      return { base: '#4a2a6a', glow: '#8a4ac0' };
-      case 'switch':    return { base: '#c94a1a', glow: '#f08040' };
-      case 'teleport':  return { base: '#8a4ac0', glow: '#c080f0' };
-      case 'oneway':    return { base: '#4a8a4a', glow: '#6ac06a' };
-      case 'timed':     return { base: '#6a4a2a', glow: '#a08060' };
       case 'bumper':    return { base: '#1a7ac9', glow: '#4aa2f1' };
       case 'gate':      return { base: '#4a2a6a', glow: '#8a4ac0' };
       case 'switch':    return { base: '#c94a1a', glow: '#f08040' };
