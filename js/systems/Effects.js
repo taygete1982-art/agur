@@ -1,4 +1,4 @@
-import { CONFIG } from '../config.js?v=202608210014';
+import { CONFIG } from '../config.js?v=202608210017';
 
 export class Effects {
   constructor() { this.bolts = []; this.waves = []; this.flashes = []; }
