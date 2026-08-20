@@ -31,7 +31,7 @@ function applyArchitecture(game, level) {
     if (!ap) { game.digArtifact = null;
       if (typeof game.showBanner === 'function' && level % 11 === 0) game.showBanner('👹 Арена — ' + (game.levelManager.levelTitle || ''));
       return; }
-    game.digArtifact = { x: ap.x, y: ap.y, taken: false, hidden: level >= 67, kind: ((level - 1) * 3) % 12, radius: 16 };
+    game.digArtifact = { x: ap.x, y: ap.y, taken: false, hp: 3, maxHp: 3, hidden: level >= 67, kind: ((level - 1) * 3) % 12, radius: 16 };
     if (typeof game.showBanner === 'function') game.showBanner('⛏ ' + (game.levelManager.levelTitle || ('Раскопки №' + level)));
     return;
   }
@@ -45,7 +45,7 @@ function applyArchitecture(game, level) {
       if (typeof game.showBanner === 'function' && level % 11 === 0) game.showBanner('👹 Арена — ' + (lmV2.levelTitle || ''));
       return;
     }
-    game.digArtifact = { x: ap.x, y: ap.y, taken: false, hidden: level >= 67, kind: ((level - 1) * 3) % KINDS.length, role: (level - 1) % ROLE.length, radius: 16 };
+    game.digArtifact = { x: ap.x, y: ap.y, taken: false, hp: 3, maxHp: 3, hidden: level >= 67, kind: ((level - 1) * 3) % KINDS.length, role: (level - 1) % ROLE.length, radius: 16 };
     if (typeof game.showBanner === 'function') game.showBanner('⛏ ' + (lmV2.levelTitle || ('Раскопки №' + level)));
     return;
   }
@@ -101,7 +101,7 @@ function applyArchitecture(game, level) {
   }
   recountAlive(game);
   const center = findArtifactCenter(plan, rows, cols);
-  game.digArtifact = { x: center.x, y: center.y, taken: false, hidden: level >= 67, kind: ((level - 1) * 3) % KINDS.length, role: (level - 1) % ROLE.length, radius: 16 };
+  game.digArtifact = { x: center.x, y: center.y, taken: false, hp: 3, maxHp: 3, hidden: level >= 67, kind: ((level - 1) * 3) % KINDS.length, role: (level - 1) % ROLE.length, radius: 16 };
   game._archApplied = level;
   if (typeof game.showBanner === 'function') game.showBanner('⛏ Раскопки №' + level + ' — ' + ROLE[(level - 1) % ROLE.length]);
 }
@@ -292,7 +292,8 @@ function patchRenderer(game) {
   renderer.draw = function () {
     originalDraw();
     const artifact = game.digArtifact;
-    if (artifact && !artifact.taken && game.ctx) drawArtifact(game.ctx, artifact, performance.now());
+    if (artifact && !artifact.taken && game.ctx) { drawArtifact(game.ctx, artifact, performance.now());
+        if (artifact.maxHp && artifact.hp > 0) { const c = game.ctx; c.save(); c.fillStyle = '#f0c96a'; c.font = 'bold 11px sans-serif'; c.textAlign = 'center'; c.fillText(artifact.hp + '/' + artifact.maxHp, artifact.x, artifact.y - 24); c.restore(); } }
   };
 }
 
@@ -334,7 +335,19 @@ function installCollector(game) {
       const dx = ball.x - artifact.x;
       const dy = ball.y - artifact.y;
       const radius = artifact.radius + (ball.radius || 8);
-      if (dx * dx + dy * dy <= radius * radius) { collectArtifact(game, artifact); return; }
+      if (dx * dx + dy * dy <= radius * radius) {
+        if (artifact.maxHp && artifact.hp > 0) {
+          if (!game.__artUntil || performance.now() > game.__artUntil) {
+            game.__artUntil = performance.now() + 400;
+            artifact.hp--;
+            game.effects && game.effects.wave && game.effects.wave(artifact.x, artifact.y, '#e0b83a');
+            game.audio && game.audio.brickBreak && game.audio.brickBreak();
+            if (artifact.hp <= 0) collectArtifact(game, artifact);
+          }
+          return;
+        }
+        collectArtifact(game, artifact); return;
+      }
     }
   }, 50);
 }

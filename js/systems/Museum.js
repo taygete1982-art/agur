@@ -1,4 +1,4 @@
-import { CONFIG } from '../config.js?v=202608202149';
+import { CONFIG } from '../config.js?v=202608202348';
 
 export class Museum {
   constructor() {
