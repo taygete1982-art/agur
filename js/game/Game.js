@@ -1,34 +1,31 @@
 import '../systems/Safe.js';
-import { CONFIG, GAME_STATE } from '../config.js?v=202608200130';
-import { Paddle } from '../entities/Paddle.js?v=202608200130';
-import { ParticleSystem } from '../systems/Particles.js?v=202608200130';
-import { InputManager } from '../systems/Input.js?v=202608200130';
-import { CollisionSystem } from '../systems/Collision.js?v=202608200130';
-import { AudioManager } from '../systems/Audio.js?v=202608200130';
-import { LevelManager } from '../levels/LevelManager.js?v=202608200130';
-import { Effects } from '../systems/Effects.js?v=202608200130';
-import { Renderer } from '../systems/Renderer.js?v=202608200130';
-import { Background } from '../systems/Background.js?v=202608200130';
-import { Flow } from './Flow.js?v=202608200130';
-import { Combat } from './Combat.js?v=202608200130';
-import { Collect } from './Collect.js?v=202608200130';
-import { initDeck } from '../systems/Cards.js?v=202608200130';
-import { initMuseum } from '../systems/Museum216.js?v=202608200130';
-import { initProgression } from '../systems/Progression.js?v=202608200130';
-import { initMenu } from '../systems/Menu.js?v=202608200130';
-import { initBosses } from '../systems/Bosses.js?v=202608200130';
-import { initPolish } from '../systems/Polish.js?v=202608200130';
-import { initArchitectures } from '../systems/Architectures.js?v=202608200130';
-import { initAchievements } from '../systems/Achievements.js?v=202608200130';
-import { initFun } from '../systems/Fun.js?v=202608200130';
-import { initPower } from '../systems/Power.js?v=202608200130';
-import { initUtukku } from '../systems/Utukku.js?v=202608200130';
-import { initEvents } from '../systems/Events.js?v=202608200130';
-import { initBiomes } from '../systems/Biomes.js?v=202608200130';
-import { initMusic } from '../systems/Music.js?v=202608200130';
-import { initRestore } from '../systems/Restore.js?v=202608200130';
-import { initVisual } from '../systems/Visual.js?v=202608200130';
-import { Enemies } from '../systems/Enemies.js?v=202608200130';
+import { CONFIG, GAME_STATE } from '../config.js?v=202608201443';
+import { Paddle } from '../entities/Paddle.js?v=202608201443';
+import { ParticleSystem } from '../systems/Particles.js?v=202608201443';
+import { InputManager } from '../systems/Input.js?v=202608201443';
+import { CollisionSystem } from '../systems/Collision.js?v=202608201443';
+import { AudioManager } from '../systems/Audio.js?v=202608201443';
+import { LevelManager } from '../levels/LevelManager.js?v=202608201443';
+import { Effects } from '../systems/Effects.js?v=202608201443';
+import { Renderer } from '../systems/Renderer.js?v=202608201443';
+import { Background } from '../systems/Background.js?v=202608201443';
+import { Flow } from './Flow.js?v=202608201443';
+import { Combat } from './Combat.js?v=202608201443';
+import { Collect } from './Collect.js?v=202608201443';
+import { initMenu } from '../systems/Menu.js?v=202608201443';
+import { initBosses } from '../systems/Bosses.js?v=202608201443';
+import { initPolish } from '../systems/Polish.js?v=202608201443';
+import { initArchitectures } from '../systems/Architectures.js?v=202608201443';
+import { initAchievements } from '../systems/Achievements.js?v=202608201443';
+import { initFun } from '../systems/Fun.js?v=202608201443';
+import { initPower } from '../systems/Power.js?v=202608201443';
+import { initUtukku } from '../systems/Utukku.js?v=202608201443';
+import { initEvents } from '../systems/Events.js?v=202608201443';
+import { initBiomes } from '../systems/Biomes.js?v=202608201443';
+import { initMusic } from '../systems/Music.js?v=202608201443';
+import { initRestore } from '../systems/Restore.js?v=202608201443';
+import { initVisual } from '../systems/Visual.js?v=202608201443';
+import { Enemies } from '../systems/Enemies.js?v=202608201443';
 
 export class Game {
   constructor() {
@@ -52,13 +49,8 @@ export class Game {
     this.renderer = new Renderer(this);
     window.gameCatchMode = () => this.catchMode;
 
-    this.museum = null;
-    import('../systems/Museum.js').then(mod => {
-      this.museum = new mod.Museum();
-      const cnt = document.getElementById('museumCount');
-      if (cnt) cnt.textContent = this.museum.totalShards();
-    }).catch(() => {});
-
+    this.museum = null; this.collectFragment = function(){};
+    
     this.paddle = new Paddle();
     this.balls = [];
     this.bricks = [];
@@ -91,10 +83,7 @@ export class Game {
 
     this.input.setPaddle(this.paddle);
     this.setupCallbacks();
-    initDeck(this);
-    initMuseum(this);
-    initProgression(this);
-    initMenu(this);
+                initMenu(this);
     initBosses(this);
     initPolish(this);
     initArchitectures(this);
@@ -261,6 +250,8 @@ export class Game {
 
     for (const brick of this.bricks) {
       brick.update(scaledDt);
+      if (brick.tickTimed) brick.tickTimed(scaledDt);
+      if (brick.tickTimed) brick.tickTimed(scaledDt);
       if (brick.justRegenerated) {
         brick.justRegenerated = false;
         this.levelManager.aliveCount++;
@@ -271,6 +262,98 @@ export class Game {
     for (const ball of this.balls) {
       if (!ball.isLaunched) continue;
       for (const brick of this.bricks) {
+                // Механики
+        if (brick.isMechanical && brick.isMechanical()) {
+          // Односторонний: пропускать, если направление против правила
+          if (brick.type === 'oneway' && brick.oneWayDir) {
+            const d = brick.oneWayDir;
+            const blocked = (d === 'up' && ball.dy < 0) || (d === 'down' && ball.dy > 0) || (d === 'left' && ball.dx < 0) || (d === 'right' && ball.dx > 0);
+            if (!blocked) continue;
+          }
+          // Бампер: стандартный отскок + импульс + очки
+          if (brick.type === 'bumper') {
+            if (this.collision && this.collision.checkBrickCollision && this.collision.checkBrickCollision(ball, brick).hit) {
+              const spd = Math.sqrt(ball.dx*ball.dx + ball.dy*ball.dy) * 1.08;
+              const a = Math.atan2(ball.dy, ball.dx);
+              ball.dx = Math.cos(a) * spd; ball.dy = Math.sin(a) * spd;
+              this.score = (this.score || 0) + 25;
+              this.audio && this.audio.brickBreak && this.audio.brickBreak();
+              this.particles && this.particles.explodeBrick && this.particles.explodeBrick(brick.x + brick.width/2, brick.y + brick.height/2, 15, 15, '#4aa2f1');
+              this.effects && this.effects.wave && this.effects.wave(brick.x + brick.width/2, brick.y + brick.height/2, '#4aa2f1');
+              this.hitstop = 2;
+            }
+            continue;
+          }
+          // Переключатель: переключить все ворота
+          if (brick.type === 'switch' && !brick.switchUsed) {
+            if (this.collision && this.collision.checkBrickCollision && this.collision.checkBrickCollision(ball, brick).hit) {
+              brick.switchUsed = true;
+              const target = !brick.gateOpenTarget;
+              brick.gateOpenTarget = true;
+              for (const g of this.bricks) if (g.type === 'gate') g.toggleGate(true);
+              this.audio && this.audio.uiClick && this.audio.uiClick();
+              this.effects && this.effects.wave && this.effects.wave(brick.x + brick.width/2, brick.y + brick.height/2, '#f08040');
+              // Развернуть мяч
+              ball.dy = -ball.dy;
+            }
+            continue;
+          }
+          // Телепорт: переместить к парному
+          if (brick.type === 'teleport' && brick.teleportPair) {
+            if (this.collision && this.collision.checkBrickCollision && this.collision.checkBrickCollision(ball, brick).hit) {
+              const pair = this.bricks.find(o => o !== brick && o.type === 'teleport' && o.teleportPair === brick.type && o.alive);
+              if (pair) {
+                ball.x = pair.x + pair.width / 2;
+                ball.y = pair.y + pair.height / 2 + (ball.dy > 0 ? 20 : -20);
+                this.effects && this.effects.wave && this.effects.wave(pair.x + pair.width/2, pair.y + pair.height/2, '#c080f0');
+                this.audio && this.audio.uiClick && this.audio.uiClick();
+              }
+            }
+            continue;
+          }
+        }
+                if (brick.isMechanical && brick.isMechanical()) {
+          if (brick.type === 'oneway' && brick.oneWayDir) {
+            const d = brick.oneWayDir;
+            const blocked = (d === 'up' && ball.dy < 0) || (d === 'down' && ball.dy > 0) || (d === 'left' && ball.dx < 0) || (d === 'right' && ball.dx > 0);
+            if (!blocked) continue;
+          }
+          if (brick.type === 'bumper') {
+            if (this.collision && this.collision.checkBrickCollision && this.collision.checkBrickCollision(ball, brick).hit) {
+              const spd = Math.sqrt(ball.dx*ball.dx + ball.dy*ball.dy) * 1.08;
+              const a = Math.atan2(ball.dy, ball.dx);
+              ball.dx = Math.cos(a) * spd; ball.dy = Math.sin(a) * spd;
+              this.score = (this.score || 0) + 25;
+              this.audio && this.audio.brickBreak && this.audio.brickBreak();
+              this.particles && this.particles.explodeBrick && this.particles.explodeBrick(brick.x + brick.width/2, brick.y + brick.height/2, 15, 15, '#4aa2f1');
+              this.effects && this.effects.wave && this.effects.wave(brick.x + brick.width/2, brick.y + brick.height/2, '#4aa2f1');
+              this.hitstop = 2;
+            }
+            continue;
+          }
+          if (brick.type === 'switch' && !brick.switchUsed) {
+            if (this.collision && this.collision.checkBrickCollision && this.collision.checkBrickCollision(ball, brick).hit) {
+              brick.switchUsed = true;
+              for (const g of this.bricks) if (g.type === 'gate') g.toggleGate(true);
+              this.audio && this.audio.uiClick && this.audio.uiClick();
+              this.effects && this.effects.wave && this.effects.wave(brick.x + brick.width/2, brick.y + brick.height/2, '#f08040');
+              ball.dy = -ball.dy;
+            }
+            continue;
+          }
+          if (brick.type === 'teleport' && brick.teleportPair) {
+            if (this.collision && this.collision.checkBrickCollision && this.collision.checkBrickCollision(ball, brick).hit) {
+              const pair = this.bricks.find(o => o !== brick && o.type === 'teleport' && o.teleportPair === brick.type && o.alive);
+              if (pair) {
+                ball.x = pair.x + pair.width / 2;
+                ball.y = pair.y + pair.height / 2 + (ball.dy > 0 ? 20 : -20);
+                this.effects && this.effects.wave && this.effects.wave(pair.x + pair.width/2, pair.y + pair.height/2, '#c080f0');
+                this.audio && this.audio.uiClick && this.audio.uiClick();
+              }
+            }
+            continue;
+          }
+        }
         if (!brick.alive || brick.isBreaking) continue;
         const result = this.collision.checkBrickCollision(ball, brick);
         if (result.hit) {

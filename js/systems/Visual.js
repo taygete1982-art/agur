@@ -123,8 +123,8 @@ function makeBg(w, h, biome) {
     g.globalAlpha = 0.25; g.fillStyle = pal.acc; g.fillRect(0, by - 2, w, 3); g.globalAlpha = 1;
   }
 
-  if (pal.sun) { g.fillStyle = pal.acc; g.globalAlpha = 0.35; g.beginPath(); g.arc(w * 0.78, h * 0.1, 26, 0, 7); g.fill(); g.globalAlpha = 1; }
-  else { g.fillStyle = pal.acc; g.globalAlpha = 0.4; g.beginPath(); g.arc(w * 0.24, h * 0.1, 18, 0, 7); g.fill(); g.globalAlpha = 1; }
+  // [sun-removed]
+  // [moon-removed]
   g.fillStyle = 'rgba(0,0,0,0.35)';
   g.fillRect(0, 0, w, 3); g.fillRect(0, h - 3, w, 3); g.fillRect(0, 0, 3, h); g.fillRect(w - 3, 0, 3, h);
   return c;

@@ -1,10 +1,10 @@
-﻿export function initPolish(game) {
+export function initPolish(game) {
   let hud = document.getElementById('hudBar');
   if (!hud) {
     hud = document.createElement('div');
     hud.id = 'hudBar';
     hud.style.cssText = 'position:fixed;bottom:6px;left:0;right:0;text-align:center;color:#6a5a44;font-family:Georgia,serif;font-size:11px;letter-spacing:1px;pointer-events:none;z-index:40;opacity:0.8;';
-    hud.textContent = '← → / мышь — платформа · P — пауза · C — колода · M — музей · H — как играть · Пробел — удар · Esc — меню';
+    hud.textContent = '← → / мышь — платформа · P — пауза · H — как играть · Пробел — удар · Esc — меню';
     document.body.appendChild(hud);
   }
   let pov = document.getElementById('pauseOverlay');

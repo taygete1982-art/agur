@@ -1,4 +1,4 @@
-﻿export const CONFIG = {
+export const CONFIG = {
   WIDTH: 540,
   HEIGHT: 860,
   PADDLE: { WIDTH: 110, HEIGHT: 14, RADIUS: 8, Y_OFFSET: 120 },
@@ -6,7 +6,7 @@
   BRICK: { ROWS: 18, COLS: 12, WIDTH: 38, HEIGHT: 18, GAP: 3, TOP_OFFSET: 35 },
   TOUCH: { ZONE_HEIGHT: 100, SENSITIVITY: 3.5 },
   GAME: { MAX_LIVES: 3, POWERUP_DROP_CHANCE: 0.15, POWERUP_FALL_SPEED: 2.5 },
-  MUSEUM: { FRAGMENT_CHANCE: 0.04 },
+  MUSEUM: { FRAGMENT_CHANCE: 0 },
   
   ARTIFACTS: [
     { id: 'jug',     name: 'Глиняный кувшин',       emoji: '🏺', shards: 5 },

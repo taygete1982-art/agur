@@ -1,4 +1,4 @@
-import { CONFIG } from '../config.js?v=202608200130';
+import { CONFIG } from '../config.js?v=202608201443';
 
 export const Enemies = {
   spawnDemon() {
@@ -114,8 +114,7 @@ export const Enemies = {
   },
 
   maybeSpawnBoss(levelNumber) {
-    const li = (levelNumber - 1) % 11;
-    if (li === 10) {
+        if (this.levelManager && this.levelManager.isBoss ? this.levelManager.isBoss(levelNumber) : ((levelNumber - 1) % 11 === 10)) {
       const biome = Math.floor((levelNumber - 1) / 11);
       this.boss = {
         x: CONFIG.WIDTH / 2 - 60, y: 64, w: 120, h: 34,

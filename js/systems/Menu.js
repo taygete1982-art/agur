@@ -1,4 +1,4 @@
-import { LEVEL_NAMES } from './Progression.js?v=202608200130';
+import { LEVEL_NAMES } from './Progression.js?v=202608201443';
 
 export function initMenu(game) {
   const mk = (id, css) => {
@@ -35,7 +35,7 @@ export function initMenu(game) {
     },
     legend: () => { hide(menuOv); renderLegend(game, legOv, false); show(legOv, false); },
     ach: () => { hide(menuOv); game.menuOpen = false; window.toggleAch && window.toggleAch(game); },
-    reset: () => { if (confirm('Стереть ВСЮ колоду, музей, титулы и рекорды?')) { ['agur_deck','agur_museum','agur_ach','agur_progress','agur_tut'].forEach(k => localStorage.removeItem(k)); location.reload(); } },
+    reset: () => { if (confirm('Стереть ВСЮ прогрессию, титулы и рекорды?')) { ['agur_deck','agur_museum','agur_ach','agur_progress','agur_tut'].forEach(k => localStorage.removeItem(k)); location.reload(); } },
     closeLegend: () => { hide(legOv); try { localStorage.setItem('agur_tut', '1'); } catch (e) {} },
   };
 
@@ -44,9 +44,6 @@ export function initMenu(game) {
   window.addEventListener('keydown', (e) => {
     if (e.code === 'Escape') {
       if (legOv.style.display === 'block') { hide(legOv); return; }
-      const d = document.getElementById('deckOverlay'), m = document.getElementById('museumOverlay');
-      if (d && d.style.display === 'flex') { d.style.display = 'none'; game.museumOpen = false; return; }
-      if (m && m.style.display === 'flex') { m.style.display = 'none'; game.museumOpen = false; return; }
       if (menuOv.style.display !== 'flex' && mapOv.style.display !== 'block') window.showMenu();
       return;
     }
@@ -62,25 +59,17 @@ export function initMenu(game) {
 
 function renderMenu(game, ov) {
   let prog = { max: 1, best: 0 }; try { prog = JSON.parse(localStorage.getItem('agur_progress') || '{"max":1,"best":0}'); } catch (e) {}
-  let deckN = 0; try { deckN = (JSON.parse(localStorage.getItem('agur_deck') || '[]')).length; } catch (e) {}
-  let musN = 0; try { musN = (JSON.parse(localStorage.getItem('agur_museum') || '[]')).length; } catch (e) {}
   ov.innerHTML =
-    '<div style="font-size:64px;color:#f0c96a;font-family:Georgia,serif;text-shadow:0 0 30px rgba(240,201,106,0.4);"> АГУР</div>' +
-
-    '<div style="color:#6a5a44;font-family:Georgia,serif;font-size:13px;margin-top:8px;">Рекорд: ' + prog.best + ' · Уровень: ' + prog.max + ' · Карты: ' + deckN + '/42 · Музей: ' + musN + '/216' + (window.__title ? ' · «' + window.__title() + '»' : '') + '</div>' +
+    '<div style="font-size:64px;color:#f0c96a;font-family:Georgia,serif;text-shadow:0 0 30px rgba(240,201,106,0.4);">АГУР</div>' +
+    '<div style="color:#6a5a44;font-family:Georgia,serif;font-size:13px;margin-top:8px;">Рекорд: ' + prog.best + ' · Уровень: ' + prog.max + (window.__title ? ' · «' + window.__title() + '»' : '') + '</div>' +
     '<button onclick="__menu.toMap()" style="margin-top:18px;background:linear-gradient(#f0c96a,#c9a24a);border:none;padding:14px 46px;font-family:Georgia,serif;font-size:18px;color:#1a1410;cursor:pointer;border-radius:6px;letter-spacing:2px;">🗺 НАЧАТЬ ПУТЬ</button>' +
     '<div style="display:flex;gap:10px;margin-top:6px;">' +
-    '<button onclick="__menu.deck()" style="background:transparent;border:1px solid #8a6a3a;padding:8px 18px;font-family:Georgia,serif;font-size:13px;color:#f0c96a;cursor:pointer;border-radius:6px;">🃏 Колода</button>' +
-    '<button onclick="__menu.museum()" style="background:transparent;border:1px solid #8a6a3a;padding:8px 18px;font-family:Georgia,serif;font-size:13px;color:#f0c96a;cursor:pointer;border-radius:6px;">🏺 Музей</button>' +
     '<button onclick="__menu.legend()" style="background:transparent;border:1px solid #8a6a3a;padding:8px 18px;font-family:Georgia,serif;font-size:13px;color:#f0c96a;cursor:pointer;border-radius:6px;">📜 Как играть</button>' +
     '<button onclick="__menu.reset()" style="background:transparent;border:1px solid #5a2a2a;padding:8px 18px;font-family:Georgia,serif;font-size:13px;color:#a06060;cursor:pointer;border-radius:6px;">♻ Сброс</button>' +
     '<button onclick="__menu.ach()" style="background:transparent;border:1px solid #8a6a3a;padding:8px 18px;font-family:Georgia,serif;font-size:13px;color:#f0c96a;cursor:pointer;border-radius:6px;">🏆 Титулы</button>' +
     '</div>' +
-    '<div style="color:#4a3a24;font-family:Georgia,serif;font-size:12px;margin-top:16px;">← → или мышь — платформа · C — колода · M — музей · H — свиток · Esc — меню · v1.0</div>';
-  window.__menu.deck = () => { hideOv(ov); window.toggleDeck && window.toggleDeck(game); };
-  window.__menu.museum = () => { hideOv(ov); window.toggleMuseum && window.toggleMuseum(game); };
+    '<div style="color:#4a3a24;font-family:Georgia,serif;font-size:12px;margin-top:16px;">← → или мышь — платформа · H — свиток · Esc — меню · v1.1</div>';
 }
-function hideOv(ov) { ov.style.display = 'none'; }
 
 function renderMap(game, ov) {
   let prog = { max: 1, best: 0 }; try { prog = JSON.parse(localStorage.getItem('agur_progress') || '{"max":1,"best":0}'); } catch (e) {}
@@ -109,25 +98,9 @@ function renderLegend(game, ov, first) {
   html += '<p style="color:#9a8a70;text-align:center;font-family:Georgia,serif;font-size:14px;max-width:600px;margin:0 auto 20px;">' + (first ? 'Добро пожаловать в Шумер! Отбивай мяч платформой и разбивай кирпичи. С неба падают круглые печати — лови их:' : 'Отбивай мяч, разбивай кирпичи, лови круглые печати:') + '</p>';
   html += row('↔', 'Широкая платформа', 'платформа становится шире — легче отбивать мяч', '#7dd3fc');
   html += row('❤', 'Жизнь', '+1 жизнь к твоим силам', '#fca5a5');
-  html += row('🏺', 'Осколок музея', 'открывает древность в Музее — твою коллекцию, смотри клавишей M', '#e8c98a');
-  html += row('🃏', 'Карта Судеб', 'ложится в Колоду — собранные карты дают силы, смотри клавишей C', '#d8b4fe');
-  html += row('', 'Знак клинописи', 'ловим знаки и собираем их в слова — собранное слово даёт награду', '#f8fafc');
+  html += row('', 'Знак клинописи', 'лови знаки и собирай их в слова — собранное слово даёт награду', '#f8fafc');
   html += '<div style="max-width:600px;margin:18px auto;background:rgba(0,0,0,0.3);border:1px solid #2a2010;border-radius:8px;padding:12px 16px;color:#9a8a70;font-family:Georgia,serif;font-size:12px;line-height:1.7;">' +
-    '<b style="color:#e8c98a;">Музей (M)</b> — твоя коллекция из 216 древностей Месопотамии.<br>' +
-    '<b style="color:#e8c98a;">Колода (C)</b> — 42 карты восьми мастей, каждая даёт силу.<br>' +
     '<b style="color:#e8c98a;">Слова</b> — клинописные надписи на поле, собирай их из знаков.</div>';
   html += '<div style="text-align:center;margin:24px 0;"><button onclick="__menu.closeLegend()" style="background:linear-gradient(#f0c96a,#c9a24a);border:none;padding:12px 40px;font-family:Georgia,serif;font-size:16px;color:#1a1410;cursor:pointer;border-radius:6px;">Понятно</button></div>';
   ov.innerHTML = html;
 }
-
-
-
-
-
-
-
-
-
-
-
-

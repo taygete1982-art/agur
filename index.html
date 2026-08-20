@@ -4,7 +4,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="description" content="АГУР — археологический арканоид по мотивам древней Месопотамии. 88 уровней, музей на 216 артефактов, колода судеб.">
+  <meta name="description" content="АГУР — археологический арканоид по мотивам древней Месопотамии. 12 уровней: раскопки, страж и бесконечный режим.">
   <meta name="theme-color" content="#1a1410">
   <meta property="og:title" content="АГУР">
   <meta property="og:description" content="Археологический арканоид по мотивам древней Месопотамии">
@@ -18,7 +18,7 @@
 <body>
   <div class="game-wrapper">
     <canvas id="gameCanvas" width="800" height="500"></canvas>
-    
+
     <div class="hud">
       <div class="hud-item">
         <span class="hud-label">&#129689; Счёт</span>
@@ -32,43 +32,16 @@
         <span class="hud-label">&#128167; Жизни</span>
         <span class="hud-value" id="livesDisplay">3</span>
       </div>
-      <button class="hud-item museum-btn" id="museumBtn">
-        <span class="hud-label">&#127994; Музей</span>
-        <span class="hud-value" id="museumCount">0</span>
-      </button>
     </div>
-    
-    <div class="hint" id="hintText">&#128433; Мышь / &#8592; &#8594; &#183; M = музей &#183; Клик для старта</div>
-  </div>
 
-  <div class="museum-overlay" id="museumOverlay">
-    <div class="museum-panel">
-      <div class="museum-header">
-        <span>&#127994; Музей AGUR</span>
-        <button id="museumClose" class="museum-close">&#10005;</button>
-      </div>
-      <div class="museum-sub">Редкие черепки выпадают из кирпичей. Собери все артефакты Шумера!</div>
-      <div class="museum-grid" id="museumContent"></div>
-    </div>
+    <div class="hint" id="hintText">&#128433; Мышь / &#8592; &#8594; &#183; H = свиток &#183; Клик для старта</div>
   </div>
 
   <div class="rotate-overlay">
     <div class="rotate-icon">&#128241;</div>
-    <div>Поверните телефон вертикально</div>
+    <div>Поверни телефон вертикально</div>
   </div>
 
-  <script type="module" src="js/main.js?v=202608200130"></script>
+  <script type="module" src="js/main.js?v=202608201443"></script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
