@@ -1,5 +1,5 @@
-import { CONFIG, randomRange } from '../config.js?v=202608210133';
-import { getBrickSprite } from './brickSprites.js?v=202608210133';
+import { CONFIG, randomRange } from '../config.js?v=202608210136';
+import { getBrickSprite } from './brickSprites.js?v=202608210136';
 
 const BIOME_PALETTES = [
   [{ base: '#c9a05a', glow: '#dcb878' }, { base: '#b4593a', glow: '#c97a52' }, { base: '#6a5a4a', glow: '#8a7a5c' }, { base: '#9c4a34', glow: '#b86a4a' }],
@@ -156,9 +156,8 @@ export class Brick {
       ctx.save();
       ctx.globalAlpha = alpha;
       ctx.fillStyle = c.base;
-      ctx.beginPath(); ctx.roundRect(this.x, this.y, this.width, this.height, 4); ctx.fill();
-      ctx.strokeStyle = c.glow; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.roundRect(this.x + 1, this.y + 1, this.width - 2, this.height - 2, 3); ctx.stroke();
+      if (this.type === 'bumper') { const cx = this.x + this.width/2, cy = this.y + this.height/2; ctx.beginPath(); ctx.arc(cx, cy, this.width/2, 0, 7); ctx.fill(); ctx.strokeStyle = c.glow; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, cy, this.width/2 - 1, 0, 7); ctx.stroke(); }
+      else { ctx.beginPath(); ctx.roundRect(this.x, this.y, this.width, this.height, 4); ctx.fill(); ctx.strokeStyle = c.glow; ctx.lineWidth = 2; ctx.beginPath(); ctx.roundRect(this.x + 1, this.y + 1, this.width - 2, this.height - 2, 3); ctx.stroke(); }
       const e = this.getEmoji();
       if (e) {
         ctx.fillStyle = '#f5e6c8';

@@ -1,32 +1,32 @@
 import '../systems/Safe.js';
-import { CONFIG, GAME_STATE } from '../config.js?v=202608210133';
-import { Paddle } from '../entities/Paddle.js?v=202608210133';
-import { ParticleSystem } from '../systems/Particles.js?v=202608210133';
-import { InputManager } from '../systems/Input.js?v=202608210133';
-import { CollisionSystem } from '../systems/Collision.js?v=202608210133';
-import { AudioManager } from '../systems/Audio.js?v=202608210133';
-import { LevelManager } from '../levels/LevelManager.js?v=202608210133';
-import { Effects } from '../systems/Effects.js?v=202608210133';
-import { Renderer } from '../systems/Renderer.js?v=202608210133';
-import { Background } from '../systems/Background.js?v=202608210133';
-import { Flow } from './Flow.js?v=202608210133';
-import { Combat } from './Combat.js?v=202608210133';
-import { Collect } from './Collect.js?v=202608210133';
-import { initMenu } from '../systems/Menu.js?v=202608210133';
-import { initBosses } from '../systems/Bosses.js?v=202608210133';
-import { initPolish } from '../systems/Polish.js?v=202608210133';
-import { initArtifact } from '../systems/Artifact.js?v=202608210133';
-import { initWalls } from '../systems/Walls.js?v=202608210133';
-import { initAchievements } from '../systems/Achievements.js?v=202608210133';
-import { initFun } from '../systems/Fun.js?v=202608210133';
-import { initPower } from '../systems/Power.js?v=202608210133';
-import { initUtukku } from '../systems/Utukku.js?v=202608210133';
-import { initEvents } from '../systems/Events.js?v=202608210133';
-import { initBiomes } from '../systems/Biomes.js?v=202608210133';
-import { initMusic } from '../systems/Music.js?v=202608210133';
-import { initRestore } from '../systems/Restore.js?v=202608210133';
-import { initVisual } from '../systems/Visual.js?v=202608210133';
-import { Enemies } from '../systems/Enemies.js?v=202608210133';
+import { CONFIG, GAME_STATE } from '../config.js?v=202608210136';
+import { Paddle } from '../entities/Paddle.js?v=202608210136';
+import { ParticleSystem } from '../systems/Particles.js?v=202608210136';
+import { InputManager } from '../systems/Input.js?v=202608210136';
+import { CollisionSystem } from '../systems/Collision.js?v=202608210136';
+import { AudioManager } from '../systems/Audio.js?v=202608210136';
+import { LevelManager } from '../levels/LevelManager.js?v=202608210136';
+import { Effects } from '../systems/Effects.js?v=202608210136';
+import { Renderer } from '../systems/Renderer.js?v=202608210136';
+import { Background } from '../systems/Background.js?v=202608210136';
+import { Flow } from './Flow.js?v=202608210136';
+import { Combat } from './Combat.js?v=202608210136';
+import { Collect } from './Collect.js?v=202608210136';
+import { initMenu } from '../systems/Menu.js?v=202608210136';
+import { initBosses } from '../systems/Bosses.js?v=202608210136';
+import { initPolish } from '../systems/Polish.js?v=202608210136';
+import { initArtifact } from '../systems/Artifact.js?v=202608210136';
+import { initWalls } from '../systems/Walls.js?v=202608210136';
+import { initAchievements } from '../systems/Achievements.js?v=202608210136';
+import { initFun } from '../systems/Fun.js?v=202608210136';
+import { initPower } from '../systems/Power.js?v=202608210136';
+import { initUtukku } from '../systems/Utukku.js?v=202608210136';
+import { initEvents } from '../systems/Events.js?v=202608210136';
+import { initBiomes } from '../systems/Biomes.js?v=202608210136';
+import { initMusic } from '../systems/Music.js?v=202608210136';
+import { initRestore } from '../systems/Restore.js?v=202608210136';
+import { initVisual } from '../systems/Visual.js?v=202608210136';
+import { Enemies } from '../systems/Enemies.js?v=202608210136';
 
 export class Game {
   constructor() {
@@ -275,13 +275,19 @@ export class Game {
           // Бампер: стандартный отскок + импульс + очки
           if (brick.type === 'bumper') {
             if (this.collision && this.collision.checkBrickCollision && this.collision.checkBrickCollision(ball, brick).hit) {
-              const spd = Math.sqrt(ball.dx*ball.dx + ball.dy*ball.dy) * 1.08;
-              const a = Math.atan2(ball.dy, ball.dx);
-              ball.dx = Math.cos(a) * spd; ball.dy = Math.sin(a) * spd;
+              const cx = brick.x + brick.width/2, cy = brick.y + brick.height/2;
+              let nx = ball.x - cx, ny = ball.y - cy;
+              const d = Math.sqrt(nx*nx + ny*ny) || 1; nx /= d; ny /= d;
+              const dot = ball.dx*nx + ball.dy*ny;
+              const spd = Math.sqrt(ball.dx*ball.dx + ball.dy*ball.dy) * 1.25;
+              ball.dx -= 2*dot*nx; ball.dy -= 2*dot*ny;
+              const s2 = Math.sqrt(ball.dx*ball.dx + ball.dy*ball.dy) || 1;
+              ball.dx = ball.dx/s2*spd; ball.dy = ball.dy/s2*spd;
+              ball.x = cx + nx*(brick.width/2 + ball.radius + 2); ball.y = cy + ny*(brick.height/2 + ball.radius + 2);
               this.score = (this.score || 0) + 25;
               this.audio && this.audio.brickBreak && this.audio.brickBreak();
-              this.particles && this.particles.explodeBrick && this.particles.explodeBrick(brick.x + brick.width/2, brick.y + brick.height/2, 15, 15, '#4aa2f1');
-              this.effects && this.effects.wave && this.effects.wave(brick.x + brick.width/2, brick.y + brick.height/2, '#4aa2f1');
+              this.particles && this.particles.explodeBrick && this.particles.explodeBrick(brick.x + brick.width/2, brick.y + brick.height/2, 15, 15, '#5aa89a');
+              this.effects && this.effects.wave && this.effects.wave(brick.x + brick.width/2, brick.y + brick.height/2, '#5aa89a');
               this.hitstop = 2;
             }
             continue;
@@ -322,13 +328,19 @@ export class Game {
           }
           if (brick.type === 'bumper') {
             if (this.collision && this.collision.checkBrickCollision && this.collision.checkBrickCollision(ball, brick).hit) {
-              const spd = Math.sqrt(ball.dx*ball.dx + ball.dy*ball.dy) * 1.08;
-              const a = Math.atan2(ball.dy, ball.dx);
-              ball.dx = Math.cos(a) * spd; ball.dy = Math.sin(a) * spd;
+              const cx = brick.x + brick.width/2, cy = brick.y + brick.height/2;
+              let nx = ball.x - cx, ny = ball.y - cy;
+              const d = Math.sqrt(nx*nx + ny*ny) || 1; nx /= d; ny /= d;
+              const dot = ball.dx*nx + ball.dy*ny;
+              const spd = Math.sqrt(ball.dx*ball.dx + ball.dy*ball.dy) * 1.25;
+              ball.dx -= 2*dot*nx; ball.dy -= 2*dot*ny;
+              const s2 = Math.sqrt(ball.dx*ball.dx + ball.dy*ball.dy) || 1;
+              ball.dx = ball.dx/s2*spd; ball.dy = ball.dy/s2*spd;
+              ball.x = cx + nx*(brick.width/2 + ball.radius + 2); ball.y = cy + ny*(brick.height/2 + ball.radius + 2);
               this.score = (this.score || 0) + 25;
               this.audio && this.audio.brickBreak && this.audio.brickBreak();
-              this.particles && this.particles.explodeBrick && this.particles.explodeBrick(brick.x + brick.width/2, brick.y + brick.height/2, 15, 15, '#4aa2f1');
-              this.effects && this.effects.wave && this.effects.wave(brick.x + brick.width/2, brick.y + brick.height/2, '#4aa2f1');
+              this.particles && this.particles.explodeBrick && this.particles.explodeBrick(brick.x + brick.width/2, brick.y + brick.height/2, 15, 15, '#5aa89a');
+              this.effects && this.effects.wave && this.effects.wave(brick.x + brick.width/2, brick.y + brick.height/2, '#5aa89a');
               this.hitstop = 2;
             }
             continue;

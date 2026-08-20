@@ -1,4 +1,4 @@
-import { CONFIG, GAME_STATE } from '../config.js?v=202608210133';
+import { CONFIG, GAME_STATE } from '../config.js?v=202608210136';
 
 export class Renderer {
   constructor(game) {
