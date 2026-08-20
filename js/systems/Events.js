@@ -46,7 +46,7 @@ const EVENTS = [
     if (!alive.length) return;
     const b = alive[Math.floor(Math.random() * alive.length)];
     b.isCaptive = true; try { b.color = '#86efac'; } catch (e) {}
-    if (game.showBanner) game.showBanner('🕊 Пленник!');
+    if (game.scoreFx && game.showBanner) game.showBanner('🕊 Пленник!');
     setTimeout(() => { b.isCaptive = false; }, 12000);
   },
   (game) => {
