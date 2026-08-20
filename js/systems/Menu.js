@@ -1,4 +1,4 @@
-import { LEVEL_NAMES } from './Progression.js?v=202608201558';
+import { LEVEL_NAMES } from './Progression.js?v=202608201601';
 
 export function initMenu(game) {
   const mk = (id, css) => {
@@ -67,7 +67,7 @@ function renderMenu(game, ov) {
     '<button onclick="__menu.legend()" style="background:transparent;border:1px solid #8a6a3a;padding:8px 18px;font-family:Georgia,serif;font-size:13px;color:#f0c96a;cursor:pointer;border-radius:6px;">📜 Как играть</button>' +
     '<button onclick="__menu.reset()" style="background:transparent;border:1px solid #5a2a2a;padding:8px 18px;font-family:Georgia,serif;font-size:13px;color:#a06060;cursor:pointer;border-radius:6px;">♻ Сброс</button>' +
     '<button onclick="__menu.ach()" style="background:transparent;border:1px solid #8a6a3a;padding:8px 18px;font-family:Georgia,serif;font-size:13px;color:#f0c96a;cursor:pointer;border-radius:6px;">🏆 Титулы</button>' +
-    '</div>' +
+    '</div>';
 }
 
 function renderMap(game, ov) {
