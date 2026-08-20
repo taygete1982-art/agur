@@ -1,7 +1,7 @@
-import { CONFIG } from '../config.js?v=202608210106';
-import { Brick, biomeColor } from '../entities/Brick.js?v=202608210106';
-import { LEVELS } from './levels.js?v=202608210106';
-import { Wall } from '../entities/Wall.js?v=202608210106';
+import { CONFIG } from '../config.js?v=202608210108';
+import { Brick, biomeColor } from '../entities/Brick.js?v=202608210108';
+import { LEVELS } from './levels.js?v=202608210108';
+import { Wall } from '../entities/Wall.js?v=202608210108';
 
 const COLS = 12; const ROWS = 18;
 
