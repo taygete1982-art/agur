@@ -1,7 +1,7 @@
-import { CONFIG } from '../config.js?v=202608210136';
-import { Brick, biomeColor } from '../entities/Brick.js?v=202608210136';
-import { LEVELS } from './levels.js?v=202608210136';
-import { Wall } from '../entities/Wall.js?v=202608210136';
+import { CONFIG } from '../config.js?v=202608210149';
+import { Brick, biomeColor } from '../entities/Brick.js?v=202608210149';
+import { LEVELS } from './levels.js?v=202608210149';
+import { Wall } from '../entities/Wall.js?v=202608210149';
 
 const COLS = 12; const ROWS = 18;
 
@@ -35,7 +35,6 @@ export class LevelManager {
         case 'M': b.setType('moving'); break;
         case 'W': b.setType('gate'); break;
         case 'X': b.setType('switch'); break;
-        case 'B': b.setType('bumper'); break;
         case 'P': b.setType('teleport'); b.teleportPair = 'Q'; break;
         case 'Q': b.setType('teleport'); b.teleportPair = 'P'; break;
         case '^': b.setType('oneway'); b.oneWayDir = 'up'; break;
@@ -56,7 +55,6 @@ export class LevelManager {
     this.bricks = bricks;
     this.aliveCount = bricks.filter(b => b.alive && !b.isSteel && b.hp !== Infinity).length;
     this.totalCount = this.aliveCount;
-    try { const vb = document.getElementById('verbadge'); if (vb) vb.textContent += ' | B:' + bricks.filter(b => b.type === 'bumper').length + ' T:' + bricks.length; } catch (e) {}
     return bricks;
   }
   isBoss(n) { const L = LEVELS[n - 1]; return !!(L && L.boss); }
