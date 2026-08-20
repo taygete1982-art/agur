@@ -1,32 +1,32 @@
 import '../systems/Safe.js';
-import { CONFIG, GAME_STATE } from '../config.js?v=202608210046';
-import { Paddle } from '../entities/Paddle.js?v=202608210046';
-import { ParticleSystem } from '../systems/Particles.js?v=202608210046';
-import { InputManager } from '../systems/Input.js?v=202608210046';
-import { CollisionSystem } from '../systems/Collision.js?v=202608210046';
-import { AudioManager } from '../systems/Audio.js?v=202608210046';
-import { LevelManager } from '../levels/LevelManager.js?v=202608210046';
-import { Effects } from '../systems/Effects.js?v=202608210046';
-import { Renderer } from '../systems/Renderer.js?v=202608210046';
-import { Background } from '../systems/Background.js?v=202608210046';
-import { Flow } from './Flow.js?v=202608210046';
-import { Combat } from './Combat.js?v=202608210046';
-import { Collect } from './Collect.js?v=202608210046';
-import { initMenu } from '../systems/Menu.js?v=202608210046';
-import { initBosses } from '../systems/Bosses.js?v=202608210046';
-import { initPolish } from '../systems/Polish.js?v=202608210046';
-import { initArchitectures } from '../systems/Architectures.js?v=202608210046';
-import { initWalls } from '../systems/Walls.js?v=202608210046';
-import { initAchievements } from '../systems/Achievements.js?v=202608210046';
-import { initFun } from '../systems/Fun.js?v=202608210046';
-import { initPower } from '../systems/Power.js?v=202608210046';
-import { initUtukku } from '../systems/Utukku.js?v=202608210046';
-import { initEvents } from '../systems/Events.js?v=202608210046';
-import { initBiomes } from '../systems/Biomes.js?v=202608210046';
-import { initMusic } from '../systems/Music.js?v=202608210046';
-import { initRestore } from '../systems/Restore.js?v=202608210046';
-import { initVisual } from '../systems/Visual.js?v=202608210046';
-import { Enemies } from '../systems/Enemies.js?v=202608210046';
+import { CONFIG, GAME_STATE } from '../config.js?v=202608210055';
+import { Paddle } from '../entities/Paddle.js?v=202608210055';
+import { ParticleSystem } from '../systems/Particles.js?v=202608210055';
+import { InputManager } from '../systems/Input.js?v=202608210055';
+import { CollisionSystem } from '../systems/Collision.js?v=202608210055';
+import { AudioManager } from '../systems/Audio.js?v=202608210055';
+import { LevelManager } from '../levels/LevelManager.js?v=202608210055';
+import { Effects } from '../systems/Effects.js?v=202608210055';
+import { Renderer } from '../systems/Renderer.js?v=202608210055';
+import { Background } from '../systems/Background.js?v=202608210055';
+import { Flow } from './Flow.js?v=202608210055';
+import { Combat } from './Combat.js?v=202608210055';
+import { Collect } from './Collect.js?v=202608210055';
+import { initMenu } from '../systems/Menu.js?v=202608210055';
+import { initBosses } from '../systems/Bosses.js?v=202608210055';
+import { initPolish } from '../systems/Polish.js?v=202608210055';
+import { initArchitectures } from '../systems/Architectures.js?v=202608210055';
+import { initWalls } from '../systems/Walls.js?v=202608210055';
+import { initAchievements } from '../systems/Achievements.js?v=202608210055';
+import { initFun } from '../systems/Fun.js?v=202608210055';
+import { initPower } from '../systems/Power.js?v=202608210055';
+import { initUtukku } from '../systems/Utukku.js?v=202608210055';
+import { initEvents } from '../systems/Events.js?v=202608210055';
+import { initBiomes } from '../systems/Biomes.js?v=202608210055';
+import { initMusic } from '../systems/Music.js?v=202608210055';
+import { initRestore } from '../systems/Restore.js?v=202608210055';
+import { initVisual } from '../systems/Visual.js?v=202608210055';
+import { Enemies } from '../systems/Enemies.js?v=202608210055';
 
 export class Game {
   constructor() {
@@ -98,7 +98,7 @@ export class Game {
     initRestore(this);
     initVisual(this);
     window.addEventListener('keydown', (e) => {
-      if (e.code === 'KeyN' && this.state === GAME_STATE.PLAYING) { this.loadLevel(Math.min(this.level + 1, 88)); this.resetBall(); }
+      if (e.code === 'KeyN' && this.state === GAME_STATE.PLAYING) { this.loadLevel(Math.min(this.level + 1, 12)); this.resetBall(); }
       if (e.code === 'KeyC') { window.toggleDeck && window.toggleDeck(this); }
       if (e.code === 'KeyM') { window.toggleMuseum && window.toggleMuseum(this); }
     });

@@ -62,6 +62,7 @@ function applyArchitecture(game, level) {
     const c = nearestIndex(cols, brick.x);
     if (r < R && c < C) byCell.set(r + ':' + c, brick);
   }
+  return; // legacy disabled forever
   const plan = buildPlan(level, R, C);
   const used = new Set();
   const assignments = [];
