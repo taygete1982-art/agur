@@ -1,4 +1,4 @@
-import { CONFIG, clamp } from '../config.js?v=202608210127';
+import { CONFIG, clamp } from '../config.js?v=202608210129';
 
 export class Paddle {
   constructor() {

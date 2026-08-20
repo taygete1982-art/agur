@@ -1,4 +1,4 @@
-import { CONFIG } from '../config.js?v=202608210127';
+import { CONFIG } from '../config.js?v=202608210129';
 
 export class CollisionSystem {
   constructor() {
