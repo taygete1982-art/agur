@@ -1,4 +1,4 @@
-import { CONFIG, clamp } from '../config.js?v=202608210129';
+import { CONFIG, clamp } from '../config.js?v=202608210133';
 
 export class Ball {
   constructor(x, y) {

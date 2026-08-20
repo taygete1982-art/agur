@@ -1,4 +1,4 @@
-﻿export function initWalls(game) {
+export function initWalls(game) {
   const get = () => (game.levelManager && game.levelManager.walls) || game.walls || [];
   const r = game.renderer;
   if (r && typeof r.draw === 'function' && !r.__wallsPatched) {
@@ -18,7 +18,7 @@
                 ctx.strokeStyle = c.glow; ctx.lineWidth = 2;
                 ctx.beginPath(); ctx.roundRect(b.x + 1, b.y + 1, b.width - 2, b.height - 2, 3); ctx.stroke();
                 const e = b.getEmoji ? b.getEmoji() : null;
-                if (e) { ctx.fillStyle = '#fff'; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(e, b.x + b.width / 2, b.y + b.height / 2); }
+                if (e) { ctx.fillStyle = '#f5e6c8'; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(e, b.x + b.width / 2, b.y + b.height / 2); }
                 ctx.restore();
               }
             }

@@ -1,5 +1,5 @@
-import { CONFIG, randomRange } from '../config.js?v=202608210129';
-import { getBrickSprite } from './brickSprites.js?v=202608210129';
+import { CONFIG, randomRange } from '../config.js?v=202608210133';
+import { getBrickSprite } from './brickSprites.js?v=202608210133';
 
 const BIOME_PALETTES = [
   [{ base: '#c9a05a', glow: '#dcb878' }, { base: '#b4593a', glow: '#c97a52' }, { base: '#6a5a4a', glow: '#8a7a5c' }, { base: '#9c4a34', glow: '#b86a4a' }],
@@ -118,12 +118,12 @@ export class Brick {
       case 'fire':      return { base: '#b3541e', glow: '#d98a3a' };
       case 'regen':     return { base: '#6a7a4a', glow: '#8a9a5a' };
       case 'moving':    return { base: '#3a4a5a', glow: '#5a6a7a' };
-      case 'bumper':    return { base: '#1a7ac9', glow: '#4aa2f1' };
-      case 'gate':      return { base: '#4a2a6a', glow: '#8a4ac0' };
-      case 'switch':    return { base: '#c94a1a', glow: '#f08040' };
-      case 'teleport':  return { base: '#8a4ac0', glow: '#c080f0' };
-      case 'oneway':    return { base: '#4a8a4a', glow: '#6ac06a' };
-      case 'timed':     return { base: '#6a4a2a', glow: '#a08060' };
+      case 'bumper':    return { base: '#2a6a62', glow: '#5aa89a' };
+      case 'gate':      return { base: '#3a2a4a', glow: '#7a5a9a' };
+      case 'switch':    return { base: '#a04a20', glow: '#e08040' };
+      case 'teleport':  return { base: '#2a4a6a', glow: '#5a8ab0' };
+      case 'oneway':    return { base: '#5a6a3a', glow: '#8a9a5a' };
+      case 'timed':     return { base: '#6a5a3a', glow: '#b09a6a' };
       case 'gold':      return { base: '#c98a1a', glow: '#e0b83a' };
       case 'clay':      return { base: '#cbb995', glow: '#e0d0b0' };
       case 'steel':     return { base: '#26262c', glow: '#4a4a52' };
@@ -161,7 +161,7 @@ export class Brick {
       ctx.beginPath(); ctx.roundRect(this.x + 1, this.y + 1, this.width - 2, this.height - 2, 3); ctx.stroke();
       const e = this.getEmoji();
       if (e) {
-        ctx.fillStyle = '#fff';
+        ctx.fillStyle = '#f5e6c8';
         ctx.font = 'bold 16px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
