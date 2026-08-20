@@ -1,4 +1,4 @@
-import { Game } from './game/Game.js?v=202608201609';
+import { Game } from './game/Game.js?v=202608201612';
 
 window.addEventListener('DOMContentLoaded', () => {
   new Game();
