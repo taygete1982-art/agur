@@ -1,5 +1,5 @@
-import { CONFIG, randomRange } from '../config.js?v=202608210110';
-import { getBrickSprite } from './brickSprites.js?v=202608210110';
+import { CONFIG, randomRange } from '../config.js?v=202608210113';
+import { getBrickSprite } from './brickSprites.js?v=202608210113';
 
 const BIOME_PALETTES = [
   [{ base: '#c9a05a', glow: '#dcb878' }, { base: '#b4593a', glow: '#c97a52' }, { base: '#6a5a4a', glow: '#8a7a5c' }, { base: '#9c4a34', glow: '#b86a4a' }],
@@ -135,7 +135,7 @@ export class Brick {
     }
   }
 
-  getEmoji() { var m = { moving: 'M', bumper: 'B', gate: 'W', switch: 'X', teleport: 'P', oneway: '>', timed: 't' }; return m[this.type] || null; }
+  getEmoji() { return { moving: 'M', bumper: 'B', gate: 'W', switch: 'X', teleport: 'P', oneway: '>', timed: 't' }[this.type] || null; }
 
   draw(ctx) {
     if (!this.alive) {
@@ -148,23 +148,37 @@ export class Brick {
       }
       return;
     }
+
+    // МЕХАНИКИ: рисуем БЕЗ спрайта, цветным прямоугольником с большой буквой
+    if (this.isMechanical()) {
+      const c = this.getColors();
+      const alpha = ((this.type === 'timed' && !this.timedSolid) || (this.type === 'gate' && this.gateOpen)) ? 0.3 : 1;
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = c.base;
+      ctx.beginPath(); ctx.roundRect(this.x, this.y, this.width, this.height, 4); ctx.fill();
+      ctx.strokeStyle = c.glow; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.roundRect(this.x + 1, this.y + 1, this.width - 2, this.height - 2, 3); ctx.stroke();
+      const e = this.getEmoji();
+      if (e) {
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 16px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = 'rgba(0,0,0,0.8)';
+        ctx.shadowBlur = 4;
+        ctx.fillText(e, this.x + this.width / 2, this.y + this.height / 2);
+      }
+      ctx.restore();
+      return;
+    }
+
+    // Обычные кирпичи: через спрайт
     ctx.save();
     const centerX = this.x + this.width / 2;
     const centerY = this.y + this.height / 2;
     ctx.translate(centerX, centerY); ctx.scale(this.scale, this.scale); ctx.translate(-centerX, -centerY);
     if (this.isBreaking) ctx.globalAlpha = 1 - this.breakProgress;
-
-    if (this.isMechanical()) {
-      const c = this.getColors();
-      if ((this.type === 'timed' && !this.timedSolid) || (this.type === 'gate' && this.gateOpen)) ctx.globalAlpha = 0.2;
-      ctx.drawImage(getBrickSprite(c, this.width, this.height, this.type), this.x - 4, this.y - 4);
-      ctx.strokeStyle = c.glow; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.roundRect(this.x - 1, this.y - 1, this.width + 2, this.height + 2, 4); ctx.stroke();
-      const e = this.getEmoji();
-      if (e) { ctx.fillStyle = '#fff'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(e, centerX, centerY); }
-      ctx.restore();
-      return;
-    }
 
     ctx.drawImage(getBrickSprite(this.getColors(), this.width, this.height, this.type), this.x - 4, this.y - 4);
 
