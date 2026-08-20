@@ -1,5 +1,5 @@
-import { LevelManager } from '../levels/LevelManager.js?v=202608201642';
-import { T } from '../levels/Layouts88.js?v=202608201642';
+import { LevelManager } from '../levels/LevelManager.js?v=202608201644';
+import { T } from '../levels/Layouts88.js?v=202608201644';
 
 export class Game {
     constructor(canvas) {
