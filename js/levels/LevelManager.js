@@ -1,9 +1,9 @@
-import { CONFIG } from '../config.js?v=202608210038';
-import { Brick, biomeColor } from '../entities/Brick.js?v=202608210038';
-import { LEVELS } from './Layouts88.js?v=202608210038';
-import { V2LEVELS } from '../levels_v2/v2levels.js?v=202608210038';
-import { Wall } from '../entities/Wall.js?v=202608210038';
-import { V2, initV2Loader } from './LevelLoaderV2.js?v=202608210038';
+import { CONFIG } from '../config.js?v=202608210043';
+import { Brick, biomeColor } from '../entities/Brick.js?v=202608210043';
+import { LEVELS } from './Layouts88.js?v=202608210043';
+import { V2LEVELS } from '../levels_v2/v2levels.js?v=202608210043';
+import { Wall } from '../entities/Wall.js?v=202608210043';
+import { V2, initV2Loader } from './LevelLoaderV2.js?v=202608210043';
 const COLS = 12; const ROWS = 18;
 export const BIOMES = [ { name: 'Пески' } ];
 export class LevelManager {
@@ -26,7 +26,7 @@ export class LevelManager {
         case 'C': b.setType('clay'); break;
         case 'S': b.setType('silver'); break;
         case 'G': b.setType('gold'); break;
-        case '#': case 'T': b.setType('steel'); this.walls.push(new Wall(offX + x*step, offY + r*(CONFIG.BRICK.HEIGHT+4), CONFIG.BRICK.WIDTH, CONFIG.BRICK.HEIGHT));
+        case '#': case 'T': b.setType('steel'); this.walls.push(new Wall(offX + x*step, offY + r*(CONFIG.BRICK.HEIGHT+4), CONFIG.BRICK.WIDTH, CONFIG.BRICK.HEIGHT)); break;
         case 'E': b.setType('explosive'); break;
         case 'F': b.setType('fire'); break;
         case 'R': b.setType('regen'); break;

@@ -1,32 +1,32 @@
 import '../systems/Safe.js';
-import { CONFIG, GAME_STATE } from '../config.js?v=202608210038';
-import { Paddle } from '../entities/Paddle.js?v=202608210038';
-import { ParticleSystem } from '../systems/Particles.js?v=202608210038';
-import { InputManager } from '../systems/Input.js?v=202608210038';
-import { CollisionSystem } from '../systems/Collision.js?v=202608210038';
-import { AudioManager } from '../systems/Audio.js?v=202608210038';
-import { LevelManager } from '../levels/LevelManager.js?v=202608210038';
-import { Effects } from '../systems/Effects.js?v=202608210038';
-import { Renderer } from '../systems/Renderer.js?v=202608210038';
-import { Background } from '../systems/Background.js?v=202608210038';
-import { Flow } from './Flow.js?v=202608210038';
-import { Combat } from './Combat.js?v=202608210038';
-import { Collect } from './Collect.js?v=202608210038';
-import { initMenu } from '../systems/Menu.js?v=202608210038';
-import { initBosses } from '../systems/Bosses.js?v=202608210038';
-import { initPolish } from '../systems/Polish.js?v=202608210038';
-import { initArchitectures } from '../systems/Architectures.js?v=202608210038';
-import { initWalls } from '../systems/Walls.js?v=202608210038';
-import { initAchievements } from '../systems/Achievements.js?v=202608210038';
-import { initFun } from '../systems/Fun.js?v=202608210038';
-import { initPower } from '../systems/Power.js?v=202608210038';
-import { initUtukku } from '../systems/Utukku.js?v=202608210038';
-import { initEvents } from '../systems/Events.js?v=202608210038';
-import { initBiomes } from '../systems/Biomes.js?v=202608210038';
-import { initMusic } from '../systems/Music.js?v=202608210038';
-import { initRestore } from '../systems/Restore.js?v=202608210038';
-import { initVisual } from '../systems/Visual.js?v=202608210038';
-import { Enemies } from '../systems/Enemies.js?v=202608210038';
+import { CONFIG, GAME_STATE } from '../config.js?v=202608210043';
+import { Paddle } from '../entities/Paddle.js?v=202608210043';
+import { ParticleSystem } from '../systems/Particles.js?v=202608210043';
+import { InputManager } from '../systems/Input.js?v=202608210043';
+import { CollisionSystem } from '../systems/Collision.js?v=202608210043';
+import { AudioManager } from '../systems/Audio.js?v=202608210043';
+import { LevelManager } from '../levels/LevelManager.js?v=202608210043';
+import { Effects } from '../systems/Effects.js?v=202608210043';
+import { Renderer } from '../systems/Renderer.js?v=202608210043';
+import { Background } from '../systems/Background.js?v=202608210043';
+import { Flow } from './Flow.js?v=202608210043';
+import { Combat } from './Combat.js?v=202608210043';
+import { Collect } from './Collect.js?v=202608210043';
+import { initMenu } from '../systems/Menu.js?v=202608210043';
+import { initBosses } from '../systems/Bosses.js?v=202608210043';
+import { initPolish } from '../systems/Polish.js?v=202608210043';
+import { initArchitectures } from '../systems/Architectures.js?v=202608210043';
+import { initWalls } from '../systems/Walls.js?v=202608210043';
+import { initAchievements } from '../systems/Achievements.js?v=202608210043';
+import { initFun } from '../systems/Fun.js?v=202608210043';
+import { initPower } from '../systems/Power.js?v=202608210043';
+import { initUtukku } from '../systems/Utukku.js?v=202608210043';
+import { initEvents } from '../systems/Events.js?v=202608210043';
+import { initBiomes } from '../systems/Biomes.js?v=202608210043';
+import { initMusic } from '../systems/Music.js?v=202608210043';
+import { initRestore } from '../systems/Restore.js?v=202608210043';
+import { initVisual } from '../systems/Visual.js?v=202608210043';
+import { Enemies } from '../systems/Enemies.js?v=202608210043';
 
 export class Game {
   constructor() {
@@ -303,7 +303,7 @@ export class Game {
           // Телепорт: переместить к парному
           if (brick.type === 'teleport' && brick.teleportPair) {
             if (this.collision && this.collision.checkBrickCollision && this.collision.checkBrickCollision(ball, brick).hit) {
-              const pair = this.bricks.find(o => o !== brick && o.type === 'teleport' && o.teleportPair === brick.type && o.alive);
+              const pair = this.bricks.find(o => o !== brick && o.type === 'teleport' && o.alive);
               if (pair) {
                 ball.x = pair.x + pair.width / 2;
                 ball.y = pair.y + pair.height / 2 + (ball.dy > 0 ? 20 : -20);
@@ -345,7 +345,7 @@ export class Game {
           }
           if (brick.type === 'teleport' && brick.teleportPair) {
             if (this.collision && this.collision.checkBrickCollision && this.collision.checkBrickCollision(ball, brick).hit) {
-              const pair = this.bricks.find(o => o !== brick && o.type === 'teleport' && o.teleportPair === brick.type && o.alive);
+              const pair = this.bricks.find(o => o !== brick && o.type === 'teleport' && o.alive);
               if (pair) {
                 ball.x = pair.x + pair.width / 2;
                 ball.y = pair.y + pair.height / 2 + (ball.dy > 0 ? 20 : -20);
